@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head')%>
+    <title>Write Post</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fcfaf7; /* Warm paper color */
+            --accent-color: #2d3e50; /* Deep Slate */
+            --text-main: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .blog-header {
+            font-family: 'DM Serif Display', serif;
+            font-size: 3.5rem;
+            color: var(--accent-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .write-container {
+            max-width: 850px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        /* Cleanest input style: Focus on the text */
+        .title-input {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.5rem;
+            border: none;
+            border-left: 3px solid #dee2e6;
+            background: transparent;
+            padding-left: 20px;
+            margin-bottom: 30px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .title-input:focus {
+            border-left-color: var(--accent-color);
+        }
+
+        .meta-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #888;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .content-area {
+            background: #fff;
+            border: 1px solid #e1e1e1;
+            border-radius: 4px;
+            padding: 25px;
+            font-size: 1.1rem;
+            min-height: 400px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .file-custom {
+            background: #eee;
+            padding: 15px;
+            border-radius: 4px;
+            border: 1px dashed #ccc;
+            margin-bottom: 30px;
+        }
+
+        .btn-publish {
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 14px 40px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            border-radius: 2px;
+            transition: opacity 0.3s;
+        }
+
+        .btn-publish:hover {
+            opacity: 0.9;
+            color: #666565;
+        }
+
+        /* Remove default bootstrap focus rings */
+        .form-control:focus {
+            box-shadow: none;
+            border-color: #ced4da;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('./partials/nav')%>
+
+    <div class="write-container">
+        <form action="/blog" method="post" enctype="multipart/form-data">
+            
+            <header class="mb-5">
+                <h1 class="blog-header">Draft.</h1>
+                <p class="text-muted">Fill in the details to create a new story.</p>
+            </header>
+
+            <input type="text" 
+                   class="title-input" 
+                   id="title" 
+                   name="title" 
+                   placeholder="Enter story title..." 
+                   required>
+
+            <div class="row mt-4">
+                <div class="col-md-4">
+                    <div class="mb-4">
+                        <label class="meta-label">Cover Visual</label>
+                        <div class="file-custom">
+                            <input type="file" class="form-control-file" id="coverImage" name="coverImage">
+                        </div>
+                    </div>
+                    
+                    <div class="d-none d-md-block">
+                        <label class="meta-label">Tips</label>
+                        <p class="small text-muted">Use a high-quality header image to grab attention. Keep your title concise but powerful.</p>
+                    </div>
+                </div>
+
+                <div class="col-md-8">
+                    <label class="meta-label">Article Body</label>
+                    <textarea 
+                        name="body" 
+                        class="form-control content-area" 
+                        id="body" 
+                        placeholder="Once upon a time..."></textarea>
+                    
+                    <div class="mt-4 text-end">
+                        <button class="btn-publish" type="submit">Publish Story</button>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+    </div>
+
+    <%- include('./partials/script')%>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<nav class="navbar navbar-expand-lg sticky-top shadow-sm" style="background-color: #2d3e50; padding: 12px 0; border-bottom: 2px solid rgba(255,255,255,0.05);">
+  <div class="container">
+    <a class="navbar-brand" href="/" style="font-family: 'DM Serif Display', serif; font-size: 1.9rem; color: #ffffff; font-weight: 700; letter-spacing: -0.5px;">
+      Blogify<span style="color: #fcfaf7; opacity: 0.6;">.</span>
+    </a>
+
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation" style="border: none; filter: invert(1);">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav ms-auto align-items-center">
+        
+        <li class="nav-item">
+          <a class="nav-link px-3" href="/" style="color: rgba(252, 250, 247, 0.8); font-weight: 500; font-size: 0.9rem;">Home</a>
+        </li>
+
+        <% if (locals.user) { %>
+          <li class="nav-item">
+            <a class="nav-link px-3" href="/blog/add-new" style="color: rgba(252, 250, 247, 0.8); font-weight: 500; font-size: 0.9rem;">Add Blog</a>
+          </li>
+
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle px-3" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #ffffff; font-weight: 600; font-size: 0.9rem;">
+              
+              <% if (locals.user.profileImageURL && locals.user.profileImageURL !== "") { %>
+                <img src="<%= locals.user.profileImageURL %>" alt="user" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 8px; border: 1.5px solid rgba(255,255,255,0.2); object-fit: cover;">
+              <% } else { %>
+                <img src="https://ui-avatars.com/api/?name=<%= locals.user.fullName %>&background=fcfaf7&color=2d3e50" alt="user" style="width: 30px; height: 30px; border-radius: 50%; margin-right: 8px; border: 1.5px solid rgba(255,255,255,0.2);">
+              <% } %>
+
+              <%= locals.user.fullName %>
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0" style="background-color: #ffffff; margin-top: 15px; border-radius: 10px;">
+              <li><a class="dropdown-item py-2" href="/user/<%= user._id %>" style="color: #2d3e50; font-size: 0.85rem; font-weight: 500;">View Profile</a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item py-2 text-danger fw-bold" href="/user/logout" style="font-size: 0.85rem;">Log Out</a></li>
+            </ul>
+          </li>
+
+        <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link px-3" href="/user/signin" style="color: rgba(252, 250, 247, 0.8); font-weight: 500; font-size: 0.9rem;">Sign In</a>
+          </li>
+          <li class="nav-item ms-lg-3">
+            <a class="nav-link btn px-4 rounded-pill" href="/user/signup" style="background-color: #fcfaf7; color: #2d3e50; font-size: 0.85rem; font-weight: 700; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+               Get Started
+            </a>
+          </li>
+        <% } %>
+      </ul>
+    </div>
+  </div>
+</nav>

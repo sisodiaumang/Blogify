@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head')%>
+    <title><%= blog.title %></title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fcfaf7;
+            --accent-color: #2d3e50;
+            --text-main: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.8;
+        }
+
+        .blog-container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        .blog-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 3.5rem;
+            color: var(--accent-color);
+            line-height: 1.1;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .cover-image-container {
+            margin-bottom: 3rem;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        .cover-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .blog-content {
+            font-size: 1.25rem;
+            color: #333;
+            white-space: pre-wrap;
+            margin-bottom: 60px;
+        }
+
+        /* --- Profile Card Styling --- */
+        .author-card {
+            background: #fff;
+            border: 1px solid #eee;
+            border-radius: 12px;
+            padding: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 50px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+
+        .author-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--bg-color);
+        }
+
+        .author-info h4 {
+            margin: 0;
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+            color: var(--accent-color);
+        }
+
+        .author-info p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .author-tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: #999;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .blog-title { font-size: 2.5rem; }
+            .author-card { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('./partials/nav')%>
+
+    <article class="blog-container">
+        <h1 class="blog-title"><%= blog.title %></h1>
+        
+        <div class="text-center mb-4 text-muted small text-uppercase fw-bold" style="letter-spacing: 1px;">
+            Published Article
+        </div>
+
+        <% if (blog.coverImageURL) { %>
+            <div class="cover-image-container">
+                <img src="<%= blog.coverImageURL %>" alt="<%= blog.title %>" class="cover-image" />
+            </div>
+        <% } %>
+
+        <div class="blog-content">
+            <%= blog.body %>
+        </div>
+
+        <div class="author-card">
+    <% if (blog.createdBy.profileImageURL && blog.createdBy.profileImageURL !== "") { %>
+        <img src="<%= blog.createdBy.profileImageURL %>" alt="<%= blog.createdBy.fullName %>" class="author-avatar">
+    <% } else { %>
+        <img src="https://ui-avatars.com/api/?name=<%= blog.createdBy.fullName %>&background=2d3e50&color=fff" 
+             alt="<%= blog.createdBy.fullName %>" class="author-avatar">
+    <% } %>
+    
+    <div class="author-info">
+        <span class="author-tag">Written By</span>
+        <h4><%= blog.createdBy.fullName %></h4>
+        <p>An explorer of ideas and a storyteller at heart.</p>
+    </div>
+</div>
+
+        <div class="text-center mt-5">
+            <a href="/" class="btn btn-outline-dark btn-sm rounded-pill px-4">Back to Feed</a>
+        </div>
+    </article>
+
+    <%- include('./partials/script')%>
+</body>
+</html>

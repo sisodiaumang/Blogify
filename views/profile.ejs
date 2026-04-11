@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head')%>
+    <title><%= user.fullName %> | Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+    <style>
+        :root {
+            --bg-color: #fcfaf7;
+            --accent-color: #2d3e50;
+            --text-main: #1a1a1a;
+            --border-color: #e5e0d8;
+            --danger-red: #d85c5c;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+        }
+
+        .profile-container {
+            max-width: 800px;
+            margin: 60px auto;
+            padding: 0 20px;
+        }
+
+        /* --- Profile Header --- */
+        .profile-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .avatar-wrapper {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 25px;
+            cursor: pointer;
+        }
+
+        .profile-avatar {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .avatar-edit-hint {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .avatar-wrapper:hover .avatar-edit-hint { opacity: 1; }
+        .avatar-wrapper:hover .profile-avatar { filter: blur(1px); }
+
+        .profile-name {
+            font-family: 'DM Serif Display', serif;
+            font-size: 3.5rem;
+            color: var(--accent-color);
+            margin-bottom: 5px;
+            letter-spacing: -1px;
+        }
+
+        .archive-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            color: #a0a0a0;
+            display: block;
+        }
+
+        /* --- Settings Form --- */
+        #edit-form-container {
+            max-width: 450px;
+            margin: 0 auto 50px auto;
+            display: none;
+            background: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .form-control-custom {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-save {
+            background: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 50px;
+            font-weight: 600;
+            width: 100%;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-save:hover { background: #1a2633; }
+
+        /* --- Article Cards --- */
+        .article-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 40px 0;
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .article-info { flex: 1; padding-right: 40px; }
+
+        .article-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.85rem;
+            color: var(--text-main);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 12px;
+            line-height: 1.2;
+        }
+
+        .article-title:hover { color: var(--accent-color); }
+
+        .article-actions { display: flex; gap: 20px; margin-top: 15px; }
+
+        .action-link {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            cursor: pointer;
+            background: none;
+            border: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .edit-link { color: var(--accent-color); }
+        .delete-trigger { color: var(--danger-red); }
+
+        .article-img {
+            width: 140px;
+            height: 140px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+
+        /* --- GLASSMORPHISM DELETE SLIDER --- */
+        .delete-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-color: rgba(45, 62, 80, 0.96); 
+            backdrop-filter: blur(8px);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            transform: translateX(100%);
+            transition: transform 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+            z-index: 10;
+        }
+
+        .delete-overlay.active { transform: translateX(0); }
+
+        .overlay-text {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.5rem;
+        }
+
+        .overlay-btns { display: flex; gap: 15px; }
+
+        .btn-cancel-overlay {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            cursor: pointer;
+        }
+
+        .btn-confirm-overlay {
+            background: var(--danger-red);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 50px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            box-shadow: 0 4px 15px rgba(216, 92, 92, 0.4);
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('./partials/nav')%>
+
+    <div class="profile-container">
+        <header class="profile-header">
+            <div class="avatar-wrapper" onclick="toggleEditForm()">
+                <% if (user.profileImageURL && user.profileImageURL !== "") { %>
+                    <img src="<%= user.profileImageURL %>" alt="Profile" class="profile-avatar">
+                <% } else { %>
+                    <img src="https://ui-avatars.com/api/?name=<%= user.fullName %>&background=2d3e50&color=fff&size=250"
+                         alt="Profile" class="profile-avatar">
+                <% } %>
+                <div class="avatar-edit-hint">
+                    <i class="bi bi-camera-fill fs-3"></i>
+                </div>
+            </div>
+
+            <h1 class="profile-name"><%= user.fullName %></h1>
+
+            <div class="mb-4">
+                <button class="action-link edit-link mx-auto" onclick="toggleEditForm()">
+                    <i class="bi bi-gear"></i> Account Settings
+                </button>
+            </div>
+
+            <span class="archive-label">
+                Archive — <%= blogs.length %> Stories
+            </span>
+        </header>
+
+        <div id="edit-form-container">
+            <form action="/user/update-profile?_method=PATCH" method="POST" enctype="multipart/form-data">
+                <label class="small fw-bold text-muted text-uppercase mb-2 d-block">Full Name</label>
+                <input type="text" name="fullName" value="<%= user.fullName %>" class="form-control-custom" required>
+
+                <label class="small fw-bold text-muted text-uppercase mb-2 d-block">Change Profile Picture</label>
+                <input type="file" name="profileImage" class="form-control-custom">
+
+                <button type="submit" class="btn-save mt-2">Update Profile</button>
+                <button type="button" class="btn btn-link btn-sm w-100 mt-2 text-muted text-decoration-none"
+                    onclick="toggleEditForm()">Cancel</button>
+            </form>
+        </div>
+
+        <div class="archive-list">
+            <% if (blogs && blogs.length > 0) { %>
+                <% blogs.forEach(blog => { %>
+                    <div class="article-card" id="card-<%= blog._id %>">
+                        
+                        <div class="delete-overlay" id="overlay-<%= blog._id %>">
+                            <span class="overlay-text">Delete this story?</span>
+                            <div class="overlay-btns">
+                                <button class="btn-cancel-overlay" onclick="toggleDelete('<%= blog._id %>')">Keep Story</button>
+                                <form action="/blog/delete/<%= blog._id %>?_method=DELETE" method="POST">
+                                    <button type="submit" class="btn-confirm-overlay">Confirm Delete</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="article-info">
+                            <a href="/blog/<%= blog._id %>" class="article-title"><%= blog.title %></a>
+                            <p style="color: #666; font-size: 0.95rem; line-height: 1.6;">
+                                <%= blog.body.substring(0, 140) %>...
+                            </p>
+
+                            <div class="article-actions">
+                                <a href="/blog/edit/<%= blog._id %>" class="action-link edit-link">
+                                    <i class="bi bi-pencil-square"></i> Edit
+                                </a>
+                                <button class="action-link delete-trigger" onclick="toggleDelete('<%= blog._id %>')">
+                                    <i class="bi bi-trash3"></i> Delete
+                                </button>
+                            </div>
+                        </div>
+
+                        <% if (blog.coverImageURL) { %>
+                            <img src="<%= blog.coverImageURL %>" alt="Cover" class="article-img">
+                        <% } %>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <p class="text-muted mb-4">Your archive is empty.</p>
+                    <a href="/blog/add-new" class="btn-save text-decoration-none px-5">Write your first post</a>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+        function toggleDelete(id) {
+            document.getElementById('overlay-' + id).classList.toggle('active');
+        }
+
+        function toggleEditForm() {
+            const form = document.getElementById('edit-form-container');
+            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+        }
+    </script>
+
+    <%- include('./partials/script')%>
+</body>
+
+</html>
