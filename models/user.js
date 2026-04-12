@@ -28,6 +28,12 @@ const userSchema = new Schema({
     profileImagePublicId:{
         type:String,
     },
+    otp:{
+        type:Number,
+    },
+    otpCreatedAt:{
+        type:Date
+    },
     role:{
         type:String,
         enum:['USER','ADMIN'],

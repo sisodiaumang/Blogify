@@ -1,11 +1,16 @@
+const validator = require("validator");
 const { Router } = require("express");
 const path = require("path");
+const crypto = require("crypto");
+
 
 const User = require("../models/user");
 const Blog = require("../models/blog");
 const multer = require("multer");
-const { uploadOnCloudinary,deleteCloudinary } = require("../services/cloudinary");
-const {createTokenForUser} = require("../services/authentication")
+const { uploadOnCloudinary, deleteCloudinary } = require("../services/cloudinary");
+const { createTokenForUser } = require("../services/authentication");
+const generateOTP = require("../services/otpGenerator");
+const {sendOTP,sendWelcomeEmail} = require("../services/nodeMailer");
 
 
 const router = Router();
@@ -52,11 +57,16 @@ router.get('/signup', (req, res) => {
 
 router.post('/signup', async (req, res) => {
     const { fullName, email, password } = req.body;
+    if (!validator.isEmail(email)) {
+        return res.status(400).render("signup", { error: "Enter an Valid email" });
+    }
+
     await User.create({
         fullName,
         email,
-        password
+        password,
     });
+    await sendWelcomeEmail(email,fullName);
     return res.redirect("/");
 });
 
@@ -65,6 +75,84 @@ router.get('/logout', (req, res) => {
     res.clearCookie("token");
     return res.redirect('/');
 })
+
+router.get("/forgot-password", (req, res) => {
+    return res.render("forgotPassword");
+});
+router.post("/forgot-password", async (req, res) => {
+    const { email } = req.body;
+    const user = await User.findOne({ email: `${email}` });
+    if (!user) {
+        return res.render("forgetPassword", { error: "Account does not exist" });
+    }
+    const otp = crypto.randomInt(100000, 1000000);
+    user.otp = otp;
+    user.otpCreatedAt = Date.now();
+    await user.save();
+    await sendOTP(email, otp);
+    return res.render("verifyOtp", {
+        otpCreatedAt: user.otpCreatedAt.getTime()
+    });
+});
+
+router.post("/verifyOtp", async (req, res) => {
+    const { otp } = req.body;
+
+    const user = await User.findOne({ otp: otp });
+
+    if (!user) {
+        return res.render("verifyOtp", {
+            error: "Invalid OTP",
+            otpCreatedAt: Date.now() 
+        });
+    }
+
+    const createdTime = user.otpCreatedAt.getTime();
+    const expiryTime = createdTime + 5 * 60 * 1000;
+
+    if (Date.now() > expiryTime) {
+        return res.render("verifyOtp", { 
+            error: "OTP expired", 
+            otpCreatedAt: createdTime 
+        });
+    }
+
+    return res.redirect(`/user/resetPassword/${user.otp}`);
+});
+
+router.get("/resetPassword/:otp", (req, res) => {
+    res.render("resetPassword", {
+        otp: req.params.otp
+    });
+});
+
+router.post("/resetPassword/:otp", async (req, res) => {
+    const { password, confirmPassword } = req.body;
+    if (!password || !confirmPassword) {
+        return res.render("resetPassword", { error: "Password can not be empty" });
+    }
+
+    if (password !== confirmPassword) {
+        return res.render("resetPassword", { error: "Password and Confirm password are not same" });
+    }
+    const user = await User.findOne({ otp: req.params.otp });
+    if (!user) {
+        console.log("User not found");
+    }
+    user.password = confirmPassword;
+    user.otp=undefined;
+    await user.save();
+    return res.redirect("/user/signin");
+})
+
+router.get("/settings", (req, res) => {
+    // req.user is provided by your auth middleware
+    if (!req.user) return res.redirect("/user/signin");
+    
+    return res.render("accountSetting", {
+        user: req.user
+    });
+});
 
 router.get("/:id", async (req, res) => {
     try {
@@ -84,27 +172,40 @@ router.get("/:id", async (req, res) => {
 
 router.patch("/update-profile", upload.single("profileImage"), async (req, res) => {
     const { fullName } = req.body;
-
     const user = await User.findById(req.user._id);
 
     user.fullName = fullName;
-    if(user.profileImagePublicId){
-        deleteCloudinary(user.profileImagePublicId);
-    }
+    
     if (req.file) {
+        if (user.profileImagePublicId) await deleteCloudinary(user.profileImagePublicId);
         const result = await uploadOnCloudinary(`./public/uploads/${req.file.filename}`);
         user.profileImageURL = result.secure_url;
         user.profileImagePublicId = result.public_id;
     }
+    
     await user.save();
-    const newToken = createTokenForUser(user);
-    res.cookie("token", newToken, {
-        httpOnly: true
-    });
 
-    res.redirect(`/user/${user._id}`);
+    const newToken = createTokenForUser(user);
+    res.cookie("token", newToken).redirect("/user/settings");
 });
 
+router.delete("/delete-account", async (req, res) => {
+    const userId = req.user._id;
+    const user = await User.findById(userId);
+
+    // Remove Profile Image from Cloudinary
+    if (user.profileImagePublicId) await deleteCloudinary(user.profileImagePublicId);
+
+    // Find and delete all blogs by this user (and their images)
+    const userBlogs = await Blog.find({ createdBy: userId });
+    for (const blog of userBlogs) {
+        if (blog.coverImagePublicId) await deleteCloudinary(blog.coverImagePublicId);
+        await Blog.findByIdAndDelete(blog._id);
+    }
+
+    await User.findByIdAndDelete(userId);
+    res.clearCookie("token").redirect("/user/signup");
+});
 
 
 

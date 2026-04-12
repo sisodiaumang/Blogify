@@ -52,3 +52,17 @@
     </div>
   </div>
 </nav>
+
+<% if (locals.error) { %>
+  <div class="position-fixed bottom-0 start-50 translate-middle-x mb-4" style="z-index: 2000;">
+    <div class="alert shadow-lg border-0 d-flex align-items-center" role="alert" 
+         style="border-radius: 50px; padding: 12px 30px; background-color: #d85c5c; color: #ffffff; font-size: 0.9rem;">
+      
+      <i class="bi bi-exclamation-circle-fill me-2" style="color: #ffffff;"></i>
+      
+      <span style="font-weight: 500;"><%= locals.error %></span>
+      
+      <button type="button" class="btn-close btn-close-white ms-3" data-bs-dismiss="alert" aria-label="Close" style="font-size: 0.6rem;"></button>
+    </div>
+  </div>
+<% } %>

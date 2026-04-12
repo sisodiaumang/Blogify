@@ -2,6 +2,8 @@ const { Router } = require("express");
 const multer= require("multer");
 const path = require("path");
 const fs = require("fs");
+const { marked } = require("marked");
+
 
 const Blog = require("../models/blog");
 const { uploadOnCloudinary,deleteCloudinary } = require("../services/cloudinary");
@@ -34,10 +36,14 @@ router.get("/add-new",(req,res)=>{
 
 router.get("/:id",async (req,res) => {
     const blog = await Blog.findById(req.params.id).populate("createdBy", "fullName profileImageURL");
-    return res.render("blog",{
-        user:req.user,
+    const htmlContent = marked(blog.body);
+
+    return res.render("blog", {
         blog,
-    })
+        htmlContent,
+        user:req.user,
+
+    });
 })
 
 router.post("/",upload.single("coverImage"),async (req,res)=>{

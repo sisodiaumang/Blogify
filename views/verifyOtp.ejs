@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head')%>
+    <title>Verify OTP | Blogify</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fcfaf7;
+            --accent-color: #2d3e50;
+            --text-main: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .auth-wrapper {
+            display: flex;
+            flex-grow: 1;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 400px;
+            background: #ffffff;
+            padding: 45px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
+            border: 1px solid #eee;
+        }
+
+        .auth-header {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.2rem;
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 12px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 35px;
+            line-height: 1.5;
+        }
+
+        .form-label {
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+            color: #666;
+            margin-bottom: 15px;
+            display: block;
+            text-align: center;
+        }
+
+        .otp-input {
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 14px;
+            background-color: #f9f9f9;
+            width: 100%;
+            outline: none;
+            text-align: center;
+            letter-spacing: 12px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .otp-input:focus {
+            background-color: #fff;
+            border-color: var(--accent-color);
+        }
+
+        .btn-auth {
+            width: 100%;
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 14px;
+            font-weight: 600;
+            font-size: 1rem;
+            border-radius: 6px;
+            margin-top: 25px;
+            cursor: pointer;
+        }
+
+        .timer-container {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        #timer-display {
+            font-size: 0.85rem;
+            color: #d85c5c;
+            font-weight: 600;
+        }
+
+        .resend-btn {
+            background: none;
+            border: none;
+            color: var(--accent-color);
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            display: none; /* Hidden until timer ends */
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('./partials/nav')%>
+
+    <div class="auth-wrapper">
+        <div class="auth-container">
+            <h1 class="auth-header">Verify OTP.</h1>
+            <p class="auth-subtitle">
+                A 6-digit code has been sent to your email. It is valid for 5 minutes.
+            </p>
+
+            <form action="/user/verifyOtp" method="POST">
+                <div class="mb-3">
+                    <label class="form-label">Enter Verification Code</label>
+                    <input type="text" class="otp-input" name="otp" maxlength="6" placeholder="000000" required autofocus>
+                </div>
+                
+                <button type="submit" class="btn-auth">Verify Account</button>
+            </form>
+
+            <div class="timer-container">
+                <div id="timer-display">OTP expires in <span id="time">05:00</span></div>
+                <form action="/user/resend-otp" method="POST">
+                    <!-- <input type="text" class="hidden"name="email" value=""> -->
+                    <button type="submit" id="resend-link" class="resend-btn">Resend OTP</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('./partials/script')%>
+
+    <script>
+    // Safely parse the timestamp. 
+    // If it's missing, we default to the current time so the timer doesn't 'freeze'
+    const rawValue = "<%= locals.otpCreatedAt %>";
+    const otpCreatedAt = rawValue ? Number(rawValue) : Date.now();
+    const expiry = otpCreatedAt + (5 * 60 * 1000);
+
+    function startTimer(display, resendBtn) {
+        const interval = setInterval(function () {
+            const now = Date.now();
+            const remaining = Math.max(0, Math.floor((expiry - now) / 1000));
+
+            const minutes = Math.floor(remaining / 60);
+            const seconds = remaining % 60;
+
+            display.textContent = 
+                (minutes < 10 ? "0" : "") + minutes + ":" + 
+                (seconds < 10 ? "0" : "") + seconds;
+
+            if (remaining <= 0) {
+                clearInterval(interval);
+                const timerDisplay = document.getElementById('timer-display');
+                if(timerDisplay) timerDisplay.style.display = 'none';
+                resendBtn.style.display = 'inline-block';
+            }
+        }, 1000);
+    }
+
+    window.onload = function () {
+        const display = document.querySelector('#time');
+        const resendBtn = document.querySelector('#resend-link');
+        
+        // Debugging: Check console (F12) to see if the value arrived
+        console.log("Timer initialized with timestamp:", otpCreatedAt);
+        
+        if (display && resendBtn) {
+            startTimer(display, resendBtn);
+        }
+    };
+</script>
+</body>
+</html>

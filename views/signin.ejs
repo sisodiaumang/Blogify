@@ -10,6 +10,7 @@
             --bg-color: #fcfaf7;
             --accent-color: #2d3e50;
             --text-main: #1a1a1a;
+            --input-bg: #f9f9f9;
         }
 
         body {
@@ -21,65 +22,112 @@
             min-height: 100vh;
         }
 
+        .signin-wrapper {
+            display: flex;
+            flex-grow: 1;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
         .signin-container {
+            width: 100%;
             max-width: 400px;
-            margin: auto;
-            padding: 40px;
             background: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            padding: 45px;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.04);
             border: 1px solid #eee;
+            transition: transform 0.3s ease;
         }
 
         .auth-header {
             font-family: 'DM Serif Display', serif;
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             color: var(--accent-color);
             text-align: center;
-            margin-bottom: 30px;
+            margin-bottom: 8px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #888;
+            margin-bottom: 35px;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .label-wrapper {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
         }
 
         .form-label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.2px;
             color: #666;
+            margin: 0;
         }
 
-        /* Password Wrapper for the Toggle */
+        .forgot-link {
+            font-size: 0.7rem;
+            color: #aaa;
+            text-decoration: none;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+        }
+
+        .forgot-link:hover {
+            color: var(--accent-color);
+        }
+
         .password-wrapper {
             position: relative;
         }
 
         .form-control {
-            border: 1px solid #e1e1e1;
-            border-radius: 4px;
-            padding: 12px;
-            background-color: #f9f9f9;
+            border: 1px solid #e8e8e8;
+            border-radius: 6px;
+            padding: 14px;
+            background-color: var(--input-bg);
             transition: all 0.2s ease;
             width: 100%;
+            font-size: 0.95rem;
+            outline: none;
         }
 
         .form-control:focus {
             background-color: #fff;
             border-color: var(--accent-color);
-            box-shadow: none;
-            outline: none;
+            box-shadow: 0 0 0 4px rgba(45, 62, 80, 0.05);
         }
 
         .toggle-password {
             position: absolute;
-            right: 12px;
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
             cursor: pointer;
-            font-size: 0.7rem;
-            font-weight: 700;
+            font-size: 0.65rem;
+            font-weight: 800;
             color: var(--accent-color);
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
             user-select: none;
+            opacity: 0.6;
+        }
+
+        .toggle-password:hover {
+            opacity: 1;
         }
 
         .btn-signin {
@@ -87,21 +135,23 @@
             background-color: var(--accent-color);
             color: #fff;
             border: none;
-            padding: 12px;
+            padding: 14px;
             font-weight: 600;
-            border-radius: 4px;
-            margin-top: 20px;
-            transition: background 0.3s;
+            font-size: 1rem;
+            border-radius: 6px;
+            margin-top: 10px;
+            transition: all 0.3s ease;
             cursor: pointer;
         }
 
         .btn-signin:hover {
-            background-color: #000;
+            background-color: #1a2530;
+            box-shadow: 0 8px 15px rgba(45, 62, 80, 0.2);
         }
 
         .footer-link {
             text-align: center;
-            margin-top: 20px;
+            margin-top: 30px;
             font-size: 0.9rem;
             color: #888;
         }
@@ -109,7 +159,12 @@
         .footer-link a {
             color: var(--accent-color);
             text-decoration: none;
-            font-weight: 600;
+            font-weight: 700;
+            margin-left: 5px;
+        }
+
+        .footer-link a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -117,18 +172,22 @@
 <body>
     <%- include('./partials/nav')%>
 
-    <div class="container d-flex flex-grow-1">
+    <div class="signin-wrapper">
         <div class="signin-container">
             <h1 class="auth-header">Welcome Back.</h1>
-            
+            <p class="auth-subtitle">Please enter your details to sign in.</p>
+
             <form action="/user/signin" method="POST">
-                <div class="mb-4">
+                <div class="form-group">
                     <label for="email" class="form-label">Email address</label>
                     <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
                 </div>
 
-                <div class="mb-4">
-                    <label for="password" class="form-label">Password</label>
+                <div class="form-group">
+                    <div class="label-wrapper">
+                        <label for="password" class="form-label">Password</label>
+                        <a href="/user/forgot-password" class="forgot-link">Forgot?</a>
+                    </div>
                     <div class="password-wrapper">
                         <input type="password" class="form-control" id="password" name="password" placeholder="••••••••" required>
                         <span class="toggle-password" id="togglePassword">Show</span>
@@ -148,14 +207,14 @@
 
     <script>
         const togglePassword = document.querySelector('#togglePassword');
-        const password = document.querySelector('#password');
+        const passwordField = document.querySelector('#password');
 
-        togglePassword.addEventListener('click', function (e) {
-            // toggle the type attribute
-            const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
-            password.setAttribute('type', type);
-            
-            // toggle the text
+        togglePassword.addEventListener('click', function () {
+            // Toggle the type attribute
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+
+            // Toggle the text
             this.textContent = type === 'password' ? 'Show' : 'Hide';
         });
     </script>

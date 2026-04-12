@@ -4,7 +4,9 @@
 <head>
     <%- include('./partials/head')%>
     <title><%= blog.title %></title>
+
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --bg-color: #fcfaf7;
@@ -47,14 +49,46 @@
             display: block;
         }
 
+        /* 🔥 FIXED CONTENT STYLING */
         .blog-content {
-            font-size: 1.25rem;
+            font-size: 1.2rem;
             color: #333;
-            white-space: pre-wrap;
             margin-bottom: 60px;
         }
 
-        /* --- Profile Card Styling --- */
+        .blog-content h1,
+        .blog-content h2,
+        .blog-content h3 {
+            font-family: 'DM Serif Display', serif;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-color);
+        }
+
+        .blog-content p {
+            margin-bottom: 1.2rem;
+        }
+
+        .blog-content strong {
+            font-weight: 600;
+        }
+
+        .blog-content hr {
+            margin: 2rem 0;
+            border: none;
+            border-top: 1px solid #eee;
+        }
+
+        .blog-content ul {
+            padding-left: 20px;
+            margin-bottom: 1.2rem;
+        }
+
+        .blog-content li {
+            margin-bottom: 6px;
+        }
+
+        /* --- Author Card --- */
         .author-card {
             background: #fff;
             border: 1px solid #eee;
@@ -86,7 +120,6 @@
             margin: 5px 0 0;
             font-size: 0.9rem;
             color: #666;
-            line-height: 1.4;
         }
 
         .author-tag {
@@ -110,40 +143,51 @@
     <%- include('./partials/nav')%>
 
     <article class="blog-container">
+
+        <!-- Title -->
         <h1 class="blog-title"><%= blog.title %></h1>
-        
-        <div class="text-center mb-4 text-muted small text-uppercase fw-bold" style="letter-spacing: 1px;">
+
+        <!-- Label -->
+        <div style="text-align:center; margin-bottom:20px; font-size:12px; letter-spacing:1px; text-transform:uppercase; color:#777;">
             Published Article
         </div>
 
+        <!-- Cover Image -->
         <% if (blog.coverImageURL) { %>
             <div class="cover-image-container">
                 <img src="<%= blog.coverImageURL %>" alt="<%= blog.title %>" class="cover-image" />
             </div>
         <% } %>
 
+        <!-- 🔥 MAIN CONTENT (THIS WAS YOUR BUG) -->
         <div class="blog-content">
-            <%= blog.body %>
+            <%- htmlContent %>
         </div>
 
+        <!-- Author Card -->
         <div class="author-card">
-    <% if (blog.createdBy.profileImageURL && blog.createdBy.profileImageURL !== "") { %>
-        <img src="<%= blog.createdBy.profileImageURL %>" alt="<%= blog.createdBy.fullName %>" class="author-avatar">
-    <% } else { %>
-        <img src="https://ui-avatars.com/api/?name=<%= blog.createdBy.fullName %>&background=2d3e50&color=fff" 
-             alt="<%= blog.createdBy.fullName %>" class="author-avatar">
-    <% } %>
-    
-    <div class="author-info">
-        <span class="author-tag">Written By</span>
-        <h4><%= blog.createdBy.fullName %></h4>
-        <p>An explorer of ideas and a storyteller at heart.</p>
-    </div>
-</div>
 
-        <div class="text-center mt-5">
-            <a href="/" class="btn btn-outline-dark btn-sm rounded-pill px-4">Back to Feed</a>
+            <% if (blog.createdBy.profileImageURL && blog.createdBy.profileImageURL !== "") { %>
+                <img src="<%= blog.createdBy.profileImageURL %>" alt="<%= blog.createdBy.fullName %>" class="author-avatar">
+            <% } else { %>
+                <img src="https://ui-avatars.com/api/?name=<%= blog.createdBy.fullName %>&background=2d3e50&color=fff" 
+                     alt="<%= blog.createdBy.fullName %>" class="author-avatar">
+            <% } %>
+
+            <div class="author-info">
+                <span class="author-tag">Written By</span>
+                <h4><%= blog.createdBy.fullName %></h4>
+                <p>An explorer of ideas and a storyteller at heart.</p>
+            </div>
         </div>
+
+        <!-- Back Button -->
+        <div style="text-align:center; margin-top:40px;">
+            <a href="/" style="border:1px solid #333; padding:8px 18px; border-radius:20px; text-decoration:none; color:#333;">
+                Back to Feed
+            </a>
+        </div>
+
     </article>
 
     <%- include('./partials/script')%>
