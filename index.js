@@ -36,6 +36,10 @@ app.use(express.urlencoded({ extended: false }));
 app.use(checkForAuthenticationCookie("token"));
 app.use(express.static(path.resolve("./public")));
 app.use(methodOverride("_method"));
+app.use((req, res, next) => {
+    res.locals.user = req.user || null;
+    next();
+});
 
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./views"));
@@ -53,7 +57,7 @@ app.get("/", async (req, res) => {
     const blogs = await Blog.find(query);
 
     res.render("home", {
-        user: req.user,
+        // user: req.user,
         blogs: blogs,
         search: search || null, // optional (for showing in input box)
     });

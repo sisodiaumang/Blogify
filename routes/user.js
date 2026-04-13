@@ -153,7 +153,7 @@ router.get("/settings", (req, res) => {
     if (!req.user) return res.redirect("/user/signin");
     
     return res.render("accountSetting", {
-        user: req.user
+        // user: req.user
     });
 });
 
@@ -164,7 +164,7 @@ router.get("/:id", async (req, res) => {
         }).populate("createdBy", "fullName email");
 
         return res.render("profile", {
-            user: req.user,
+            // user: req.user,
             blogs: allUserBlogs,
         });
 
@@ -195,7 +195,6 @@ router.patch("/update-profile", upload.single("profileImage"), async (req, res) 
 router.delete("/delete-account", async (req, res) => {
     const userId = req.user._id;
     const user = await User.findById(userId);
-
     // Remove Profile Image from Cloudinary
     if (user.profileImagePublicId) await deleteCloudinary(user.profileImagePublicId);
 
