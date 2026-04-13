@@ -16,7 +16,7 @@
     "ejs": "^5.0.1",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "marked": "^18.0.0",
+    "marked": "^4.3.0",
     "method-override": "^3.0.0",
     "mongoose": "^9.4.1",
     "multer": "^2.1.1",
