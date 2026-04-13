@@ -60,7 +60,10 @@ router.post('/signup', async (req, res) => {
     if (!validator.isEmail(email)) {
         return res.status(400).render("signup", { error: "Enter an Valid email" });
     }
-
+    const user = User.findOne({email});
+    if(user){
+        return res.render("signup",{error:"Email already exist"});
+    }
     await User.create({
         fullName,
         email,
