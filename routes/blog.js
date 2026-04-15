@@ -1,23 +1,15 @@
 const { Router } = require("express");
-const multer= require("multer");
+const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
 const { marked } = require("marked");
 
 
 const Blog = require("../models/blog");
-const { uploadOnCloudinary,deleteCloudinary } = require("../services/cloudinary");
+const { uploadOnCloudinary, deleteCloudinary } = require("../services/cloudinary");
 
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, path.resolve(`./public/uploads/`))
-  },
-  filename: function (req, file, cb) {
-    const fileName = `${Date.now()}-${file.originalname}`;
-    cb(null,fileName);
-  },
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({ storage: storage })
 
@@ -27,14 +19,14 @@ const router = Router();
 
 
 
-router.get("/add-new",(req,res)=>{
-    return res.render('addBlog',{
+router.get("/add-new", (req, res) => {
+    return res.render('addBlog', {
         // user:req.user,
     });
 })
 
 
-router.get("/:id",async (req,res) => {
+router.get("/:id", async (req, res) => {
     const blog = await Blog.findById(req.params.id).populate("createdBy", "fullName profileImageURL");
     const htmlContent = marked(blog.body);
 
@@ -46,25 +38,25 @@ router.get("/:id",async (req,res) => {
     });
 })
 
-router.post("/",upload.single("coverImage"),async (req,res)=>{
+router.post("/", upload.single("coverImage"), async (req, res) => {
     const {
         title,
         body,
     } = req.body;
     let coverImageURL;
     let coverImagePublicId;
-    if(req.file){
-        const result = await uploadOnCloudinary(`./public/uploads/${req.file.filename}`);
-        coverImagePublicId=result.public_id;
-        coverImageURL=result.secure_url;
+    if (req.file?.buffer) {
+        const result = await uploadOnCloudinary(req.file.buffer);
+        coverImageURL = result.secure_url;
+        coverImagePublicId = result.public_id;
     }
-    
+
     const blog = await Blog.create({
         title,
         body,
-        createdBy:req.user._id,
-        coverImageURL:coverImageURL,
-        coverImagePublicId:coverImagePublicId,
+        createdBy: req.user._id,
+        coverImageURL: coverImageURL,
+        coverImagePublicId: coverImagePublicId,
     })
 
     return res.redirect(`blog/${blog._id}`);
@@ -72,10 +64,11 @@ router.post("/",upload.single("coverImage"),async (req,res)=>{
 
 
 
-router.get("/edit/:id",async (req,res)=>{
+router.get("/edit/:id", async (req, res) => {
     const blog = await Blog.findById(req.params.id);
-    return res.render("editBlog",{blog,
-    
+    return res.render("editBlog", {
+        blog,
+
         // user:req.user
 
     });
@@ -85,9 +78,11 @@ router.patch("/edit/:id", upload.single("coverImage"), async (req, res) => {
     const { title, body } = req.body;
     const blog = await Blog.findById(req.params.id);
 
-    if (!blog||blog.createdBy.toString() !== req.user._id.toString()) return res.redirect("/");
+    if (!blog || blog.createdBy.toString() !== req.user._id.toString()) return res.redirect("/");
 
-    if (req.file) {
+
+
+    if (req.file?.buffer) {
         if (blog.coverImagePublicId) {
             try {
                 await deleteCloudinary(blog.coverImagePublicId);
@@ -96,7 +91,7 @@ router.patch("/edit/:id", upload.single("coverImage"), async (req, res) => {
             }
         }
 
-        const result = await uploadOnCloudinary(`./public/uploads/${req.file.filename}`);
+        const result = await uploadOnCloudinary(req.file.buffer);
 
         blog.coverImageURL = result.secure_url;
         blog.coverImagePublicId = result.public_id;
@@ -110,9 +105,9 @@ router.patch("/edit/:id", upload.single("coverImage"), async (req, res) => {
     return res.redirect(`/blog/${blog._id}`);
 });
 
-router.delete("/delete/:id",async (req,res)=>{
+router.delete("/delete/:id", async (req, res) => {
     const blog = await Blog.findById(req.params.id);
-    if (!blogblog.createdBy.toString() !== req.user._id.toString()) {
+    if (blog.createdBy.toString() !== req.user._id.toString()) {
         return res.redirect("/");
     }
     deleteCloudinary(blog.coverImagePublicId);

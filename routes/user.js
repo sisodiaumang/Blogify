@@ -17,15 +17,7 @@ const router = Router();
 
 
 
-const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, path.resolve(`./public/uploads/`))
-    },
-    filename: function (req, file, cb) {
-        const fileName = `${Date.now()}-${file.originalname}`;
-        cb(null, fileName);
-    },
-});
+const storage = multer.memoryStorage();
 
 const upload = multer({ storage: storage })
 
@@ -179,9 +171,13 @@ router.patch("/update-profile", upload.single("profileImage"), async (req, res) 
 
     user.fullName = fullName;
     
-    if (req.file) {
-        if (user.profileImagePublicId) await deleteCloudinary(user.profileImagePublicId);
-        const result = await uploadOnCloudinary(`./public/uploads/${req.file.filename}`);
+    if (req.file?.buffer) {
+        if (user.profileImagePublicId) {
+            await deleteCloudinary(user.profileImagePublicId);
+        }
+
+        const result = await uploadOnCloudinary(req.file.buffer);
+
         user.profileImageURL = result.secure_url;
         user.profileImagePublicId = result.public_id;
     }
