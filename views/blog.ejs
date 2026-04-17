@@ -6,9 +6,7 @@
         <title>
             <%= blog.title %>
         </title>
-        <link
-            href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@400;500;600&display=swap"
-            rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap">
         <style>
             :root {
                 --bg: #fdfcfb;
@@ -240,7 +238,6 @@
 
 <body>
     <%- include('./partials/nav')%>
-
         <% function timeAgo(date) { const seconds=Math.floor((new Date() - new Date(date)) / 1000); let
             interval=Math.floor(seconds / 31536000); if (interval>= 1) return interval + "y ago";
             interval = Math.floor(seconds / 2592000);
@@ -256,7 +253,6 @@
             return "just now";
             }
             %>
-
             <div class="page-grid">
                 <article>
                     <header>
