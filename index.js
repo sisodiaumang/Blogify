@@ -30,7 +30,7 @@ connectToMongoDB(process.env.MONGODB_URL)
     })
     ;
 
-
+app.use(express.json()); // Add this if it's missing!
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(checkForAuthenticationCookie("token"));

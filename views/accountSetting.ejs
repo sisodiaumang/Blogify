@@ -1,154 +1,187 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <%- include('./partials/head')%>
-    <title>Account Settings | Blogify</title>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-color: #fcfaf7;
-            --accent-color: #2d3e50;
-            --text-main: #1a1a1a;
-            --border-color: #e5e0d8;
-            --danger-red: #d85c5c;
-        }
+        <title>Account Settings | Blogify</title>
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap"
+            rel="stylesheet">
+        <style>
+            :root {
+                --bg-color: #fcfaf7;
+                --accent-color: #2d3e50;
+                --text-main: #1a1a1a;
+                --border-color: #e5e0d8;
+                --danger-red: #d85c5c;
+            }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-main); }
-        .settings-container { max-width: 600px; margin: 60px auto; padding: 0 20px; }
-        
-        .settings-card {
-            background: #fff;
-            padding: 40px;
-            border-radius: 16px;
-            border: 1px solid var(--border-color);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.03);
-            margin-bottom: 30px;
-        }
+            body {
+                font-family: 'Inter', sans-serif;
+                background-color: var(--bg-color);
+                color: var(--text-main);
+            }
 
-        .section-title {
-            font-family: 'DM Serif Display', serif;
-            font-size: 1.8rem;
-            color: var(--accent-color);
-            margin-bottom: 25px;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 10px;
-        }
+            .settings-container {
+                max-width: 600px;
+                margin: 60px auto;
+                padding: 0 20px;
+            }
 
-        .form-label-custom {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #888;
-            margin-bottom: 8px;
-            display: block;
-        }
+            .settings-card {
+                background: #fff;
+                padding: 40px;
+                border-radius: 16px;
+                border: 1px solid var(--border-color);
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03);
+                margin-bottom: 30px;
+            }
 
-        .input-group-custom {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            background: #f9f9f9;
-        }
+            .section-title {
+                font-family: 'DM Serif Display', serif;
+                font-size: 1.8rem;
+                color: var(--accent-color);
+                margin-bottom: 25px;
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 10px;
+            }
 
-        .btn-update {
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
+            .form-label-custom {
+                font-size: 0.75rem;
+                font-weight: 700;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+                color: #888;
+                margin-bottom: 8px;
+                display: block;
+            }
 
-        .btn-update:hover { background: #1a2633; transform: translateY(-2px); }
+            .input-group-custom {
+                width: 100%;
+                padding: 12px 15px;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                background: #f9f9f9;
+            }
 
-        .danger-zone-card {
-            border: 1px solid rgba(216, 92, 92, 0.2);
-            background: #fff5f5;
-        }
+            .btn-update {
+                background: var(--accent-color);
+                color: white;
+                border: none;
+                padding: 12px 25px;
+                border-radius: 50px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: 0.3s;
+            }
 
-        .delete-confirm-input {
-            border: 1px solid var(--danger-red);
-            background: #fff;
-        }
+            .btn-update:hover {
+                background: #1a2633;
+                transform: translateY(-2px);
+            }
 
-        .btn-delete-final {
-            background: var(--danger-red);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 50px;
-            font-weight: 700;
-            width: 100%;
-            opacity: 0.5;
-            pointer-events: none;
-            transition: 0.3s;
-        }
+            .danger-zone-card {
+                border: 1px solid rgba(216, 92, 92, 0.2);
+                background: #fff5f5;
+            }
 
-        .btn-delete-final.enabled { opacity: 1; pointer-events: auto; box-shadow: 0 4px 15px rgba(216, 92, 92, 0.3); }
-    </style>
+            .delete-confirm-input {
+                border: 1px solid var(--danger-red);
+                background: #fff;
+            }
+
+            .btn-delete-final {
+                background: var(--danger-red);
+                color: white;
+                border: none;
+                padding: 12px 25px;
+                border-radius: 50px;
+                font-weight: 700;
+                width: 100%;
+                opacity: 0.5;
+                pointer-events: none;
+                transition: 0.3s;
+            }
+
+            .btn-delete-final.enabled {
+                opacity: 1;
+                pointer-events: auto;
+                box-shadow: 0 4px 15px rgba(216, 92, 92, 0.3);
+            }
+        </style>
 </head>
+
 <body>
     <%- include('./partials/nav')%>
 
-    <div class="settings-container">
-        <div class="settings-card">
-            <h2 class="section-title">General Settings</h2>
-            <form action="/user/update-profile?_method=PATCH" method="POST" enctype="multipart/form-data">
-                <label class="form-label-custom">Profile Image</label>
-                <div class="d-flex align-items-center mb-4">
-                    <img src="<%= user.profileImageURL || 'https://ui-avatars.com/api/?name=' + user.fullName %>" 
-                         style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-right: 20px; border: 2px solid var(--border-color);">
-                    <input type="file" name="profileImage" class="form-control form-control-sm">
-                </div>
+        <div class="settings-container">
+            <div class="settings-card">
+                <h2 class="section-title">General Settings</h2>
+                <form action="/user/update-profile?_method=PATCH" method="POST" enctype="multipart/form-data">
+                    <label class="form-label-custom">Profile Image</label>
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="<%= user.profileImageURL || 'https://ui-avatars.com/api/?name=' + user.fullName %>"
+                            style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; margin-right: 20px; border: 2px solid var(--border-color);">
+                        <input type="file" name="profileImage" class="form-control form-control-sm">
+                    </div>
 
-                <label class="form-label-custom">Full Name</label>
-                <input type="text" name="fullName" value="<%= user.fullName %>" class="input-group-custom" required>
+                    <label class="form-label-custom">Full Name</label>
+                    <input type="text" name="fullName" value="<%= user.fullName %>" class="input-group-custom" required>
+                    <label class="form-label-custom">Bio</label>
+                    <textarea name="bio" class="input-group-custom" rows="3"
+                        placeholder="Tell the world about yourself..."
+                        style="resize: none; padding-top: 12px;"><%= user.bio %></textarea>
+                    <p class="small text-muted mt-n2 mb-4">Brief description for your profile. Max 160 characters.</p>
 
-                <label class="form-label-custom">Linked Email</label>
-                <input type="text" value="<%= user.email %>" class="input-group-custom" disabled style="cursor: not-allowed; opacity: 0.6;">
-                <p class="small text-muted mt-n2 mb-4">Email cannot be changed for security reasons.</p>
+                    <label class="form-label-custom">Linked Email</label>
 
-                <button type="submit" class="btn-update">Save Changes</button>
-            </form>
-        </div>
+                    <input type="text" value="<%= user.email %>" class="input-group-custom" disabled
+                        style="cursor: not-allowed; opacity: 0.6;">
+                    <p class="small text-muted mt-n2 mb-4">Email cannot be changed for security reasons.</p>
 
-        <div class="settings-card danger-zone-card">
-            <h2 class="section-title text-danger">Danger Zone</h2>
-            <p class="small text-muted mb-4">Once you delete your account, there is no going back. Please be certain.</p>
-            
-            <div class="mb-4">
-                <a href="/user/logout" class="btn btn-outline-dark btn-sm rounded-pill px-4">
-                    <i class="bi bi-box-arrow-right"></i> Logout Account
-                </a>
+                    <button type="submit" class="btn-update">Save Changes</button>
+                </form>
             </div>
 
-            <label class="form-label-custom text-danger">Confirm Deletion</label>
-            <p class="small mb-2">To delete, please type your email <strong><%= user.email %></strong> below:</p>
-            <input type="text" id="confirmEmailInput" class="input-group-custom delete-confirm-input" placeholder="Type your email here">
-            
-            <form action="/user/delete-account?_method=DELETE" method="POST">
-                <button type="submit" id="finalDeleteBtn" class="btn-delete-final">Permanently Delete Account</button>
-            </form>
+            <div class="settings-card danger-zone-card">
+                <h2 class="section-title text-danger">Danger Zone</h2>
+                <p class="small text-muted mb-4">Once you delete your account, there is no going back. Please be
+                    certain.</p>
+
+                <div class="mb-4">
+                    <a href="/user/logout" class="btn btn-outline-dark btn-sm rounded-pill px-4">
+                        <i class="bi bi-box-arrow-right"></i> Logout Account
+                    </a>
+                </div>
+
+                <label class="form-label-custom text-danger">Confirm Deletion</label>
+                <p class="small mb-2">To delete, please type your email <strong>
+                        <%= user.email %>
+                    </strong> below:</p>
+                <input type="text" id="confirmEmailInput" class="input-group-custom delete-confirm-input"
+                    placeholder="Type your email here">
+
+                <form action="/user/delete-account?_method=DELETE" method="POST">
+                    <button type="submit" id="finalDeleteBtn" class="btn-delete-final">Permanently Delete
+                        Account</button>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <script>
-        const confirmInput = document.getElementById('confirmEmailInput');
-        const deleteBtn = document.getElementById('finalDeleteBtn');
-        const userEmail = "<%= user.email %>";
+        <script>
+            const confirmInput = document.getElementById('confirmEmailInput');
+            const deleteBtn = document.getElementById('finalDeleteBtn');
+            const userEmail = "<%= user.email %>";
 
-        confirmInput.addEventListener('input', (e) => {
-            if (e.target.value === userEmail) {
-                deleteBtn.classList.add('enabled');
-            } else {
-                deleteBtn.classList.remove('enabled');
-            }
-        });
-    </script>
+            confirmInput.addEventListener('input', (e) => {
+                if (e.target.value === userEmail) {
+                    deleteBtn.classList.add('enabled');
+                } else {
+                    deleteBtn.classList.remove('enabled');
+                }
+            });
+        </script>
 </body>
+
 </html>

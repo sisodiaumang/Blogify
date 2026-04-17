@@ -151,26 +151,28 @@ router.get("/settings", (req, res) => {
 
 router.get("/:id", async (req, res) => {
     try {
-        const allUserBlogs = await Blog.find({
-            createdBy: req.params.id
-        }).populate("createdBy", "fullName email");
+        const profileUser = await User.findById(req.params.id);
+        if (!profileUser) return res.redirect("/");
+
+        const allUserBlogs = await Blog.find({ createdBy: req.params.id });
 
         return res.render("profile", {
-            // user: req.user,
+            profileUser: profileUser, // Rename this!
             blogs: allUserBlogs,
+            // Notice: We don't pass 'user' here anymore. 
+            // res.locals.user handles your navbar session.
         });
-
     } catch (err) {
-        return res.status(500).send("Something went wrong");
+        return res.status(500).send("User not found");
     }
 });
 
 router.patch("/update-profile", upload.single("profileImage"), async (req, res) => {
-    const { fullName } = req.body;
+    const { fullName,bio } = req.body;
     const user = await User.findById(req.user._id);
 
     user.fullName = fullName;
-    
+    user.bio=bio;
     if (req.file?.buffer) {
         if (user.profileImagePublicId) {
             await deleteCloudinary(user.profileImagePublicId);

@@ -7,7 +7,8 @@ const { marked } = require("marked");
 
 const Blog = require("../models/blog");
 const { uploadOnCloudinary, deleteCloudinary } = require("../services/cloudinary");
-
+const Comment = require("../models/comment");
+const { findById } = require("../models/user");
 
 const storage = multer.memoryStorage();
 
@@ -27,12 +28,15 @@ router.get("/add-new", (req, res) => {
 
 
 router.get("/:id", async (req, res) => {
-    const blog = await Blog.findById(req.params.id).populate("createdBy", "fullName profileImageURL");
+    const blog = await Blog.findById(req.params.id).populate("createdBy", "fullName profileImageURL bio");
     const htmlContent = marked(blog.body);
-
+    const comments = await Comment.find({
+        commentedOn: req.params.id
+    }).populate("createdBy", "fullName profileImageURL");
     return res.render("blog", {
         blog,
         htmlContent,
+        comments,
         // user:req.user,
 
     });
@@ -113,6 +117,68 @@ router.delete("/delete/:id", async (req, res) => {
     deleteCloudinary(blog.coverImagePublicId);
     await blog.deleteOne();
     return res.redirect(`/`);
+});
+
+router.post("/comment/:id", async (req, res) => {
+    const blog = await Blog.findById(req.params.id);
+    if (!blog) {
+        return res.send("something went wrong");
+    }
+    const { content } = req.body;
+
+    if (!content) {
+        return res.send("something went wrong");
+    }
+
+    await Comment.create({
+        body: content,
+        createdBy: req.user._id,
+        commentedOn: req.params.id
+    });
+    return res.redirect(`/blog/${req.params.id}`);
+})
+
+router.post("/comment/edit/:id", async (req, res) => {
+    try {
+        const comment = await Comment.findById(req.params.id);
+        
+        if (!comment) {
+            // Send a 404 status so the frontend 'catch' block triggers
+            return res.status(404).send("Comment not found");
+        }
+
+        const { content } = req.body;
+
+        comment.body = content;
+        await comment.save();
+        return res.sendStatus(200); 
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send("Server Error");
+    }
+});
+router.delete("/comment/delete/:id", async (req, res) => {
+    try {
+        const comment = await Comment.findById(req.params.id).populate('createdBy');
+        if (!comment) return res.status(404).json({ error: "Comment not found" });
+
+        const isCommentAuthor = comment.createdBy._id.toString() === req.user._id.toString();
+
+        // Also fetch the blog to check if requester is the blog author
+        const blog = await Blog.findById(comment.blogId); // adjust field name if needed
+        const isBlogAuthor = blog && blog.createdBy.toString() === req.user._id.toString();
+
+        if (!isCommentAuthor && !isBlogAuthor) {
+            return res.status(403).json({ error: "Unauthorized" });
+        }
+
+        await comment.deleteOne();
+        return res.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Server Error" });
+    }
 });
 
 module.exports = router;

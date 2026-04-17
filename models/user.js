@@ -38,6 +38,11 @@ const userSchema = new Schema({
         type:String,
         enum:['USER','ADMIN'],
         default:'USER'
+    },
+    bio:{
+        type:String,
+        default:"Sharing stories and ideas on Blogify.",
+        maxlength: 160,
     }
 },{
     timestamps:true

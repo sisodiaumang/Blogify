@@ -10,6 +10,7 @@ function createTokenForUser(user){
         profileImageURL:user.profileImageURL,
         role:user.role,
         fullName:user.fullName,
+        bio:user.bio,
     };
 
     const token = JWT.sign(payload,secret);
