@@ -19,7 +19,6 @@ const upload = multer({ storage: storage })
 const router = Router();
 
 
-console.log("blog route loaded");
 router.get("/add-new", (req, res) => {
     return res.render('addBlog', {
         // user:req.user,
