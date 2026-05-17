@@ -6,7 +6,8 @@
         <title>
             <%= blog.title %>
         </title>
-        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap">
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
         <style>
             :root {
                 --bg: #fdfcfb;
@@ -39,6 +40,9 @@
                 position: sticky;
                 top: calc(var(--nav-height) + 20px);
                 z-index: 10;
+                height: calc(100vh - var(--nav-height) - 40px);
+                display: flex;
+                flex-direction: column;
             }
 
             .comment-panel {
@@ -47,9 +51,46 @@
                 border-radius: var(--radius);
                 padding: 24px;
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                overflow: hidden;
             }
 
-            /* ── Comment Actions Menu ── */
+            .comment-panel > h3 {
+                flex-shrink: 0;
+            }
+
+            .comment-panel > form {
+                flex-shrink: 0;
+            }
+
+            .comment-list {
+                overflow-y: auto;
+                flex: 1;
+                padding-right: 6px;
+                /* custom scrollbar */
+                scrollbar-width: thin;
+                scrollbar-color: #d0cec8 transparent;
+            }
+
+            .comment-list::-webkit-scrollbar {
+                width: 4px;
+            }
+
+            .comment-list::-webkit-scrollbar-track {
+                background: transparent;
+            }
+
+            .comment-list::-webkit-scrollbar-thumb {
+                background: #d0cec8;
+                border-radius: 4px;
+            }
+
+            .comment-list::-webkit-scrollbar-thumb:hover {
+                background: #b0aea8;
+            }
+
             .comment-item {
                 display: flex;
                 gap: 12px;
@@ -101,26 +142,19 @@
                 cursor: pointer;
             }
 
-            .dropdown-content button:hover {
-                background: #f5f5f5;
-            }
+            .dropdown-content button:hover { background: #f5f5f5; }
+            .dropdown-content .delete-btn { color: #d93025; }
+            .show { display: block; }
 
-            .dropdown-content .delete-btn {
-                color: #d93025;
-            }
-
-            .show {
-                display: block;
-            }
-
-            /* ── Inline Edit Styling ── */
-            .edit-area {
+            .edit-area,
+            .reply-area {
                 display: none;
                 width: 100%;
                 margin-top: 10px;
             }
 
-            .edit-textarea {
+            .edit-textarea,
+            .reply-textarea {
                 width: 100%;
                 padding: 10px;
                 border: 1px solid var(--border);
@@ -128,9 +162,11 @@
                 font-family: inherit;
                 font-size: 0.9rem;
                 resize: none;
+                box-sizing: border-box;
             }
 
-            .edit-buttons {
+            .edit-buttons,
+            .reply-buttons {
                 display: flex;
                 justify-content: flex-end;
                 gap: 10px;
@@ -146,7 +182,8 @@
                 font-size: 0.85rem;
             }
 
-            .btn-save {
+            .btn-save,
+            .btn-reply-submit {
                 background: var(--ink);
                 color: white;
                 border: none;
@@ -157,7 +194,75 @@
                 font-size: 0.85rem;
             }
 
-            /* ── Layout Styles ── */
+            .btn-reply-trigger {
+                background: none;
+                border: none;
+                color: #0066cc;
+                font-size: 0.8rem;
+                font-weight: 600;
+                cursor: pointer;
+                padding: 0;
+                margin-top: 5px;
+            }
+
+            /* Toggle replies button */
+            .btn-toggle-replies {
+                background: none;
+                border: none;
+                color: #888;
+                font-size: 0.78rem;
+                font-weight: 600;
+                cursor: pointer;
+                padding: 0;
+                margin-top: 6px;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+                transition: color 0.15s;
+            }
+
+            .btn-toggle-replies:hover { color: var(--ink); }
+
+            .btn-toggle-replies .chevron {
+                display: inline-block;
+                transition: transform 0.2s;
+                font-style: normal;
+            }
+
+            .btn-toggle-replies.open .chevron {
+                transform: rotate(180deg);
+            }
+
+            .replies-list {
+                margin-top: 10px;
+                padding-left: 20px;
+                border-left: 2px solid var(--border);
+                overflow: hidden;
+                transition: max-height 0.25s ease, opacity 0.2s ease;
+            }
+
+            .replies-list.collapsed {
+                max-height: 0 !important;
+                opacity: 0;
+                margin-top: 0;
+            }
+
+            .reply-item {
+                display: flex;
+                gap: 10px;
+                padding: 12px 0;
+                font-size: 0.88rem;
+                position: relative;
+                border-top: 1px dashed var(--border);
+            }
+
+            .reply-item:first-child { border-top: none; }
+
+            .mention {
+                color: #0066cc;
+                font-weight: 600;
+            }
+
             .blog-title {
                 font-family: 'Playfair Display', serif;
                 font-size: clamp(2.2rem, 5vw, 3.5rem);
@@ -173,16 +278,9 @@
                 box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
             }
 
-            .cover-wrap img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
+            .cover-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
-            .blog-content {
-                font-size: 1.2rem;
-                color: #2c2c2c;
-            }
+            .blog-content { font-size: 1.2rem; color: #2c2c2c; }
 
             textarea {
                 width: 100%;
@@ -192,6 +290,7 @@
                 resize: none;
                 background: #fafaf9;
                 font-family: inherit;
+                box-sizing: border-box;
             }
 
             .btn-submit {
@@ -213,24 +312,135 @@
                 object-fit: cover;
             }
 
-            .comment-name {
-                font-weight: 600;
-                font-size: 0.88rem;
+            .comment-name { font-weight: 600; font-size: 0.88rem; }
+            .comment-time { font-size: 0.75rem; color: #888; margin-left: 6px; }
+
+            /* ── Emoji picker ── */
+            .textarea-wrap {
+                position: relative;
             }
 
-            .comment-time {
-                font-size: 0.75rem;
-                color: #888;
-                margin-left: 6px;
+            .emoji-btn {
+                position: absolute;
+                bottom: 8px;
+                right: 10px;
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 4px;
+                border-radius: 6px;
+                color: #aaa;
+                line-height: 0;
+                transition: color 0.15s, background 0.15s;
+                z-index: 2;
+            }
+
+            .emoji-btn svg { display: block; width: 18px; height: 18px; }
+            .emoji-btn:hover { color: #555; background: #f0ede8; }
+
+            .emoji-picker-popup {
+                display: none;
+                position: fixed;
+                width: 300px;
+                background: #fff;
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                box-shadow: 0 8px 28px rgba(0,0,0,0.15);
+                z-index: 9999;
+                overflow: hidden;
+                user-select: none;
+            }
+
+            .emoji-picker-popup.open { display: block; }
+
+            .emoji-tabs {
+                display: flex;
+                gap: 2px;
+                padding: 8px 8px 0;
+                border-bottom: 1px solid var(--border);
+                overflow-x: auto;
+                scrollbar-width: none;
+            }
+
+            .emoji-tabs::-webkit-scrollbar { display: none; }
+
+            .emoji-tab {
+                background: none;
+                border: none;
+                cursor: pointer;
+                font-size: 1.1rem;
+                padding: 5px 7px;
+                border-radius: 6px 6px 0 0;
+                border-bottom: 2px solid transparent;
+                flex-shrink: 0;
+                transition: background 0.12s;
+            }
+
+            .emoji-tab:hover { background: #f5f3ee; }
+            .emoji-tab.active { border-bottom-color: var(--ink); background: #f5f3ee; }
+
+            .emoji-search {
+                padding: 8px 10px;
+                border-bottom: 1px solid var(--border);
+            }
+
+            .emoji-search input {
+                width: 100%;
+                padding: 6px 10px;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                font-size: 0.82rem;
+                font-family: inherit;
+                background: #fafaf9;
+                box-sizing: border-box;
+                outline: none;
+            }
+
+            .emoji-grid {
+                display: grid;
+                grid-template-columns: repeat(8, 1fr);
+                gap: 2px;
+                padding: 8px;
+                max-height: 200px;
+                overflow-y: auto;
+                scrollbar-width: thin;
+                scrollbar-color: #d0cec8 transparent;
+            }
+
+            .emoji-grid::-webkit-scrollbar { width: 4px; }
+            .emoji-grid::-webkit-scrollbar-thumb { background: #d0cec8; border-radius: 4px; }
+
+            .emoji-cell {
+                font-size: 1.3rem;
+                text-align: center;
+                padding: 4px 2px;
+                border-radius: 6px;
+                cursor: pointer;
+                transition: background 0.1s;
+                line-height: 1.4;
+            }
+
+            .emoji-cell:hover { background: #f0ede8; }
+
+            /* make textareas have padding-right so text doesn't go under the button */
+            .textarea-wrap textarea {
+                padding-right: 36px;
             }
 
             @media (max-width: 1024px) {
-                .page-grid {
-                    grid-template-columns: 1fr;
-                }
-
+                .page-grid { grid-template-columns: 1fr; }
                 .sidebar-col {
                     position: static;
+                    height: auto;
+                }
+                .comment-panel {
+                    height: auto;
+                    overflow: visible;
+                }
+                .comment-list {
+                    overflow-y: visible;
+                    max-height: none;
+                    padding-right: 0;
                 }
             }
         </style>
@@ -238,226 +448,488 @@
 
 <body>
     <%- include('./partials/nav')%>
-        <% function timeAgo(date) { const seconds=Math.floor((new Date() - new Date(date)) / 1000); let
-            interval=Math.floor(seconds / 31536000); if (interval>= 1) return interval + "y ago";
-            interval = Math.floor(seconds / 2592000);
-            if (interval >= 1) return interval + "mo ago";
-            interval = Math.floor(seconds / 604800);
-            if (interval >= 1) return interval + "w ago";
-            interval = Math.floor(seconds / 86400);
-            if (interval >= 1) return interval + "d ago";
-            interval = Math.floor(seconds / 3600);
-            if (interval >= 1) return interval + "h ago";
-            interval = Math.floor(seconds / 60);
-            if (interval >= 1) return interval + "m ago";
-            return "just now";
-            }
-            %>
-            <div class="page-grid">
-                <article>
-                    <header>
-                        <p
-                            style="text-transform: uppercase; font-size: 11px; color: #888; font-weight: 600; margin: 0;">
-                            <%= blog.createdBy.fullName %> • <%= timeAgo(blog.createdAt) %>
-                        </p>
-                        <h1 class="blog-title">
-                            <%= blog.title %>
-                        </h1>
-                    </header>
 
-                    <% if (blog.coverImageURL) { %>
-                        <div class="cover-wrap"><img src="<%= blog.coverImageURL %>"></div>
-                        <% } %>
+    <% function timeAgo(date) {
+        const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+        let interval = Math.floor(seconds / 31536000);
+        if (interval >= 1) return interval + "y ago";
+        interval = Math.floor(seconds / 2592000);
+        if (interval >= 1) return interval + "mo ago";
+        interval = Math.floor(seconds / 604800);
+        if (interval >= 1) return interval + "w ago";
+        interval = Math.floor(seconds / 86400);
+        if (interval >= 1) return interval + "d ago";
+        interval = Math.floor(seconds / 3600);
+        if (interval >= 1) return interval + "h ago";
+        interval = Math.floor(seconds / 60);
+        if (interval >= 1) return interval + "m ago";
+        return "just now";
+    } %>
 
-                            <div class="blog-content" style="margin-bottom: 60px;">
-                                <%- htmlContent %>
-                            </div>
+    <div class="page-grid">
+        <article>
+            <header>
+                <p style="text-transform: uppercase; font-size: 11px; color: #888; font-weight: 600; margin: 0;">
+                    <%= blog.createdBy.fullName %> • <%= timeAgo(blog.createdAt) %>
+                </p>
+                <h1 class="blog-title"><%= blog.title %></h1>
+            </header>
 
-                            <section class="author-footer"
-                                style="padding: 40px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 60px;">
-                                <div style="display: flex; align-items: flex-start; gap: 24px;">
-                                    <a href="/user/<%= blog.createdBy._id %>">
-                                        <img class="avatar"
-                                            style="width: 80px; height: 80px; border: 1px solid var(--border);"
-                                            src="<%= blog.createdBy.profileImageURL || 'https://ui-avatars.com/api/?name=' + blog.createdBy.fullName %>">
-                                    </a>
+            <% if (blog.coverImageURL) { %>
+                <div class="cover-wrap"><img src="<%= blog.coverImageURL %>"></div>
+            <% } %>
 
-                                    <div style="flex-grow: 1;">
-                                        <p
-                                            style="margin: 0 0 4px 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: 700;">
-                                            Written by
-                                        </p>
-                                        <h3
-                                            style="margin: 0 0 8px 0; font-family: 'Playfair Display', serif; font-size: 1.6rem;">
-                                            <a href="/user/<%= blog.createdBy._id %>"
-                                                style="text-decoration: none; color: var(--ink);">
-                                                <%= blog.createdBy.fullName %>
-                                            </a>
-                                        </h3>
-                                        <p
-                                            style="margin: 0; font-size: 1rem; color: #666; max-width: 500px; line-height: 1.5;">
-                                            <%=blog.createdBy.bio%>
-                                        </p>
-
-                                        <div style="margin-top: 15px;">
-                                            <a href="/user/<%= blog.createdBy._id %>"
-                                                style="text-decoration: none; font-weight: 600; font-size: 0.85rem; color: var(--ink); border-bottom: 1px solid var(--ink);">
-                                                View Profile
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </section>
-                </article>
-
-                <aside class="sidebar-col">
-                    <div class="comment-panel">
-                        <h3 style="margin-top: 0; font-family: 'Playfair Display', serif;">Discussion (<%=
-                                comments.length %>)</h3>
-
-                        <% if (locals.user) { %>
-                            <form action="/blog/comment/<%= blog._id %>" method="POST">
-                                <textarea name="content" rows="3" placeholder="Share your thoughts..."
-                                    required></textarea>
-                                <button class="btn-submit">Post Comment</button>
-                            </form>
-                            <% } %>
-
-                                <div class="comment-list" style="margin-top: 20px;">
-                                    <% comments.slice().reverse().forEach((comment, index)=> { %>
-                                        <div class="comment-item" id="comment-container-<%= comment._id %>">
-                                            <img class="avatar"
-                                                src="<%= comment.createdBy.profileImageURL || 'https://ui-avatars.com/api/?name=' + comment.createdBy.fullName %>">
-                                            <div style="width: 90%;" id="comment-body-wrapper-<%= comment._id %>">
-                                                <div style="display: flex; align-items: baseline;">
-                                                    <span class="comment-name">
-                                                        <%= comment.createdBy.fullName %>
-                                                    </span>
-                                                    <span class="comment-time">
-                                                        <%= timeAgo(comment.createdAt) %>
-                                                    </span>
-                                                </div>
-                                                <p class="comment-body" id="text-<%= comment._id %>"
-                                                    style="font-size: 0.92rem;">
-                                                    <%= comment.body %>
-                                                </p>
-
-                                                <div class="edit-area" id="edit-area-<%= comment._id %>">
-                                                    <textarea class="edit-textarea"
-                                                        id="input-<%= comment._id %>"><%= comment.body %></textarea>
-                                                    <div class="edit-buttons">
-                                                        <button class="btn-cancel"
-                                                            onclick="cancelEdit('<%= comment._id %>')">Cancel</button>
-                                                        <button class="btn-save"
-                                                            onclick="saveEdit('<%= comment._id %>')">Save</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="dots-menu" onclick="toggleDropdown('dropdown-<%= index %>')">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                                    stroke-linejoin="round">
-                                                    <circle cx="12" cy="12" r="1" />
-                                                    <circle cx="12" cy="5" r="1" />
-                                                    <circle cx="12" cy="19" r="1" />
-                                                </svg>
-                                            </div>
-
-                                            <div id="dropdown-<%= index %>" class="dropdown-content">
-                                                <% if (locals.user) { %>
-                                                    <% if
-                                                        (locals.user._id.toString()===comment.createdBy._id.toString())
-                                                        { %>
-                                                        <button onclick="enableEdit('<%= comment._id %>')">Edit</button>
-                                                        <button class="delete-btn"
-                                                            onclick="deleteComment('<%= comment._id %>')">Delete</button>
-                                                        <% } else if
-                                                            (locals.user._id.toString()===blog.createdBy._id.toString())
-                                                            { %>
-                                                            <button class="delete-btn"
-                                                                onclick="deleteComment('<%= comment._id %>')">Delete
-                                                                (Author)</button>
-                                                            <% } else { %>
-                                                                <button>Report</button>
-                                                                <% } %>
-                                                                    <% } %>
-                                            </div>
-                                        </div>
-                                        <% }) %>
-                                </div>
-                    </div>
-                </aside>
+            <div class="blog-content" style="margin-bottom: 60px;">
+                <%- htmlContent %>
             </div>
 
-            <script>
-                function toggleDropdown(id) {
-                    document.querySelectorAll('.dropdown-content').forEach(el => {
-                        if (el.id !== id) el.classList.remove('show');
-                    });
-                    document.getElementById(id).classList.toggle('show');
+            <section class="author-footer" style="padding: 40px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 60px;">
+                <div style="display: flex; align-items: flex-start; gap: 24px;">
+                    <a href="/user/<%= blog.createdBy._id %>">
+                        <img class="avatar" style="width: 80px; height: 80px; border: 1px solid var(--border);"
+                            src="<%= blog.createdBy.profileImageURL || 'https://ui-avatars.com/api/?name=' + blog.createdBy.fullName %>">
+                    </a>
+                    <div style="flex-grow: 1;">
+                        <p style="margin: 0 0 4px 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: 700;">Written by</p>
+                        <h3 style="margin: 0 0 8px 0; font-family: 'Playfair Display', serif; font-size: 1.6rem;">
+                            <a href="/user/<%= blog.createdBy._id %>" style="text-decoration: none; color: var(--ink);"><%= blog.createdBy.fullName %></a>
+                        </h3>
+                        <p style="margin: 0; font-size: 1rem; color: #666; max-width: 500px; line-height: 1.5;"><%= blog.createdBy.bio %></p>
+                        <div style="margin-top: 15px;">
+                            <a href="/user/<%= blog.createdBy._id %>" style="text-decoration: none; font-weight: 600; font-size: 0.85rem; color: var(--ink); border-bottom: 1px solid var(--ink);">View Profile</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </article>
+
+        <aside class="sidebar-col">
+            <div class="comment-panel">
+                <% const topLevelComments = comments.filter(c => !c.parentComment);
+                   const replies = comments.filter(c => c.parentComment); %>
+
+                <h3 style="margin-top: 0; font-family: 'Playfair Display', serif;">
+                    Discussion (<%= topLevelComments.length %>)
+                </h3>
+
+                <% if (locals.user) { %>
+                    <form action="/blog/comment/<%= blog._id %>" method="POST">
+                        <div class="textarea-wrap">
+                            <textarea name="content" id="main-comment-input" rows="3" placeholder="Share your thoughts..." required></textarea>
+                            <button type="button" class="emoji-btn" onclick="togglePicker('main-picker', 'main-comment-input')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
+                            <div class="emoji-picker-popup" id="main-picker"></div>
+                        </div>
+                        <button class="btn-submit">Post Comment</button>
+                    </form>
+                <% } %>
+
+                <div class="comment-list" style="margin-top: 20px;">
+                    <% topLevelComments.slice().reverse().forEach((comment, index) => { %>
+                        <% const currentReplies = replies.filter(r => r.parentComment.toString() === comment._id.toString()); %>
+                        <div class="comment-item" id="comment-container-<%= comment._id %>">
+                            <img class="avatar"
+                                src="<%= comment.createdBy.profileImageURL || 'https://ui-avatars.com/api/?name=' + comment.createdBy.fullName %>">
+
+                            <div style="width: 90%;" id="comment-body-wrapper-<%= comment._id %>">
+                                <div style="display: flex; align-items: baseline;">
+                                    <span class="comment-name"><%= comment.createdBy.fullName %></span>
+                                    <span class="comment-time"><%= timeAgo(comment.createdAt) %></span>
+                                </div>
+
+                                <p class="comment-body" id="text-<%= comment._id %>" style="margin: 4px 0; font-size: 0.92rem;">
+                                    <%= comment.body %>
+                                </p>
+
+                                <!-- Edit area for top-level comment — placed directly after the text -->
+                                <div class="edit-area" id="edit-area-<%= comment._id %>">
+                                    <div class="textarea-wrap">
+                                        <textarea class="edit-textarea" id="input-<%= comment._id %>"><%= comment.body %></textarea>
+                                        <button type="button" class="emoji-btn" onclick="togglePicker('picker-edit-<%= comment._id %>', 'input-<%= comment._id %>')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
+                                        <div class="emoji-picker-popup" id="picker-edit-<%= comment._id %>"></div>
+                                    </div>
+                                    <div class="edit-buttons">
+                                        <button class="btn-cancel" onclick="cancelEdit('<%= comment._id %>')">Cancel</button>
+                                        <button class="btn-save" onclick="saveEdit('<%= comment._id %>')">Save</button>
+                                    </div>
+                                </div>
+
+                                <!-- Action row: Reply + toggle replies -->
+                                <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                                    <% if (locals.user) { %>
+                                        <button class="btn-reply-trigger"
+                                            onclick="enableReply('<%= comment._id %>', '<%= comment._id %>', '')">Reply</button>
+                                    <% } %>
+
+                                    <% if (currentReplies.length > 0) { %>
+                                        <button class="btn-toggle-replies open" id="toggle-btn-<%= comment._id %>"
+                                            onclick="toggleReplies('<%= comment._id %>', <%= currentReplies.length %>)">
+                                            <i class="chevron">&#8964;</i>
+                                            <span id="toggle-label-<%= comment._id %>"><%= currentReplies.length %> <%= currentReplies.length === 1 ? 'reply' : 'replies' %></span>
+                                        </button>
+                                    <% } %>
+                                </div>
+
+                                <!-- Single reply box per top-level comment -->
+                                <div class="reply-area" id="reply-area-<%= comment._id %>">
+                                    <div class="textarea-wrap">
+                                        <textarea class="reply-textarea" id="reply-input-<%= comment._id %>" rows="2" placeholder="Write a reply..."></textarea>
+                                        <button type="button" class="emoji-btn" onclick="togglePicker('picker-reply-<%= comment._id %>', 'reply-input-<%= comment._id %>')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
+                                        <div class="emoji-picker-popup" id="picker-reply-<%= comment._id %>"></div>
+                                    </div>
+                                    <div class="reply-buttons">
+                                        <button class="btn-cancel" onclick="cancelReply('<%= comment._id %>')">Cancel</button>
+                                        <button class="btn-reply-submit" onclick="submitReply('<%= comment._id %>')">Reply</button>
+                                    </div>
+                                </div>
+
+                                <!-- Replies list (collapsible) -->
+                                <% if (currentReplies.length > 0) { %>
+                                    <div class="replies-list" id="replies-list-<%= comment._id %>">
+                                        <% currentReplies.forEach((reply, replyIndex) => { %>
+                                            <div class="reply-item" id="comment-container-<%= reply._id %>">
+                                                <img class="avatar" style="width:24px; height:24px;"
+                                                    src="<%= reply.createdBy.profileImageURL || 'https://ui-avatars.com/api/?name=' + reply.createdBy.fullName %>">
+                                                <div style="width: 85%;">
+                                                    <div style="display:flex; align-items: baseline;">
+                                                        <span class="comment-name" style="font-size:0.8rem;"><%= reply.createdBy.fullName %></span>
+                                                        <span class="comment-time" style="font-size:0.7rem;"><%= timeAgo(reply.createdAt) %></span>
+                                                    </div>
+
+                                                    <p class="comment-body" id="text-<%= reply._id %>" style="margin:2px 0; color:#444; font-size:0.88rem;">
+                                                        <%- reply.body.replace(/^(@\w+)/, '<span class="mention">$1</span>') %>
+                                                    </p>
+
+                                                    <% if (locals.user) { %>
+                                                        <button class="btn-reply-trigger"
+                                                            onclick="enableReply('<%= comment._id %>', '<%= reply._id %>', '@<%= reply.createdBy.fullName.replace(/ /g, '') %> ')">Reply</button>
+                                                    <% } %>
+
+                                                    <div class="edit-area" id="edit-area-<%= reply._id %>">
+                                                        <div class="textarea-wrap">
+                                                            <textarea class="edit-textarea" id="input-<%= reply._id %>"><%= reply.body %></textarea>
+                                                            <button type="button" class="emoji-btn" onclick="togglePicker('picker-edit-<%= reply._id %>', 'input-<%= reply._id %>')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
+                                                            <div class="emoji-picker-popup" id="picker-edit-<%= reply._id %>"></div>
+                                                        </div>
+                                                        <div class="edit-buttons">
+                                                            <button class="btn-cancel" onclick="cancelEdit('<%= reply._id %>')">Cancel</button>
+                                                            <button class="btn-save" onclick="saveEdit('<%= reply._id %>')">Save</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="dots-menu" style="top: 12px;" onclick="toggleDropdown('dropdown-reply-<%= index %>-<%= replyIndex %>')">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                        <circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" />
+                                                    </svg>
+                                                </div>
+
+                                                <div id="dropdown-reply-<%= index %>-<%= replyIndex %>" class="dropdown-content" style="top: 32px;">
+                                                    <% if (locals.user) { %>
+                                                        <% if (locals.user._id.toString() === reply.createdBy._id.toString()) { %>
+                                                            <button onclick="enableEdit('<%= reply._id %>')">Edit</button>
+                                                            <button class="delete-btn" onclick="deleteComment('<%= reply._id %>')">Delete</button>
+                                                        <% } else if (locals.user._id.toString() === blog.createdBy._id.toString()) { %>
+                                                            <button class="delete-btn" onclick="deleteComment('<%= reply._id %>')">Delete (Author)</button>
+                                                        <% } else { %>
+                                                            <button>Report</button>
+                                                        <% } %>
+                                                    <% } %>
+                                                </div>
+                                            </div>
+                                        <% }) %>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <div class="dots-menu" onclick="toggleDropdown('dropdown-<%= index %>')">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="1" /><circle cx="12" cy="5" r="1" /><circle cx="12" cy="19" r="1" />
+                                </svg>
+                            </div>
+
+                            <div id="dropdown-<%= index %>" class="dropdown-content">
+                                <% if (locals.user) { %>
+                                    <% if (locals.user._id.toString() === comment.createdBy._id.toString()) { %>
+                                        <button onclick="enableEdit('<%= comment._id %>')">Edit</button>
+                                        <button class="delete-btn" onclick="deleteComment('<%= comment._id %>')">Delete</button>
+                                    <% } else if (locals.user._id.toString() === blog.createdBy._id.toString()) { %>
+                                        <button class="delete-btn" onclick="deleteComment('<%= comment._id %>')">Delete (Author)</button>
+                                    <% } else { %>
+                                        <button>Report</button>
+                                    <% } %>
+                                <% } %>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // ── Emoji data ──────────────────────────────────────────────
+        const EMOJI_CATEGORIES = [
+            {
+                label: '😊', name: 'Smileys',
+                emojis: ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','💫','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','😟','🙁','☹️','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖']
+            },
+            {
+                label: '👋', name: 'Gestures',
+                emojis: ['👋','🤚','🖐️','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦵','🦶','👂','🦻','👃','🫀','🫁','🧠','🦷','🦴','👀','👁️','👅','👄','💋','🩸']
+            },
+            {
+                label: '❤️', name: 'Hearts',
+                emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉️','✡️','🔯','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','🉑','☢️','☣️','📴','📳','🈶','🈚','🈸','🈺','🈷️','✴️','🆚','💮','🉐','㊙️','㊗️','🈴','🈵','🈹','🈲','🅰️','🅱️','🆎','🆑','🅾️','🆘']
+            },
+            {
+                label: '🐶', name: 'Animals',
+                emojis: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐕‍🦺','🐈','🐈‍⬛','🐓','🦃','🦚','🦜','🦢','🦩','🕊️','🐇','🦝','🦨','🦡','🦦','🦥','🐁','🐀','🐿️','🦔']
+            },
+            {
+                label: '🍔', name: 'Food',
+                emojis: ['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶️','🫑','🥑','🧄','🧅','🥔','🍠','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍘','🍥','🥮','🍢','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯','🧃','🥤','🧋','☕','🍵','🫖','🧉','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧊']
+            },
+            {
+                label: '⚽', name: 'Activities',
+                emojis: ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🥌','🎿','⛷️','🏂','🪂','🏋️','🤼','🤸','⛹️','🤺','🏇','🧘','🏄','🏊','🚣','🧗','🚵','🚴','🏆','🥇','🥈','🥉','🏅','🎖️','🏵️','🎗️','🎫','🎟️','🎪','🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🪘','🎷','🎺','🎸','🪕','🎻','🎲','♟️','🎯','🎳','🎮','🎰','🧩']
+            },
+            {
+                label: '🚗', name: 'Travel',
+                emojis: ['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🦯','🦽','🦼','🛴','🚲','🛵','🛺','🚁','🛸','🚀','🛶','⛵','🚤','🛥️','🛳️','⛴️','🚢','✈️','🛩️','🛫','🛬','🪂','💺','🚁','🚟','🚃','🚋','🚞','🚝','🚄','🚅','🚈','🚂','🚆','🚇','🚊','🚉','✈️','🛫','🛬','🚀','🛸','🌈','🌤️','⛅','🌥️','☁️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️','💨','🌪️','🌫️','🌊','💧','💦','☔']
+            },
+            {
+                label: '💡', name: 'Objects',
+                emojis: ['⌚','📱','📲','💻','⌨️','🖥️','🖨️','🖱️','🖲️','🕹️','💾','💿','📀','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🧭','⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🔌','💡','🔦','🕯️','🪔','🧯','🛢️','💰','💴','💵','💶','💷','💸','💳','🪙','💎','⚖️','🧲','🔧','🔨','⚒️','🛠️','⛏️','🔩','🪛','🔫','🧨','💣','🪓','🔪','🗡️','⚔️','🛡️','🪚','🔬','🔭','🩺','💉','🩸','💊','🩹','🩼','🩻','🪤','🧸','🪆','🖼️','🧵','🧶','🪡','🧷','🪢','👓','🕶️','🥽','🌂','☂️','🧵','🎁','🎀','🎊','🎉','🎈']
+            }
+        ];
+
+        // ── Picker state ─────────────────────────────────────────────
+        let activePicker = null;
+        let activeTextareaId = null;
+        const renderedPickers = new Set();
+
+        function buildPicker(pickerId, textareaId) {
+            if (renderedPickers.has(pickerId)) return;
+            renderedPickers.add(pickerId);
+
+            const popup = document.getElementById(pickerId);
+            let activeTab = 0;
+
+            function renderGrid(emojis) {
+                return emojis.map(e =>
+                    `<span class="emoji-cell" onclick="insertEmoji('${textareaId}','${e}')">${e}</span>`
+                ).join('');
+            }
+
+            function renderCategory(idx) {
+                popup.querySelector('.emoji-grid').innerHTML = renderGrid(EMOJI_CATEGORIES[idx].emojis);
+                popup.querySelectorAll('.emoji-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
+                activeTab = idx;
+            }
+
+            const tabs = EMOJI_CATEGORIES.map((cat, i) =>
+                `<button class="emoji-tab${i === 0 ? ' active' : ''}" onclick="pickerTabClick('${pickerId}',${i})" title="${cat.name}">${cat.label}</button>`
+            ).join('');
+
+            popup.innerHTML = `
+                <div class="emoji-tabs">${tabs}</div>
+                <div class="emoji-search"><input type="text" placeholder="Search emojis…" oninput="pickerSearch('${pickerId}','${textareaId}',this.value)"></div>
+                <div class="emoji-grid">${renderGrid(EMOJI_CATEGORIES[0].emojis)}</div>
+            `;
+
+            popup._renderCategory = renderCategory;
+        }
+
+        function pickerTabClick(pickerId, idx) {
+            const popup = document.getElementById(pickerId);
+            if (popup._renderCategory) popup._renderCategory(idx);
+        }
+
+        function pickerSearch(pickerId, textareaId, query) {
+            const popup = document.getElementById(pickerId);
+            const grid = popup.querySelector('.emoji-grid');
+            if (!query.trim()) {
+                if (popup._renderCategory) popup._renderCategory(0);
+                return;
+            }
+            const all = EMOJI_CATEGORIES.flatMap(c => c.emojis);
+            // simple filter: show emojis whose category name contains query, or just show all on short query
+            const results = all.filter((_, i) => {
+                const catName = EMOJI_CATEGORIES.find(c => c.emojis.includes(_))?.name.toLowerCase() || '';
+                return catName.includes(query.toLowerCase());
+            });
+            grid.innerHTML = (results.length ? results : all).map(e =>
+                `<span class="emoji-cell" onclick="insertEmoji('${textareaId}','${e}')">${e}</span>`
+            ).join('');
+        }
+
+        function togglePicker(pickerId, textareaId) {
+            // Close any other open picker first
+            if (activePicker && activePicker !== pickerId) {
+                const prev = document.getElementById(activePicker);
+                if (prev) prev.classList.remove('open');
+            }
+
+            const popup = document.getElementById(pickerId);
+            const btn   = popup.previousElementSibling; // the emoji-btn is right before the popup div
+            const isOpen = popup.classList.contains('open');
+
+            if (!isOpen) {
+                buildPicker(pickerId, textareaId);
+                popup.classList.add('open');
+
+                // Position with fixed coords so it's never clipped
+                const rect = btn.getBoundingClientRect();
+                const pickerH = 310; // approx picker height
+                const spaceBelow = window.innerHeight - rect.bottom;
+                const top = spaceBelow >= pickerH
+                    ? rect.bottom + 6
+                    : rect.top - pickerH - 6;
+                const left = Math.min(rect.right - 300, window.innerWidth - 308);
+
+                popup.style.top  = top + 'px';
+                popup.style.left = Math.max(8, left) + 'px';
+
+                activePicker = pickerId;
+                activeTextareaId = textareaId;
+            } else {
+                popup.classList.remove('open');
+                activePicker = null;
+                activeTextareaId = null;
+            }
+        }
+
+        function insertEmoji(textareaId, emoji) {
+            const ta = document.getElementById(textareaId);
+            if (!ta) return;
+            const start = ta.selectionStart;
+            const end   = ta.selectionEnd;
+            ta.value = ta.value.slice(0, start) + emoji + ta.value.slice(end);
+            ta.selectionStart = ta.selectionEnd = start + emoji.length;
+            ta.focus();
+        }
+
+        // Close picker when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.emoji-picker-popup') && !e.target.closest('.emoji-btn')) {
+                document.querySelectorAll('.emoji-picker-popup.open').forEach(p => p.classList.remove('open'));
+                activePicker = null;
+            }
+        });
+
+        // ── Existing functions ────────────────────────────────────────
+        document.querySelectorAll('.replies-list').forEach(el => {
+            el.style.maxHeight = el.scrollHeight + 'px';
+        });
+
+        function toggleReplies(commentId, count) {
+            const list = document.getElementById('replies-list-' + commentId);
+            const btn  = document.getElementById('toggle-btn-' + commentId);
+            const lbl  = document.getElementById('toggle-label-' + commentId);
+            const replyWord = count === 1 ? 'reply' : 'replies';
+
+            if (list.classList.contains('collapsed')) {
+                list.style.maxHeight = list.scrollHeight + 'px';
+                list.classList.remove('collapsed');
+                btn.classList.add('open');
+                lbl.textContent = count + ' ' + replyWord;
+            } else {
+                list.style.maxHeight = list.scrollHeight + 'px';
+                requestAnimationFrame(() => { list.classList.add('collapsed'); });
+                btn.classList.remove('open');
+                lbl.textContent = 'Show ' + count + ' ' + replyWord;
+            }
+        }
+
+        function toggleDropdown(id) {
+            document.querySelectorAll('.dropdown-content').forEach(el => {
+                if (el.id !== id) el.classList.remove('show');
+            });
+            document.getElementById(id).classList.toggle('show');
+        }
+
+        window.onclick = function(e) {
+            if (!e.target.closest('.dots-menu')) {
+                document.querySelectorAll('.dropdown-content').forEach(el => el.classList.remove('show'));
+            }
+        }
+
+        function enableReply(parentId, targetId, mention) {
+            document.querySelectorAll('.reply-area').forEach(el => {
+                if (el.id !== 'reply-area-' + parentId) el.style.display = 'none';
+            });
+            const area  = document.getElementById('reply-area-' + parentId);
+            const input = document.getElementById('reply-input-' + parentId);
+            area.style.display = 'block';
+            if (mention) {
+                input.value = mention;
+                input.focus();
+                input.setSelectionRange(input.value.length, input.value.length);
+            } else {
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        function cancelReply(parentId) {
+            document.getElementById('reply-area-' + parentId).style.display = 'none';
+            document.getElementById('reply-input-' + parentId).value = '';
+        }
+
+        async function submitReply(parentId) {
+            const replyContent = document.getElementById('reply-input-' + parentId).value;
+            if (!replyContent.trim()) return alert("Reply cannot be empty");
+            try {
+                const res = await fetch(`/blog/comment/reply/${parentId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: replyContent })
+                });
+                if (res.ok) { window.location.reload(); }
+                else { alert("Server error: Could not post reply"); }
+            } catch (err) { console.error("Fetch error:", err); }
+        }
+
+        function enableEdit(id) {
+            document.getElementById('text-' + id).style.display = 'none';
+            document.getElementById('edit-area-' + id).style.display = 'block';
+        }
+
+        function cancelEdit(id) {
+            document.getElementById('text-' + id).style.display = 'block';
+            document.getElementById('edit-area-' + id).style.display = 'none';
+        }
+
+        async function saveEdit(id) {
+            const newContent = document.getElementById('input-' + id).value;
+            if (!newContent.trim()) return alert("Comment cannot be empty");
+            try {
+                const res = await fetch(`/blog/comment/edit/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content: newContent })
+                });
+                if (res.ok) {
+                    document.getElementById('text-' + id).innerText = newContent;
+                    cancelEdit(id);
+                } else { alert("Server error: Could not save comment"); }
+            } catch (err) {
+                console.error("Fetch error:", err);
+                alert("Network error: Check your console");
+            }
+        }
+
+        async function deleteComment(id) {
+            if (confirm("Delete this comment?")) {
+                const res = await fetch(`/blog/comment/delete/${id}`, { method: 'DELETE' });
+                if (res.ok) {
+                    document.getElementById('comment-container-' + id).remove();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || "Failed to delete");
                 }
-
-                window.onclick = function (e) {
-                    if (!e.target.closest('.dots-menu')) {
-                        document.querySelectorAll('.dropdown-content').forEach(el => el.classList.remove('show'));
-                    }
-                }
-
-                // Inline Edit Logic
-                function enableEdit(id) {
-                    document.getElementById('text-' + id).style.display = 'none';
-                    document.getElementById('edit-area-' + id).style.display = 'block';
-                }
-
-                function cancelEdit(id) {
-                    document.getElementById('text-' + id).style.display = 'block';
-                    document.getElementById('edit-area-' + id).style.display = 'none';
-                }
-
-                async function saveEdit(id) {
-                    const newContent = document.getElementById('input-' + id).value;
-
-                    // Check if content is empty
-                    if (!newContent.trim()) return alert("Comment cannot be empty");
-
-                    try {
-                        // Change '/blog/comment/edit/' to match your actual route
-                        const res = await fetch(`/blog/comment/edit/${id}`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({ content: newContent })
-                        });
-
-                        if (res.ok) {
-                            // Success: Update the UI
-                            document.getElementById('text-' + id).innerText = newContent;
-                            cancelEdit(id);
-                        } else {
-                            alert("Server error: Could not save comment");
-                        }
-                    } catch (err) {
-                        console.error("Fetch error:", err);
-                        alert("Network error: Check your console");
-                    }
-                }
-
-                async function deleteComment(id) {
-                    if (confirm("Delete this comment?")) {
-                        // UPDATE THIS URL to your actual Delete route
-                        const res = await fetch(`/blog/comment/delete/${id}`, { method: 'DELETE' });
-                        if (res.ok) {
-                            document.getElementById('comment-container-' + id).remove();
-                        } else {
-                            const data = await res.json();
-                            alert(data.error || "Failed to delete");
-                        }
-
-                    }
-                }
-            </script>
+            }
+        }
+    </script>
 </body>
-
 </html>

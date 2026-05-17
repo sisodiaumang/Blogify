@@ -1,3 +1,5 @@
+const dns = require('dns');
+dns.setServers(['8.8.8.8', '8.8.4.4']);
 require('dotenv').config();
 const express = require("express");
 const path = require("path");
@@ -19,7 +21,6 @@ const { checkForAuthenticationCookie } = require('./middleware/authentication');
 
 const app = express();
 const PORT = process.env.PORT || 8000;
-
 
 connectToMongoDB(process.env.MONGODB_URL)
     .then(() => {

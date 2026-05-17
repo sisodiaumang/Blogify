@@ -19,7 +19,7 @@ const upload = multer({ storage: storage })
 const router = Router();
 
 
-
+console.log("blog route loaded");
 router.get("/add-new", (req, res) => {
     return res.render('addBlog', {
         // user:req.user,
@@ -178,6 +178,36 @@ router.delete("/comment/delete/:id", async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(500).json({ error: "Server Error" });
+    }
+});
+router.post("/comment/reply/:commentId", async (req,res)=>{
+    try{
+
+        const {commentId} = req.params;
+        const {content} = req.body;
+
+        const parentComment =
+            await Comment.findById(commentId);
+
+        await Comment.create({
+            body:content,
+            createdBy:req.user._id,
+            commentedOn:
+            parentComment.commentedOn,
+            parentComment:commentId
+        });
+
+        return res.json({
+            success:true
+        });
+
+    }catch(err){
+
+        console.log(err);
+        return res.status(500)
+        .json({
+            error:err.message
+        });
     }
 });
 
