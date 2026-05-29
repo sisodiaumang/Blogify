@@ -6,7 +6,7 @@ const { deleteCloudinary } = require("../services/cloudinary");
 
 const  router = Router();
 
-router.get('/dashboard', async (req, res) => {
+router.get('/dashboard',restrictTo(["ADMIN","OWNER"]), async (req, res) => {
     try {
         const { searchId } = req.query;
         let queryFilter = {};
