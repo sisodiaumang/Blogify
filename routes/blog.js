@@ -4,11 +4,13 @@ const path = require("path");
 const fs = require("fs");
 const { marked } = require("marked");
 
-
+const User = require("../models/user");
 const Blog = require("../models/blog");
 const { uploadOnCloudinary, deleteCloudinary } = require("../services/cloudinary");
 const Comment = require("../models/comment");
 const { findById } = require("../models/user");
+const { reportToAdmin } = require("../services/nodeMailer");
+const { restrictTo } = require("../middleware/authorization");
 
 const storage = multer.memoryStorage();
 
@@ -140,17 +142,23 @@ router.post("/comment/:id", async (req, res) => {
 router.post("/comment/edit/:id", async (req, res) => {
     try {
         const comment = await Comment.findById(req.params.id);
-        
+
         if (!comment) {
             // Send a 404 status so the frontend 'catch' block triggers
             return res.status(404).send("Comment not found");
         }
-
+        if (
+            comment.createdBy.toString()
+            !==
+            req.user._id.toString()
+        ) {
+            return res.status(403).send("Unauthorized");
+        }
         const { content } = req.body;
 
         comment.body = content;
         await comment.save();
-        return res.sendStatus(200); 
+        return res.sendStatus(200);
 
     } catch (error) {
         console.error(error);
@@ -165,7 +173,7 @@ router.delete("/comment/delete/:id", async (req, res) => {
         const isCommentAuthor = comment.createdBy._id.toString() === req.user._id.toString();
 
         // Also fetch the blog to check if requester is the blog author
-        const blog = await Blog.findById(comment.blogId); // adjust field name if needed
+        const blog = await Blog.findById(comment.commentedOn); // adjust field name if needed
         const isBlogAuthor = blog && blog.createdBy.toString() === req.user._id.toString();
 
         if (!isCommentAuthor && !isBlogAuthor) {
@@ -179,33 +187,81 @@ router.delete("/comment/delete/:id", async (req, res) => {
         return res.status(500).json({ error: "Server Error" });
     }
 });
-router.post("/comment/reply/:commentId", async (req,res)=>{
-    try{
+router.post("/comment/reply/:commentId", async (req, res) => {
+    try {
 
-        const {commentId} = req.params;
-        const {content} = req.body;
+        const { commentId } = req.params;
+        const { content } = req.body;
 
         const parentComment =
             await Comment.findById(commentId);
 
         await Comment.create({
-            body:content,
-            createdBy:req.user._id,
+            body: content,
+            createdBy: req.user._id,
             commentedOn:
-            parentComment.commentedOn,
-            parentComment:commentId
+                parentComment.commentedOn,
+            parentComment: commentId
         });
 
         return res.json({
-            success:true
+            success: true
         });
 
-    }catch(err){
+    } catch (err) {
 
         console.log(err);
         return res.status(500)
-        .json({
-            error:err.message
+            .json({
+                error: err.message
+            });
+    }
+});
+
+router.post("/report", restrictTo(['USER', 'ADMIN', 'OWNER']), async (req, res) => {
+    try {
+        const { targetType, targetId, blogId, reason, details } = req.body;
+
+        const owner = await User.findOne({ role: "OWNER" }).select("email");
+        
+        const admin = await User.findOne({ role: "ADMIN" }).select("email");
+        
+        if (owner) {
+            await reportToAdmin(
+                owner.email,
+                targetType,
+                targetId,
+                blogId,
+                reason,
+                details
+            );
+            
+        }
+
+        console.time("report");
+        if (admin) {
+            await reportToAdmin(
+                admin.email,
+                targetType,
+                targetId,
+                blogId,
+                reason,
+                details
+            );
+            
+        }
+        console.timeEnd("report");
+        
+        return res.json({
+            success: true,
+            message: "Report submitted successfully"
+        });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to submit report"
         });
     }
 });

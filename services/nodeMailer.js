@@ -128,4 +128,64 @@ async function sendWelcomeEmail(email, fullName) {
     });
 }
 
-module.exports = {sendOTP,sendWelcomeEmail};
+async function reportToAdmin(adminEmail, targetType, targetId, blogId, reason, details) {
+    // 1. Sanitize variables and provide concrete fallbacks
+    const safeType = String(targetType || 'UNKNOWN').toUpperCase();
+    const safeId = String(targetId || 'N/A');
+    const safeBlogId = String(blogId || 'N/A');
+    const safeReason = String(reason || 'No reason provided');
+    const safeDetails = details ? String(details).replace(/[\r\n]+/g, '<br>') : 'No additional details provided.';
+
+    // 2. Build the flat HTML string using your exact original theme colors & fonts
+    let htmlContent = '';
+    htmlContent += '<!DOCTYPE html><html><body style="margin:0;padding:20px;background-color:#fcfaf7;font-family:\'Helvetica Neue\',Arial,sans-serif;color:#444444;">';
+    htmlContent += '<div style="max-width:550px;margin:0 auto;background:#ffffff;border:1px solid #e5e0d8;border-radius:12px;overflow:hidden;box-shadow:0 10px 25px rgba(0,0,0,0.05);">';
+    
+    // Header Banner (Your Theme Color: #2d3e50)
+    htmlContent += '<div style="background-color:#2d3e50;padding:25px;text-align:center;"><h1 style="color:#ffffff;font-family:\'Georgia\',serif;font-size:24px;margin:0;font-weight:normal;">Content Report Notification</h1></div>';
+    
+    // Content Body
+    htmlContent += '<div style="padding:40px 30px;">';
+    htmlContent += '<p style="font-size:16px;line-height:1.8;margin-top:0;color:#444444;">Hello Admin,<br>A user has submitted a new content report. Please review the details below:</p>';
+    
+    // Report Details Table
+    htmlContent += '<table width="100%" cellspacing="0" cellpadding="12" border="0" style="background-color:#fcfaf7;border:1px solid #e5e0d8;border-radius:6px;margin-bottom:25px;font-size:14px;color:#444444;">';
+    htmlContent += '<tr><td width="35%" style="font-weight:bold;color:#2d3e50;border-bottom:1px solid #e5e0d8;">Report Type:</td><td style="color:#2d3e50;border-bottom:1px solid #e5e0d8;font-weight:bold;">' + safeType + '</td></tr>';
+    htmlContent += '<tr><td style="font-weight:bold;color:#2d3e50;border-bottom:1px solid #e5e0d8;">Target ID:</td><td style="color:#444444;border-bottom:1px solid #e5e0d8;font-family:monospace;">' + safeId + '</td></tr>';
+    
+    if (safeType === 'COMMENT') {
+        htmlContent += '<tr><td style="font-weight:bold;color:#2d3e50;border-bottom:1px solid #e5e0d8;">Parent Blog ID:</td><td style="color:#444444;border-bottom:1px solid #e5e0d8;font-family:monospace;">' + safeBlogId + '</td></tr>';
+    }
+    
+    htmlContent += '<tr><td style="font-weight:bold;color:#2d3e50;border-bottom:1px solid #e5e0d8;">Reason:</td><td style="color:#444444;border-bottom:1px solid #e5e0d8;">' + safeReason + '</td></tr>';
+    htmlContent += '<tr><td valign="top" style="font-weight:bold;color:#2d3e50;">User Remarks:</td><td style="color:#444444;line-height:1.6;">' + safeDetails + '</td></tr>';
+    htmlContent += '</table>';
+    
+    // Call to Action Button (Pill shaped styled like your original button)
+    htmlContent += '<div style="text-align:center;margin:30px 0 10px 0;"><a href="https://blogify-for-stories.vercel.app/admin/reports" style="background-color:#2d3e50;color:#ffffff;padding:14px 28px;text-decoration:none;border-radius:50px;font-weight:700;font-size:14px;display:inline-block;box-shadow:0 4px 15px rgba(45,62,80,0.2);">Review on Dashboard</a></div>';
+    htmlContent += '</div>';
+    
+    // Footer
+    htmlContent += '<div style="background-color:#fcfaf7;border-top:1px solid #e5e0d8;padding:20px;text-align:center;font-size:12px;color:#aaa;"><strong>Blogify System</strong><br>Stories and Ideas &bull; Delhi, India</div>';
+    htmlContent += '</div></body></html>';
+
+    // 3. Construct Subject Line without emojis
+    const subjectLine = safeType === "BLOG" 
+        ? `[Report] Blog ID: ${safeBlogId} - Reason: ${safeReason}`
+        : `[Report] Comment ID: ${safeId} on Blog: ${safeBlogId} - Reason: ${safeReason}`;
+
+    try {
+        const info = await transporter.sendMail({
+            from: `"Blogify" <${process.env.EMAIL}>`,
+            to: adminEmail,
+            subject: subjectLine,
+            html: htmlContent,
+        });
+        return info;
+    } catch (error) {
+        console.error(`Failed to dispatch email to ${adminEmail}:`, error);
+        throw error;
+    }
+}
+
+    module.exports = { sendOTP, sendWelcomeEmail, reportToAdmin };

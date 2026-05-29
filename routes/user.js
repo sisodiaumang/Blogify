@@ -2,15 +2,15 @@ const validator = require("validator");
 const { Router } = require("express");
 const path = require("path");
 const crypto = require("crypto");
-
-
+const { createAccessTokenForUser } = require("../services/authentication");
+const JWT = require("jsonwebtoken");
 const User = require("../models/user");
 const Blog = require("../models/blog");
 const multer = require("multer");
 const { uploadOnCloudinary, deleteCloudinary } = require("../services/cloudinary");
-const { createTokenForUser } = require("../services/authentication");
+
 const generateOTP = require("../services/otpGenerator");
-const {sendOTP,sendWelcomeEmail} = require("../services/nodeMailer");
+const { sendOTP, sendWelcomeEmail } = require("../services/nodeMailer");
 
 
 const router = Router();
@@ -34,8 +34,23 @@ router.post('/signin', async (req, res) => {
     }
 
     try {
-        const token = await User.matchPasswordAndGenerateToken(email, password);
-        return res.cookie('token', token).redirect("/");
+        const {
+            accessToken,
+            refreshToken,
+            user
+        } = await User.matchPasswordAndGenerateToken(email, password);
+        res.cookie("refreshToken", refreshToken, {
+            httpOnly: true,
+            secure: true,
+            sameSite: "strict",
+        });
+        res.cookie("accessToken", accessToken, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+        });
+
+        return res.redirect("/");
     } catch (error) {
         return res.render("signin", { error: "Incorrect Password or Email" });
     };
@@ -52,24 +67,37 @@ router.post('/signup', async (req, res) => {
     if (!validator.isEmail(email)) {
         return res.status(400).render("signup", { error: "Enter an Valid email" });
     }
-    const user = await User.findOne({email});
-    if(user){
-        return res.render("signup",{error:"Email already exist"});
+    const user = await User.findOne({ email });
+    if (user) {
+        return res.render("signup", { error: "Email already exist" });
     }
     await User.create({
         fullName,
         email,
         password,
     });
-    await sendWelcomeEmail(email,fullName);
+    await sendWelcomeEmail(email, fullName);
     return res.redirect("/");
 });
 
+router.get("/logout", async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
 
-router.get('/logout', (req, res) => {
-    res.clearCookie("token");
-    return res.redirect('/');
-})
+        if (user) {
+            user.refreshToken = "";
+            await user.save();
+        }
+        res.clearCookie("refreshToken");
+        res.clearCookie("accessToken");
+        return res.redirect("/");
+
+    } catch (err) {
+        console.log(err);
+        return res.redirect("/");
+    }
+});
+
 
 router.get("/forgot-password", (req, res) => {
     return res.render("forgotPassword");
@@ -98,7 +126,7 @@ router.post("/verifyOtp", async (req, res) => {
     if (!user) {
         return res.render("verifyOtp", {
             error: "Invalid OTP",
-            otpCreatedAt: Date.now() 
+            otpCreatedAt: Date.now()
         });
     }
 
@@ -106,9 +134,9 @@ router.post("/verifyOtp", async (req, res) => {
     const expiryTime = createdTime + 5 * 60 * 1000;
 
     if (Date.now() > expiryTime) {
-        return res.render("verifyOtp", { 
-            error: "OTP expired", 
-            otpCreatedAt: createdTime 
+        return res.render("verifyOtp", {
+            error: "OTP expired",
+            otpCreatedAt: createdTime
         });
     }
 
@@ -135,7 +163,7 @@ router.post("/resetPassword/:otp", async (req, res) => {
         console.log("User not found");
     }
     user.password = confirmPassword;
-    user.otp=undefined;
+    user.otp = undefined;
     await user.save();
     return res.redirect("/user/signin");
 })
@@ -143,7 +171,7 @@ router.post("/resetPassword/:otp", async (req, res) => {
 router.get("/settings", (req, res) => {
     // req.user is provided by your auth middleware
     if (!req.user) return res.redirect("/user/signin");
-    
+
     return res.render("accountSetting", {
         // user: req.user
     });
@@ -168,26 +196,35 @@ router.get("/:id", async (req, res) => {
 });
 
 router.patch("/update-profile", upload.single("profileImage"), async (req, res) => {
-    const { fullName,bio } = req.body;
-    const user = await User.findById(req.user._id);
+    const { fullName, bio } = req.body;
+    const user = await User.findById(
+        req.user._id
+    );
 
     user.fullName = fullName;
-    user.bio=bio;
+    user.bio = bio;
+
     if (req.file?.buffer) {
         if (user.profileImagePublicId) {
-            await deleteCloudinary(user.profileImagePublicId);
+            await deleteCloudinary(
+                user.profileImagePublicId
+            );
         }
 
-        const result = await uploadOnCloudinary(req.file.buffer);
+        const result =
+            await uploadOnCloudinary(
+                req.file.buffer
+            );
 
         user.profileImageURL = result.secure_url;
+
         user.profileImagePublicId = result.public_id;
     }
-    
-    await user.save();
 
-    const newToken = createTokenForUser(user);
-    res.cookie("token", newToken).redirect("/user/settings");
+    await user.save();
+    return res.redirect(
+        "/user/settings"
+    );
 });
 
 router.delete("/delete-account", async (req, res) => {
@@ -204,7 +241,7 @@ router.delete("/delete-account", async (req, res) => {
     }
 
     await User.findByIdAndDelete(userId);
-    res.clearCookie("token").redirect("/user/signup");
+    res.clearCookie("refreshToken").redirect("/user/signup");
 });
 
 

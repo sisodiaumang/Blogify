@@ -1,28 +1,43 @@
 const JWT =require('jsonwebtoken');
 
-const secret = process.env.JWT_SECRET;
 
-function createTokenForUser(user){
+const accessSecret = process.env.ACCESS_TOKEN_SECRET;
+const refreshSecret = process.env.REFRESH_TOKEN_SECRET;
+
+function createAccessTokenForUser(user){
     const payload = 
-    {
-        _id : user._id,
+    {   _id : user._id,
         email:user.email,
-        profileImageURL:user.profileImageURL,
         role:user.role,
-        fullName:user.fullName,
-        bio:user.bio,
+
+    }; 
+    return JWT.sign(payload, accessSecret, {
+        expiresIn: "15m",
+    });
+}
+ function createRefreshTokenForUser(user){
+    const payload = 
+    {   _id : user._id,
+        email:user.email,
+        role:user.role,
+
     };
-
-    const token = JWT.sign(payload,secret);
-
-    return token;
+    return JWT.sign(payload, refreshSecret, {
+        expiresIn: "7d",
+    });
 }
 
-
-
-function validateToken(token) {
+function validateRefreshToken(token) {
     try {
-        const payload = JWT.verify(token, secret);
+        const payload = JWT.verify(token, refreshSecret);
+        return payload;
+    } catch (err) {
+        return null; // important
+    }
+}
+function validateAccessToken(token) {
+    try {
+        const payload = JWT.verify(token, accessSecret);
         return payload;
     } catch (err) {
         return null; // important
@@ -30,6 +45,8 @@ function validateToken(token) {
 }
 
 module.exports = {
-    createTokenForUser,
-    validateToken
+    createAccessTokenForUser,
+    createRefreshTokenForUser,
+    validateRefreshToken,
+    validateAccessToken
 }

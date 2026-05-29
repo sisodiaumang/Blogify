@@ -69,27 +69,14 @@
                 overflow-y: auto;
                 flex: 1;
                 padding-right: 6px;
-                /* custom scrollbar */
                 scrollbar-width: thin;
                 scrollbar-color: #d0cec8 transparent;
             }
 
-            .comment-list::-webkit-scrollbar {
-                width: 4px;
-            }
-
-            .comment-list::-webkit-scrollbar-track {
-                background: transparent;
-            }
-
-            .comment-list::-webkit-scrollbar-thumb {
-                background: #d0cec8;
-                border-radius: 4px;
-            }
-
-            .comment-list::-webkit-scrollbar-thumb:hover {
-                background: #b0aea8;
-            }
+            .comment-list::-webkit-scrollbar { width: 4px; }
+            .comment-list::-webkit-scrollbar-track { background: transparent; }
+            .comment-list::-webkit-scrollbar-thumb { background: #d0cec8; border-radius: 4px; }
+            .comment-list::-webkit-scrollbar-thumb:hover { background: #b0aea8; }
 
             .comment-item {
                 display: flex;
@@ -110,10 +97,7 @@
                 color: #888;
             }
 
-            .dots-menu:hover {
-                background: #eee;
-                color: #000;
-            }
+            .dots-menu:hover { background: #eee; color: #000; }
 
             .dropdown-content {
                 display: none;
@@ -125,7 +109,7 @@
                 border-radius: 8px;
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
                 z-index: 100;
-                min-width: 120px;
+                min-width: 140px;
                 overflow: hidden;
             }
 
@@ -144,6 +128,7 @@
 
             .dropdown-content button:hover { background: #f5f5f5; }
             .dropdown-content .delete-btn { color: #d93025; }
+            .dropdown-content .report-btn { color: #c0450a; }
             .show { display: block; }
 
             .edit-area,
@@ -205,7 +190,6 @@
                 margin-top: 5px;
             }
 
-            /* Toggle replies button */
             .btn-toggle-replies {
                 background: none;
                 border: none;
@@ -229,9 +213,7 @@
                 font-style: normal;
             }
 
-            .btn-toggle-replies.open .chevron {
-                transform: rotate(180deg);
-            }
+            .btn-toggle-replies.open .chevron { transform: rotate(180deg); }
 
             .replies-list {
                 margin-top: 10px;
@@ -258,10 +240,7 @@
 
             .reply-item:first-child { border-top: none; }
 
-            .mention {
-                color: #0066cc;
-                font-weight: 600;
-            }
+            .mention { color: #0066cc; font-weight: 600; }
 
             .blog-title {
                 font-family: 'Playfair Display', serif;
@@ -316,9 +295,7 @@
             .comment-time { font-size: 0.75rem; color: #888; margin-left: 6px; }
 
             /* ── Emoji picker ── */
-            .textarea-wrap {
-                position: relative;
-            }
+            .textarea-wrap { position: relative; }
 
             .emoji-btn {
                 position: absolute;
@@ -422,10 +399,304 @@
 
             .emoji-cell:hover { background: #f0ede8; }
 
-            /* make textareas have padding-right so text doesn't go under the button */
-            .textarea-wrap textarea {
-                padding-right: 36px;
+            .textarea-wrap textarea { padding-right: 36px; }
+
+            /* ── Report Modal ── */
+            .report-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0, 0, 0, 0.45);
+                z-index: 10000;
+                align-items: center;
+                justify-content: center;
+                backdrop-filter: blur(2px);
             }
+
+            .report-overlay.open {
+                display: flex;
+            }
+
+            .report-modal {
+                background: #fff;
+                border-radius: 16px;
+                width: 100%;
+                max-width: 480px;
+                margin: 16px;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+                overflow: hidden;
+                animation: modalIn 0.2s ease;
+            }
+
+            @keyframes modalIn {
+                from { opacity: 0; transform: translateY(12px) scale(0.98); }
+                to   { opacity: 1; transform: translateY(0) scale(1); }
+            }
+
+            .report-modal-header {
+                padding: 22px 24px 18px;
+                border-bottom: 1px solid var(--border);
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+            }
+
+            .report-modal-header h2 {
+                margin: 0;
+                font-size: 1.05rem;
+                font-weight: 700;
+                letter-spacing: -0.01em;
+            }
+
+            .report-modal-header p {
+                margin: 4px 0 0;
+                font-size: 0.8rem;
+                color: #888;
+            }
+
+            .report-close-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #999;
+                padding: 4px;
+                border-radius: 6px;
+                line-height: 0;
+                transition: background 0.15s, color 0.15s;
+                flex-shrink: 0;
+                align-self: flex-start;
+            }
+
+            .report-close-btn:hover { background: #f0ede8; color: #333; }
+
+            .report-modal-body {
+                padding: 20px 24px;
+            }
+
+            .report-step { display: none; }
+            .report-step.active { display: block; }
+
+            .report-reason-list {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .report-reason-list li {
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                transition: border-color 0.15s, background 0.15s;
+            }
+
+            .report-reason-list li:hover { border-color: #bbb; background: #fafaf9; }
+
+            .report-reason-list li label {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                padding: 12px 14px;
+                cursor: pointer;
+                width: 100%;
+                box-sizing: border-box;
+            }
+
+            .report-reason-list li input[type="radio"] {
+                width: 16px;
+                height: 16px;
+                accent-color: var(--ink);
+                flex-shrink: 0;
+                cursor: pointer;
+            }
+
+            .report-reason-list li .reason-text {
+                flex: 1;
+            }
+
+            .report-reason-list li .reason-title {
+                font-size: 0.88rem;
+                font-weight: 600;
+                color: var(--ink);
+                display: block;
+            }
+
+            .report-reason-list li .reason-desc {
+                font-size: 0.76rem;
+                color: #888;
+                display: block;
+                margin-top: 1px;
+            }
+
+            .report-reason-list li:has(input:checked) {
+                border-color: var(--ink);
+                background: #f7f6f3;
+            }
+
+            .report-details-label {
+                font-size: 0.85rem;
+                font-weight: 600;
+                color: var(--ink);
+                display: block;
+                margin-bottom: 8px;
+            }
+
+            .report-details-sub {
+                font-size: 0.78rem;
+                color: #888;
+                display: block;
+                margin-bottom: 12px;
+            }
+
+            .report-details-textarea {
+                width: 100%;
+                padding: 12px;
+                border: 1px solid var(--border);
+                border-radius: 10px;
+                font-family: inherit;
+                font-size: 0.88rem;
+                resize: none;
+                box-sizing: border-box;
+                background: #fafaf9;
+                color: var(--ink);
+                transition: border-color 0.15s;
+                outline: none;
+            }
+
+            .report-details-textarea:focus { border-color: #aaa; }
+
+            .report-selected-reason {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                padding: 10px 14px;
+                background: #f7f6f3;
+                border: 1px solid var(--border);
+                border-radius: 8px;
+                margin-bottom: 16px;
+            }
+
+            .report-selected-reason span {
+                font-size: 0.83rem;
+                font-weight: 600;
+                color: var(--ink);
+            }
+
+            .report-selected-reason .back-link {
+                margin-left: auto;
+                background: none;
+                border: none;
+                font-size: 0.78rem;
+                color: #0066cc;
+                cursor: pointer;
+                font-weight: 600;
+                padding: 0;
+            }
+
+            .report-modal-footer {
+                padding: 16px 24px 22px;
+                border-top: 1px solid var(--border);
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+            }
+
+            .report-btn-cancel {
+                background: none;
+                border: 1px solid var(--border);
+                padding: 9px 20px;
+                border-radius: 8px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+                color: #555;
+                transition: background 0.15s;
+            }
+
+            .report-btn-cancel:hover { background: #f5f5f5; }
+
+            .report-btn-next,
+            .report-btn-submit {
+                background: var(--ink);
+                color: #fff;
+                border: none;
+                padding: 9px 22px;
+                border-radius: 8px;
+                font-size: 0.85rem;
+                font-weight: 600;
+                cursor: pointer;
+                transition: opacity 0.15s;
+            }
+
+            .report-btn-next:disabled,
+            .report-btn-submit:disabled {
+                opacity: 0.4;
+                cursor: not-allowed;
+            }
+
+            .report-btn-next:not(:disabled):hover,
+            .report-btn-submit:not(:disabled):hover { opacity: 0.8; }
+
+            .report-success-icon {
+                width: 52px;
+                height: 52px;
+                background: #edfaf0;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 16px;
+            }
+
+            .report-success-icon svg {
+                width: 24px;
+                height: 24px;
+                color: #1a7f40;
+            }
+
+            .report-success-body {
+                text-align: center;
+                padding: 8px 0 4px;
+            }
+
+            .report-success-body h3 {
+                margin: 0 0 8px;
+                font-size: 1rem;
+                font-weight: 700;
+            }
+
+            .report-success-body p {
+                margin: 0;
+                font-size: 0.85rem;
+                color: #666;
+                line-height: 1.5;
+            }
+
+            .report-char-count {
+                font-size: 0.73rem;
+                color: #aaa;
+                text-align: right;
+                margin-top: 5px;
+            }
+
+            /* Blog-level report button in article header area */
+            .blog-report-btn {
+                background: none;
+                border: 1px solid var(--border);
+                color: #888;
+                font-size: 0.78rem;
+                font-weight: 600;
+                padding: 5px 12px;
+                border-radius: 20px;
+                cursor: pointer;
+                transition: border-color 0.15s, color 0.15s, background 0.15s;
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .blog-report-btn:hover { border-color: #c0450a; color: #c0450a; background: #fff7f4; }
 
             @media (max-width: 1024px) {
                 .page-grid { grid-template-columns: 1fr; }
@@ -469,9 +740,17 @@
     <div class="page-grid">
         <article>
             <header>
-                <p style="text-transform: uppercase; font-size: 11px; color: #888; font-weight: 600; margin: 0;">
-                    <%= blog.createdBy.fullName %> • <%= timeAgo(blog.createdAt) %>
-                </p>
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 6px;">
+                    <p style="text-transform: uppercase; font-size: 11px; color: #888; font-weight: 600; margin: 0;">
+                        <%= blog.createdBy.fullName %> &bull; <%= timeAgo(blog.createdAt) %>
+                    </p>
+                    <% if (locals.user) { %>
+                        <button class="blog-report-btn" onclick="openReportModal('blog', '<%= blog._id %>')">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                            Report
+                        </button>
+                    <% } %>
+                </div>
                 <h1 class="blog-title"><%= blog.title %></h1>
             </header>
 
@@ -540,7 +819,6 @@
                                     <%= comment.body %>
                                 </p>
 
-                                <!-- Edit area for top-level comment — placed directly after the text -->
                                 <div class="edit-area" id="edit-area-<%= comment._id %>">
                                     <div class="textarea-wrap">
                                         <textarea class="edit-textarea" id="input-<%= comment._id %>"><%= comment.body %></textarea>
@@ -553,7 +831,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Action row: Reply + toggle replies -->
                                 <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
                                     <% if (locals.user) { %>
                                         <button class="btn-reply-trigger"
@@ -569,7 +846,6 @@
                                     <% } %>
                                 </div>
 
-                                <!-- Single reply box per top-level comment -->
                                 <div class="reply-area" id="reply-area-<%= comment._id %>">
                                     <div class="textarea-wrap">
                                         <textarea class="reply-textarea" id="reply-input-<%= comment._id %>" rows="2" placeholder="Write a reply..."></textarea>
@@ -582,7 +858,6 @@
                                     </div>
                                 </div>
 
-                                <!-- Replies list (collapsible) -->
                                 <% if (currentReplies.length > 0) { %>
                                     <div class="replies-list" id="replies-list-<%= comment._id %>">
                                         <% currentReplies.forEach((reply, replyIndex) => { %>
@@ -631,7 +906,7 @@
                                                         <% } else if (locals.user._id.toString() === blog.createdBy._id.toString()) { %>
                                                             <button class="delete-btn" onclick="deleteComment('<%= reply._id %>')">Delete (Author)</button>
                                                         <% } else { %>
-                                                            <button>Report</button>
+                                                            <button class="report-btn" onclick="openReportModal('comment', '<%= reply._id %>'); toggleDropdown('dropdown-reply-<%= index %>-<%= replyIndex %>')">Report</button>
                                                         <% } %>
                                                     <% } %>
                                                 </div>
@@ -655,7 +930,7 @@
                                     <% } else if (locals.user._id.toString() === blog.createdBy._id.toString()) { %>
                                         <button class="delete-btn" onclick="deleteComment('<%= comment._id %>')">Delete (Author)</button>
                                     <% } else { %>
-                                        <button>Report</button>
+                                        <button class="report-btn" onclick="openReportModal('comment', '<%= comment._id %>'); toggleDropdown('dropdown-<%= index %>')">Report</button>
                                     <% } %>
                                 <% } %>
                             </div>
@@ -664,6 +939,159 @@
                 </div>
             </div>
         </aside>
+    </div>
+
+    <!-- ── Report Modal ────────────────────────────────────────── -->
+    <div class="report-overlay" id="report-overlay" onclick="handleOverlayClick(event)">
+        <div class="report-modal" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
+
+            <!-- Step 1: Choose reason -->
+            <div id="report-step-1" class="report-step active">
+                <div class="report-modal-header">
+                    <div>
+                        <h2 id="report-modal-title">Report content</h2>
+                        <p>Why are you reporting this?</p>
+                    </div>
+                    <button class="report-close-btn" onclick="closeReportModal()" aria-label="Close">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="report-modal-body">
+                    <ul class="report-reason-list" id="report-reason-list">
+                        <li>
+                            <label>
+                                <input type="radio" name="report-reason" value="sexual_content" onchange="onReasonChange()">
+                                <span class="reason-text">
+                                    <span class="reason-title">Sexual content</span>
+                                    <span class="reason-desc">Explicit or graphic sexual material</span>
+                                </span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio" name="report-reason" value="harassment" onchange="onReasonChange()">
+                                <span class="reason-text">
+                                    <span class="reason-title">Harassment or bullying</span>
+                                    <span class="reason-desc">Targeted abuse, threats, or intimidation</span>
+                                </span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio" name="report-reason" value="hate_speech" onchange="onReasonChange()">
+                                <span class="reason-text">
+                                    <span class="reason-title">Hate speech or discrimination</span>
+                                    <span class="reason-desc">Content promoting hatred based on identity</span>
+                                </span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio" name="report-reason" value="misinformation" onchange="onReasonChange()">
+                                <span class="reason-text">
+                                    <span class="reason-title">Misinformation</span>
+                                    <span class="reason-desc">False or misleading claims presented as fact</span>
+                                </span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio" name="report-reason" value="violence" onchange="onReasonChange()">
+                                <span class="reason-text">
+                                    <span class="reason-title">Violence or dangerous content</span>
+                                    <span class="reason-desc">Graphic violence or content that could cause harm</span>
+                                </span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio" name="report-reason" value="spam" onchange="onReasonChange()">
+                                <span class="reason-text">
+                                    <span class="reason-title">Spam or scam</span>
+                                    <span class="reason-desc">Unsolicited promotion, phishing, or deceptive links</span>
+                                </span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio" name="report-reason" value="copyright" onchange="onReasonChange()">
+                                <span class="reason-text">
+                                    <span class="reason-title">Copyright or plagiarism</span>
+                                    <span class="reason-desc">Content copied without permission or credit</span>
+                                </span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="radio" name="report-reason" value="other" onchange="onReasonChange()">
+                                <span class="reason-text">
+                                    <span class="reason-title">Other</span>
+                                    <span class="reason-desc">Something not covered by the categories above</span>
+                                </span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+                <div class="report-modal-footer">
+                    <button class="report-btn-cancel" onclick="closeReportModal()">Cancel</button>
+                    <button class="report-btn-next" id="report-next-btn" disabled onclick="goToStep2()">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 2: Add details -->
+            <div id="report-step-2" class="report-step">
+                <div class="report-modal-header">
+                    <div>
+                        <h2>Add details</h2>
+                        <p>Help us understand the issue better</p>
+                    </div>
+                    <button class="report-close-btn" onclick="closeReportModal()" aria-label="Close">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="report-modal-body">
+                    <div class="report-selected-reason">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <span id="report-selected-label"></span>
+                        <button class="back-link" onclick="goToStep1()">Change</button>
+                    </div>
+                    <label class="report-details-label">Additional context <span style="font-weight:400; color:#aaa;">(optional)</span></label>
+                    <span class="report-details-sub">Provide any specific details that will help our team review this report.</span>
+                    <textarea
+                        class="report-details-textarea"
+                        id="report-details-input"
+                        rows="4"
+                        maxlength="500"
+                        placeholder="Describe what you found harmful or inappropriate..."
+                        oninput="updateCharCount()"
+                    ></textarea>
+                    <div class="report-char-count"><span id="report-char-count">0</span> / 500</div>
+                </div>
+                <div class="report-modal-footer">
+                    <button class="report-btn-cancel" onclick="goToStep1()">Back</button>
+                    <button class="report-btn-submit" id="report-submit-btn" onclick="submitReport()">Submit Report</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Success -->
+            <div id="report-step-3" class="report-step">
+                <div class="report-modal-header" style="border-bottom: none; padding-bottom: 0;">
+                    <div></div>
+                    <button class="report-close-btn" onclick="closeReportModal()" aria-label="Close">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <div class="report-modal-body report-success-body" style="padding-top: 10px; padding-bottom: 28px;">
+                    <div class="report-success-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    </div>
+                    <h3>Report submitted</h3>
+                    <p>Thank you for helping keep this community safe. Our team will review your report and take appropriate action.</p>
+                    <button class="report-btn-next" style="margin-top: 22px;" onclick="closeReportModal()">Done</button>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <script>
@@ -753,9 +1181,8 @@
                 return;
             }
             const all = EMOJI_CATEGORIES.flatMap(c => c.emojis);
-            // simple filter: show emojis whose category name contains query, or just show all on short query
-            const results = all.filter((_, i) => {
-                const catName = EMOJI_CATEGORIES.find(c => c.emojis.includes(_))?.name.toLowerCase() || '';
+            const results = all.filter((e) => {
+                const catName = EMOJI_CATEGORIES.find(c => c.emojis.includes(e))?.name.toLowerCase() || '';
                 return catName.includes(query.toLowerCase());
             });
             grid.innerHTML = (results.length ? results : all).map(e =>
@@ -764,27 +1191,23 @@
         }
 
         function togglePicker(pickerId, textareaId) {
-            // Close any other open picker first
             if (activePicker && activePicker !== pickerId) {
                 const prev = document.getElementById(activePicker);
                 if (prev) prev.classList.remove('open');
             }
 
             const popup = document.getElementById(pickerId);
-            const btn   = popup.previousElementSibling; // the emoji-btn is right before the popup div
+            const btn   = popup.previousElementSibling;
             const isOpen = popup.classList.contains('open');
 
             if (!isOpen) {
                 buildPicker(pickerId, textareaId);
                 popup.classList.add('open');
 
-                // Position with fixed coords so it's never clipped
                 const rect = btn.getBoundingClientRect();
-                const pickerH = 310; // approx picker height
+                const pickerH = 310;
                 const spaceBelow = window.innerHeight - rect.bottom;
-                const top = spaceBelow >= pickerH
-                    ? rect.bottom + 6
-                    : rect.top - pickerH - 6;
+                const top = spaceBelow >= pickerH ? rect.bottom + 6 : rect.top - pickerH - 6;
                 const left = Math.min(rect.right - 300, window.innerWidth - 308);
 
                 popup.style.top  = top + 'px';
@@ -809,11 +1232,123 @@
             ta.focus();
         }
 
-        // Close picker when clicking outside
         document.addEventListener('click', function(e) {
             if (!e.target.closest('.emoji-picker-popup') && !e.target.closest('.emoji-btn')) {
                 document.querySelectorAll('.emoji-picker-popup.open').forEach(p => p.classList.remove('open'));
                 activePicker = null;
+            }
+        });
+
+        // ── Report Modal ──────────────────────────────────────────────
+        let reportTarget = { type: null, id: null };
+
+        const REASON_LABELS = {
+            sexual_content: 'Sexual content',
+            harassment:     'Harassment or bullying',
+            hate_speech:    'Hate speech or discrimination',
+            misinformation: 'Misinformation',
+            violence:       'Violence or dangerous content',
+            spam:           'Spam or scam',
+            copyright:      'Copyright or plagiarism',
+            other:          'Other'
+        };
+
+        function openReportModal(type, id) {
+            reportTarget = { type, id };
+            // Reset state
+            document.querySelectorAll('input[name="report-reason"]').forEach(r => r.checked = false);
+            document.getElementById('report-details-input').value = '';
+            document.getElementById('report-char-count').textContent = '0';
+            document.getElementById('report-next-btn').disabled = true;
+            showStep(1);
+            document.getElementById('report-overlay').classList.add('open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeReportModal() {
+            document.getElementById('report-overlay').classList.remove('open');
+            document.body.style.overflow = '';
+        }
+
+        function handleOverlayClick(e) {
+            if (e.target === document.getElementById('report-overlay')) {
+                closeReportModal();
+            }
+        }
+
+        function showStep(n) {
+            document.querySelectorAll('.report-step').forEach(s => s.classList.remove('active'));
+            document.getElementById('report-step-' + n).classList.add('active');
+        }
+
+        function onReasonChange() {
+            document.getElementById('report-next-btn').disabled = false;
+        }
+
+        function goToStep2() {
+            const selected = document.querySelector('input[name="report-reason"]:checked');
+            if (!selected) return;
+            document.getElementById('report-selected-label').textContent = REASON_LABELS[selected.value] || selected.value;
+            showStep(2);
+        }
+
+        function goToStep1() {
+            showStep(1);
+        }
+
+        function updateCharCount() {
+            const val = document.getElementById('report-details-input').value;
+            document.getElementById('report-char-count').textContent = val.length;
+        }
+
+        async function submitReport() {
+            const reason  = document.querySelector('input[name="report-reason"]:checked')?.value;
+            const details = document.getElementById('report-details-input').value.trim();
+            const btn     = document.getElementById('report-submit-btn');
+
+            if (!reason) return;
+
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+
+            try {
+                
+                const res = await fetch('/blog/report', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        targetType: reportTarget.type,
+        targetId: reportTarget.id,
+        blogId: '<%= blog._id %>',
+        reason,
+        details
+    })
+});
+                console.log('Report response status:', res.status);
+                if (res.ok) {
+                    showStep(3);
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    alert(data.error || 'Something went wrong. Please try again.');
+                    btn.disabled = false;
+                    btn.textContent = 'Submit Report';
+                }
+            } catch (err) {
+                console.error('Report error:', err);
+                alert('Network error. Please check your connection and try again.');
+                btn.disabled = false;
+                btn.textContent = 'Submit Report';
+            }
+            console.log('Report submission completed');
+        }
+
+        // Close modal on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && document.getElementById('report-overlay').classList.contains('open')) {
+                closeReportModal();
             }
         });
 

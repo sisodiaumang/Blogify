@@ -7,7 +7,7 @@ const cookieParser = require("cookie-parser");
 const methodOverride = require("method-override");
 
 
-
+const adminRoute = require("./routes/admin");
 const userRoute = require("./routes/user");
 const blogRoute = require("./routes/blog");
 const Blog = require("./models/blog");
@@ -37,7 +37,7 @@ connectToMongoDB(process.env.MONGODB_URL)
 app.use(express.json()); // Add this if it's missing!
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
-app.use(checkForAuthenticationCookie("token"));
+app.use(checkForAuthenticationCookie("accessToken"));
 app.use(express.static(path.resolve("./public")));
 app.use(methodOverride("_method"));
 app.use((req, res, next) => {
@@ -70,6 +70,7 @@ app.get("/", async (req, res) => {
 
 app.use('/user', userRoute);
 app.use('/blog', blogRoute);
+app.use('/admin', adminRoute);
 
 app.listen(PORT, () => {
     console.log("App is listening at port", PORT);

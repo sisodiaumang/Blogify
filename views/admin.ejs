@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head')%>
+    <title>Admin Dashboard | The Feed</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    
+    <style>
+        :root {
+            --bg-color: #fcfaf7;
+            --accent-color: #2d3e50;
+            --text-main: #1a1a1a;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+            --card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+            --danger-color: #c94a4a;
+            --warning-color: #d99136;
+            --success-color: #2e7d32;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .admin-header-wrapper {
+            margin-top: 60px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .admin-header {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2.2rem, 8vw, 3.5rem);
+            color: var(--accent-color);
+            margin: 0;
+            letter-spacing: -1px;
+        }
+
+        .admin-subheader {
+            font-size: 1rem;
+            color: #888;
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        /* --- Search Bar Panels --- */
+        .search-zone-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 30px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(45, 62, 80, 0.08);
+        }
+
+        .search-form {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-input-wrapper {
+            position: relative;
+            flex: 1;
+        }
+
+        .search-input-wrapper i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 20px 12px 45px;
+            border: 1.5px solid #e5e0da;
+            border-radius: 30px;
+            outline: none;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+
+        .search-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .btn-search {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-search:hover { background-color: #1d2936; }
+        .btn-search:active { transform: scale(0.98); }
+
+        .btn-clear-search {
+            background-color: transparent;
+            border: 1.5px solid #e5e0da;
+            color: #666;
+            padding: 11px 20px;
+            border-radius: 30px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .btn-clear-search:hover {
+            background-color: #f1eeea;
+            color: var(--text-main);
+        }
+
+        /* --- Owner Management Panel --- */
+        .owner-zone-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 50px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(45, 62, 80, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .owner-zone-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background-color: var(--accent-color);
+        }
+
+        .owner-card-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.75rem;
+            color: var(--accent-color);
+            margin: 0 0 8px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .owner-card-desc {
+            font-size: 0.9rem;
+            color: #666;
+            margin: 0 0 24px 0;
+        }
+
+        .owner-grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .owner-form-group h4 {
+            margin: 0 0 12px 0;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .owner-form {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .owner-input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px 20px;
+            border: 1.5px solid #e5e0da;
+            border-radius: 30px;
+            outline: none;
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s;
+        }
+
+        .owner-input:focus {
+            border-color: var(--accent-color);
+        }
+
+        .owner-form-group.promote-group h4 { color: var(--success-color); }
+        .owner-form-group.promote-group .owner-input:focus { border-color: var(--success-color); }
+        
+        .owner-form-group.demote-group h4 { color: var(--danger-color); }
+        .owner-form-group.demote-group .owner-input:focus { border-color: var(--danger-color); }
+
+        .btn-promote {
+            background-color: var(--success-color);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-promote:hover { background-color: #235e26; }
+        .btn-promote:active { transform: scale(0.98); }
+
+        /* --- Admin Card Grid --- */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 32px;
+            padding-bottom: 80px;
+        }
+
+        .admin-card {
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--card-shadow);
+            border: 1px solid rgba(0,0,0,0.02);
+            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                        box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        .card-img-wrapper {
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .admin-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        /* --- Clickable Writer Profile Badge --- */
+        .writer-profile-link {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            text-decoration: none;
+            z-index: 10;
+        }
+
+        .writer-badge {
+            background: rgba(45, 62, 80, 0.9);
+            backdrop-filter: blur(4px);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .writer-profile-link:hover .writer-badge {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .admin-card-body {
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-meta {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #a0a0a0;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .admin-card-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.35rem;
+            margin: 0 0 20px 0;
+            color: var(--text-main);
+            line-height: 1.3;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            height: 3.5rem;
+        }
+
+        /* --- Action Controls --- */
+        .admin-actions {
+            margin-top: auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            border-top: 1px solid #f1eeea;
+            padding-top: 20px;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border: none;
+            outline: none;
+        }
+
+        .btn-email {
+            background-color: transparent;
+            border: 1.5px solid var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .btn-email:hover {
+            background-color: var(--accent-color);
+            color: #fff;
+        }
+
+        .btn-delete {
+            background-color: transparent;
+            border: 1.5px solid var(--danger-color);
+            color: var(--danger-color);
+        }
+
+        .btn-delete:hover {
+            background-color: var(--danger-color);
+            color: #fff;
+        }
+
+        /* --- Hover Animations --- */
+        @media (hover: hover) {
+            .admin-card:hover {
+                transform: translateY(-8px);
+                box-shadow: var(--card-hover-shadow);
+            }
+
+            .admin-card:hover img {
+                transform: scale(1.05);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 20px; }
+            .admin-grid { grid-template-columns: 1fr; gap: 24px; }
+            .admin-actions { grid-template-columns: 1fr; }
+            .owner-grid-layout { grid-template-columns: 1fr; gap: 20px; }
+            .owner-form { flex-direction: column; gap: 10px; }
+            .search-form { flex-direction: column; gap: 10px; }
+            .search-input-wrapper { width: 100%; }
+            .btn-search, .btn-clear-search { width: 100%; justify-content: center; }
+            .btn-promote, .owner-form-group .btn-delete { width: 100%; justify-content: center; padding: 12px; }
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('./partials/nav')%>
+
+    <div class="container">
+        <header class="admin-header-wrapper">
+            <h1 class="admin-header">Admin <span style="font-style: italic; color: #aaa;">&</span> Control</h1>
+            <p class="admin-subheader">Manage published feeds, clear violations, or view user accounts</p>
+        </header>
+
+        <section class="search-zone-card">
+            <form action="/admin/dashboard" method="GET" class="search-form">
+                <div class="search-input-wrapper">
+                    <i class="bi bi-search"></i>
+                    <input type="text" name="searchId" class="search-input" placeholder="Search parameters by exact Blog ID (e.g., 651a2b...)" value="<%= typeof queryId !== 'undefined' ? queryId : '' %>">
+                </div>
+                <button type="submit" class="btn-search">
+                    <i class="bi bi-sliders"></i> Filter ID
+                </button>
+                <% if (typeof queryId !== 'undefined' && queryId) { %>
+                    <a href="/admin/dashboard" class="btn-clear-search">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </a>
+                <% } %>
+            </form>
+        </section>
+
+        <% if (user && user.role === 'OWNER') { %>
+            <section class="owner-zone-card">
+                <h2 class="owner-card-title">
+                    <i class="bi bi-shield-lock-fill"></i> 
+                    Owner Management Desk
+                </h2>
+                <p class="owner-card-desc">Elevate platform writers to Administrators or immediately revoke active access permissions via account email.</p>
+                
+                <div class="owner-grid-layout">
+                    
+                    <div class="owner-form-group promote-group">
+                        <h4><i class="bi bi-person-plus-fill"></i> Grant Admin Privileges</h4>
+                        <form action="/admin/assign-role" method="POST" class="owner-form">
+                            <input type="hidden" name="actionType" value="PROMOTE">
+                            <input type="email" name="email" class="owner-input" placeholder="Registered user email..." required>
+                            <button type="submit" class="btn-promote">Grant Rights</button>
+                        </form>
+                    </div>
+
+                    <div class="owner-form-group demote-group">
+                        <h4><i class="bi bi-person-dash-fill"></i> Revoke Admin Privileges</h4>
+                        <form action="/admin/assign-role" method="POST" class="owner-form" onsubmit="return confirm('Are you sure you want to strip this user of all Admin privileges?');">
+                            <input type="hidden" name="actionType" value="DEMOTE">
+                            <input type="email" name="email" class="owner-input" placeholder="Admin email address..." required>
+                            <button type="submit" class="btn-action btn-delete" style="padding: 12px 24px; font-size: 0.85rem; white-space: nowrap; border-radius: 30px;">Revoke Rights</button>
+                        </form>
+                    </div>
+
+                </div>
+            </section>
+        <% } %>
+
+        <div class="admin-grid">
+            <% if (blogs && blogs.length > 0) { %>
+                <% blogs.forEach(blog => { %>
+                    <div class="admin-card">
+                        <div class="card-img-wrapper">
+                            <% if (blog.coverImageURL) { %>
+                                <img src="<%= blog.coverImageURL %>" alt="<%= blog.title %>">
+                            <% } else { %>
+                                <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1000" alt="Default">
+                            <% } %>
+                            
+                            <% if (blog.createdBy && blog.createdBy._id) { %>
+                                <a href="/user/profile/<%= blog.createdBy._id %>" class="writer-profile-link" title="View Profile">
+                                    <div class="writer-badge">
+                                        <i class="bi bi-person-circle"></i> <%= blog.createdBy.fullName %>
+                                    </div>
+                                </a>
+                            <% } else { %>
+                                <div class="writer-badge" style="position: absolute; bottom: 12px; left: 12px;">
+                                    <i class="bi bi-person-x-fill"></i> Guest Writer
+                                </div>
+                            <% } %>
+                        </div>
+                        
+                        <div class="admin-card-body">
+                            <div class="card-meta">ID: <%= blog._id.toString() %></div>
+                            <h2 class="admin-card-title"><%= blog.title %></h2>
+                            
+                            <div class="admin-actions">
+                                <% const writerEmail = (blog.createdBy && blog.createdBy.email) ? blog.createdBy.email : ''; %>
+                                <% const writerName = (blog.createdBy && blog.createdBy.fullName) ? blog.createdBy.fullName : 'Writer'; %>
+                                
+                                <a href="mailto:<%= writerEmail %>?subject=Revision Required: <%= encodeURIComponent(blog.title) %>&body=Hello <%= encodeURIComponent(writerName) %>,%0D%0A%0D%0APlease review and make necessary edits to your article titled '<%= encodeURIComponent(blog.title) %>'.%0D%0A%0D%0ABest regards,%0D%0AEditorial Management" class="btn-action btn-email">
+                                    <i class="bi bi-envelope-paper"></i> Email Edit
+                                </a>
+
+                                <form action="/admin/blog/delete/<%= blog._id %>" method="POST" style="margin:0;" onsubmit="return confirm('Are you sure you want to delete this story permanently?');">
+                                    <button type="submit" class="btn-action btn-delete" style="width: 100%;">
+                                        <i class="bi bi-trash3"></i> Delete
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
+            <% } else { %>
+                <div style="grid-column: 1/-1; text-align: center; padding: 100px 0;">
+                    <i class="bi bi-folder-x" style="font-size: 3rem; color: #ddd;"></i>
+                    <h3 class="mt-3">No articles found</h3>
+                    <p class="text-muted">No items matched your search criteria or the system is empty.</p>
+                </div>
+            <% } %>
+        </div>
+    </div>
+
+    <%- include('./partials/script')%>
+</body>
+</html>
