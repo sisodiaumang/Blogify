@@ -162,7 +162,7 @@ async function reportToAdmin(adminEmail, targetType, targetId, blogId, reason, d
     htmlContent += '</table>';
     
     // Call to Action Button (Pill shaped styled like your original button)
-    htmlContent += '<div style="text-align:center;margin:30px 0 10px 0;"><a href="https://blogify-for-stories.vercel.app/admin/reports" style="background-color:#2d3e50;color:#ffffff;padding:14px 28px;text-decoration:none;border-radius:50px;font-weight:700;font-size:14px;display:inline-block;box-shadow:0 4px 15px rgba(45,62,80,0.2);">Review on Dashboard</a></div>';
+    htmlContent += '<div style="text-align:center;margin:30px 0 10px 0;"><a href="https://blogify-for-stories.vercel.app/admin/dashboard" style="background-color:#2d3e50;color:#ffffff;padding:14px 28px;text-decoration:none;border-radius:50px;font-weight:700;font-size:14px;display:inline-block;box-shadow:0 4px 15px rgba(45,62,80,0.2);">Review on Dashboard</a></div>';
     htmlContent += '</div>';
     
     // Footer
