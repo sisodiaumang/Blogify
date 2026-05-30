@@ -1119,6 +1119,18 @@
         flex-shrink: 0;
     }
 }
+.emoji-picker-popup {
+    display: none;
+    position: fixed;          /* was: fixed — keep this */
+    width: 300px;
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.15);
+    z-index: 9999;
+    overflow: hidden;
+    user-select: none;
+}
         </style>
 </head>
 
@@ -1528,7 +1540,7 @@
             },
             {
                 label: '💡', name: 'Objects',
-                emojis: ['⌚','📱','📲','💻','⌨️','🖥️','🖨️','鼠标','🖲️','🕹️','💾','💿','📀','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🧭','⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🔌','💡','🔦','🕯️','🪔','🧯','🛢️','💰','💴','💵','💶','💷','💸','💳','🪙','💎','⚖️','🧲','🔧','🔨','⚒️','🛠️','⛏️','螺丝','🪛','🔫','🧨','💣','🪓','🔪','🗡️','⚔️','🛡️','🪚','🔬','🔭','🩺','💉','🩸','💊','🩹','🩼','🩻','🪤','🧸','🪆','🖼️','🧵','🧶','🪡','🧷','🪢','👓','🕶️','🥽','🌂','☂️','🎁','🎀','🎊','🎉','🎈']
+                emojis: ['⌚','📱','📲','💻','⌨️','🖥️','🖨️','🖲️','🕹️','💾','💿','📀','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🧭','⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🔌','💡','🔦','🕯️','🪔','🧯','🛢️','💰','💴','💵','💶','💷','💸','💳','🪙','💎','⚖️','🧲','🔧','🔨','⚒️','🛠️','⛏️','🪛','🔫','🧨','💣','🪓','🔪','🗡️','⚔️','🛡️','🪚','🔬','🔭','🩺','💉','🩸','💊','🩹','🩼','🩻','🪤','🧸','🪆','🖼️','🧵','🧶','🪡','🧷','🪢','👓','🕶️','🥽','🌂','☂️','🎁','🎀','🎊','🎉','🎈']
             }
         ];
 
@@ -1592,36 +1604,85 @@
         }
 
         function togglePicker(pickerId, textareaId) {
-            if (activePicker && activePicker !== pickerId) {
-                const prev = document.getElementById(activePicker);
-                if (prev) prev.classList.remove('open');
-            }
+    if (activePicker && activePicker !== pickerId) {
+        const prev = document.getElementById(activePicker);
+        if (prev) prev.classList.remove('open');
+    }
 
-            const popup = document.getElementById(pickerId);
-            const btn   = popup.previousElementSibling;
-            const isOpen = popup.classList.contains('open');
+    const popup = document.getElementById(pickerId);
+    const btn   = popup.previousElementSibling;
+    const isOpen = popup.classList.contains('open');
 
-            if (!isOpen) {
-                buildPicker(pickerId, textareaId);
-                popup.classList.add('open');
+    if (!isOpen) {
+        buildPicker(pickerId, textareaId);
 
-                const rect = btn.getBoundingClientRect();
-                const pickerH = 310;
-                const spaceBelow = window.innerHeight - rect.bottom;
-                const top = spaceBelow >= pickerH ? rect.bottom + 6 : rect.top - pickerH - 6;
-                const left = Math.min(rect.right - 300, window.innerWidth - 308);
+        // Make visible but off-screen first to measure real height
+        popup.style.visibility = 'hidden';
+        popup.style.display = 'block';
+        const pickerH = popup.offsetHeight || 310;
+        const pickerW = window.innerWidth <= 640 ? window.innerWidth - 16 : 300;
+        popup.style.display = '';
+        popup.style.visibility = '';
 
-                popup.style.top  = (top + window.scrollY) + 'px';
-                popup.style.left = Math.max(8, left) + 'px';
+        popup.classList.add('open');
 
-                activePicker = pickerId;
-                activeTextareaId = textareaId;
+        const rect = btn.getBoundingClientRect();
+        const isMobile = window.innerWidth <= 640;
+
+        if (isMobile) {
+            const spaceAbove = rect.top;
+            const spaceBelow = window.innerHeight - rect.bottom;
+
+            let top;
+            if (spaceAbove >= pickerH + 8) {
+                // Enough room above — open upward
+                top = rect.top - pickerH - 8;
+            } else if (spaceBelow >= pickerH + 8) {
+                // Enough room below — open downward
+                top = rect.bottom + 8;
             } else {
-                popup.classList.remove('open');
-                activePicker = null;
-                activeTextareaId = null;
+                // Neither fits cleanly — center vertically in viewport
+                top = Math.max(8, (window.innerHeight - pickerH) / 2);
             }
+
+            // Clamp so it never goes off top or bottom
+            top = Math.max(8, Math.min(top, window.innerHeight - pickerH - 8));
+
+            popup.style.position = 'fixed';
+            popup.style.top  = top + 'px';
+            popup.style.left = '8px';
+            popup.style.width = pickerW + 'px';
+
+        } else {
+            const spaceBelow = window.innerHeight - rect.bottom;
+            let top, left;
+
+            if (spaceBelow >= pickerH + 8) {
+                top = rect.bottom + 6;
+            } else {
+                top = rect.top - pickerH - 6;
+            }
+
+            // Clamp so it never goes off top or bottom
+            top = Math.max(8, Math.min(top, window.innerHeight - pickerH - 8));
+
+            left = Math.min(rect.right - pickerW, window.innerWidth - pickerW - 8);
+            left = Math.max(8, left);
+
+            popup.style.position = 'fixed';
+            popup.style.top  = top + 'px';
+            popup.style.left = left + 'px';
+            popup.style.width = pickerW + 'px';
         }
+
+        activePicker = pickerId;
+        activeTextareaId = textareaId;
+    } else {
+        popup.classList.remove('open');
+        activePicker = null;
+        activeTextareaId = null;
+    }
+}
 
         function insertEmoji(textareaId, emoji) {
             const ta = document.getElementById(textareaId);
