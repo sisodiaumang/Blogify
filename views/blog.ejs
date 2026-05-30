@@ -34,6 +34,7 @@
                 margin: calc(var(--nav-height) + 40px) auto 60px;
                 padding: 0 24px;
                 align-items: start;
+                box-sizing: border-box;
             }
 
             .sidebar-col {
@@ -55,6 +56,7 @@
                 flex-direction: column;
                 height: 100%;
                 overflow: hidden;
+                box-sizing: border-box;
             }
 
             .comment-panel > h3 {
@@ -97,7 +99,7 @@
                 color: #888;
             }
 
-            .dots-menu:hover { background: #eee; color: #000; }
+            .dots-menu:hover { background: #f0ede8; color: #000; }
 
             .dropdown-content {
                 display: none;
@@ -107,7 +109,7 @@
                 background: white;
                 border: 1px solid var(--border);
                 border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
                 z-index: 100;
                 min-width: 140px;
                 overflow: hidden;
@@ -126,9 +128,9 @@
                 cursor: pointer;
             }
 
-            .dropdown-content button:hover { background: #f5f5f5; }
+            .dropdown-content button:hover { background: #f5f3ee; }
             .dropdown-content .delete-btn { color: #d93025; }
-            .dropdown-content .report-btn { color: #c0450a; }
+            .dropdown-content .report-btn { color: var(--ink); }
             .show { display: block; }
 
             .edit-area,
@@ -148,6 +150,8 @@
                 font-size: 0.9rem;
                 resize: none;
                 box-sizing: border-box;
+                background: #fafaf9;
+                color: var(--ink);
             }
 
             .edit-buttons,
@@ -182,12 +186,14 @@
             .btn-reply-trigger {
                 background: none;
                 border: none;
-                color: #0066cc;
+                color: var(--ink);
                 font-size: 0.8rem;
                 font-weight: 600;
                 cursor: pointer;
                 padding: 0;
                 margin-top: 5px;
+                text-decoration: underline;
+                text-underline-offset: 2px;
             }
 
             .btn-toggle-replies {
@@ -199,7 +205,7 @@
                 cursor: pointer;
                 padding: 0;
                 margin-top: 6px;
-                display: flex;
+                display: inline-flex;
                 align-items: center;
                 gap: 4px;
                 transition: color 0.15s;
@@ -240,7 +246,7 @@
 
             .reply-item:first-child { border-top: none; }
 
-            .mention { color: #0066cc; font-weight: 600; }
+            .mention { color: var(--ink); font-weight: 600; background: #fafaf9; padding: 1px 4px; border-radius: 4px; }
 
             .blog-title {
                 font-family: 'Playfair Display', serif;
@@ -259,7 +265,7 @@
 
             .cover-wrap img { width: 100%; height: 100%; object-fit: cover; }
 
-            .blog-content { font-size: 1.2rem; color: #2c2c2c; }
+            .blog-content { font-size: 1.2rem; color: #2c2c2c; word-wrap: break-word; }
 
             textarea {
                 width: 100%;
@@ -270,6 +276,7 @@
                 background: #fafaf9;
                 font-family: inherit;
                 box-sizing: border-box;
+                color: var(--ink);
             }
 
             .btn-submit {
@@ -289,6 +296,7 @@
                 height: 36px;
                 border-radius: 50%;
                 object-fit: cover;
+                flex-shrink: 0;
             }
 
             .comment-name { font-weight: 600; font-size: 0.88rem; }
@@ -401,16 +409,16 @@
 
             .textarea-wrap textarea { padding-right: 36px; }
 
-            /* ── Report Modal ── */
+            /* ── Theme Matching Report Modal ── */
             .report-overlay {
                 display: none;
                 position: fixed;
                 inset: 0;
-                background: rgba(0, 0, 0, 0.45);
+                background: rgba(26, 26, 26, 0.4);
                 z-index: 10000;
                 align-items: center;
                 justify-content: center;
-                backdrop-filter: blur(2px);
+                backdrop-filter: blur(4px);
             }
 
             .report-overlay.open {
@@ -418,59 +426,63 @@
             }
 
             .report-modal {
-                background: #fff;
-                border-radius: 16px;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
                 width: 100%;
-                max-width: 480px;
+                max-width: 460px;
                 margin: 16px;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
                 overflow: hidden;
-                animation: modalIn 0.2s ease;
+                animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+                box-sizing: border-box;
             }
 
             @keyframes modalIn {
-                from { opacity: 0; transform: translateY(12px) scale(0.98); }
+                from { opacity: 0; transform: translateY(15px) scale(0.98); }
                 to   { opacity: 1; transform: translateY(0) scale(1); }
             }
 
             .report-modal-header {
-                padding: 22px 24px 18px;
+                padding: 24px 24px 16px;
                 border-bottom: 1px solid var(--border);
                 display: flex;
-                align-items: center;
+                align-items: flex-start;
                 justify-content: space-between;
+                box-sizing: border-box;
             }
 
             .report-modal-header h2 {
                 margin: 0;
-                font-size: 1.05rem;
+                font-family: 'Playfair Display', serif;
+                font-size: 1.4rem;
+                color: var(--ink);
                 font-weight: 700;
-                letter-spacing: -0.01em;
             }
 
             .report-modal-header p {
                 margin: 4px 0 0;
-                font-size: 0.8rem;
-                color: #888;
+                font-size: 0.85rem;
+                color: #666;
             }
 
             .report-close-btn {
                 background: none;
                 border: none;
                 cursor: pointer;
-                color: #999;
-                padding: 4px;
-                border-radius: 6px;
+                color: #888;
+                padding: 6px;
+                border-radius: 50%;
                 line-height: 0;
                 transition: background 0.15s, color 0.15s;
                 flex-shrink: 0;
-                align-self: flex-start;
             }
 
-            .report-close-btn:hover { background: #f0ede8; color: #333; }
+            .report-close-btn:hover { background: #f0ede8; color: var(--ink); }
 
             .report-modal-body {
-                padding: 20px 24px;
+                padding: 24px;
+                box-sizing: border-box;
             }
 
             .report-step { display: none; }
@@ -482,33 +494,35 @@
                 margin: 0;
                 display: flex;
                 flex-direction: column;
-                gap: 6px;
+                gap: 8px;
             }
 
             .report-reason-list li {
                 border: 1px solid var(--border);
                 border-radius: 10px;
+                background: var(--surface);
                 transition: border-color 0.15s, background 0.15s;
             }
 
-            .report-reason-list li:hover { border-color: #bbb; background: #fafaf9; }
+            .report-reason-list li:hover { border-color: #b0aea8; background: #fafaf9; }
 
             .report-reason-list li label {
                 display: flex;
                 align-items: center;
-                gap: 12px;
-                padding: 12px 14px;
+                gap: 14px;
+                padding: 14px;
                 cursor: pointer;
                 width: 100%;
                 box-sizing: border-box;
             }
 
             .report-reason-list li input[type="radio"] {
-                width: 16px;
-                height: 16px;
+                width: 18px;
+                height: 18px;
                 accent-color: var(--ink);
                 flex-shrink: 0;
                 cursor: pointer;
+                margin: 0;
             }
 
             .report-reason-list li .reason-text {
@@ -516,46 +530,48 @@
             }
 
             .report-reason-list li .reason-title {
-                font-size: 0.88rem;
+                font-size: 0.9rem;
                 font-weight: 600;
                 color: var(--ink);
                 display: block;
             }
 
             .report-reason-list li .reason-desc {
-                font-size: 0.76rem;
-                color: #888;
+                font-size: 0.78rem;
+                color: #666;
                 display: block;
-                margin-top: 1px;
+                margin-top: 2px;
+                line-height: 1.4;
             }
 
             .report-reason-list li:has(input:checked) {
                 border-color: var(--ink);
-                background: #f7f6f3;
+                background: #f5f3ee;
             }
 
             .report-details-label {
-                font-size: 0.85rem;
+                font-size: 0.9rem;
                 font-weight: 600;
                 color: var(--ink);
                 display: block;
-                margin-bottom: 8px;
+                margin-bottom: 4px;
             }
 
             .report-details-sub {
-                font-size: 0.78rem;
-                color: #888;
+                font-size: 0.8rem;
+                color: #666;
                 display: block;
-                margin-bottom: 12px;
+                margin-bottom: 14px;
+                line-height: 1.4;
             }
 
             .report-details-textarea {
                 width: 100%;
-                padding: 12px;
+                padding: 14px;
                 border: 1px solid var(--border);
                 border-radius: 10px;
                 font-family: inherit;
-                font-size: 0.88rem;
+                font-size: 0.9rem;
                 resize: none;
                 box-sizing: border-box;
                 background: #fafaf9;
@@ -564,21 +580,26 @@
                 outline: none;
             }
 
-            .report-details-textarea:focus { border-color: #aaa; }
+            .report-details-textarea:focus { border-color: var(--ink); background: var(--surface); }
 
             .report-selected-reason {
                 display: flex;
                 align-items: center;
                 gap: 10px;
-                padding: 10px 14px;
-                background: #f7f6f3;
+                padding: 12px 14px;
+                background: #f5f3ee;
                 border: 1px solid var(--border);
                 border-radius: 8px;
-                margin-bottom: 16px;
+                margin-bottom: 20px;
+            }
+
+            .report-selected-reason svg {
+                color: var(--ink);
+                flex-shrink: 0;
             }
 
             .report-selected-reason span {
-                font-size: 0.83rem;
+                font-size: 0.88rem;
                 font-weight: 600;
                 color: var(--ink);
             }
@@ -587,43 +608,46 @@
                 margin-left: auto;
                 background: none;
                 border: none;
-                font-size: 0.78rem;
-                color: #0066cc;
+                font-size: 0.8rem;
+                color: #666;
                 cursor: pointer;
                 font-weight: 600;
                 padding: 0;
+                text-decoration: underline;
             }
+            .report-selected-reason .back-link:hover { color: var(--ink); }
 
             .report-modal-footer {
-                padding: 16px 24px 22px;
+                padding: 16px 24px 24px;
                 border-top: 1px solid var(--border);
                 display: flex;
                 justify-content: flex-end;
-                gap: 10px;
+                gap: 12px;
+                box-sizing: border-box;
             }
 
             .report-btn-cancel {
                 background: none;
                 border: 1px solid var(--border);
-                padding: 9px 20px;
-                border-radius: 8px;
-                font-size: 0.85rem;
+                padding: 10px 20px;
+                border-radius: 30px;
+                font-size: 0.88rem;
                 font-weight: 600;
                 cursor: pointer;
                 color: #555;
-                transition: background 0.15s;
+                transition: background 0.15s, color 0.15s;
             }
 
-            .report-btn-cancel:hover { background: #f5f5f5; }
+            .report-btn-cancel:hover { background: #f5f3ee; color: var(--ink); }
 
             .report-btn-next,
             .report-btn-submit {
                 background: var(--ink);
                 color: #fff;
                 border: none;
-                padding: 9px 22px;
-                border-radius: 8px;
-                font-size: 0.85rem;
+                padding: 10px 24px;
+                border-radius: 30px;
+                font-size: 0.88rem;
                 font-weight: 600;
                 cursor: pointer;
                 transition: opacity 0.15s;
@@ -631,75 +655,81 @@
 
             .report-btn-next:disabled,
             .report-btn-submit:disabled {
-                opacity: 0.4;
+                opacity: 0.3;
                 cursor: not-allowed;
             }
 
             .report-btn-next:not(:disabled):hover,
-            .report-btn-submit:not(:disabled):hover { opacity: 0.8; }
+            .report-btn-submit:not(:disabled):hover { opacity: 0.85; }
 
             .report-success-icon {
-                width: 52px;
-                height: 52px;
-                background: #edfaf0;
+                width: 56px;
+                height: 56px;
+                background: #f5f3ee;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                margin: 0 auto 16px;
+                margin: 0 auto 18px;
             }
 
             .report-success-icon svg {
-                width: 24px;
-                height: 24px;
-                color: #1a7f40;
+                width: 26px;
+                height: 26px;
+                color: var(--ink);
             }
 
             .report-success-body {
                 text-align: center;
-                padding: 8px 0 4px;
+                padding: 12px 0 6px;
             }
 
             .report-success-body h3 {
-                margin: 0 0 8px;
-                font-size: 1rem;
+                margin: 0 0 10px;
+                font-family: 'Playfair Display', serif;
+                font-size: 1.3rem;
                 font-weight: 700;
             }
 
             .report-success-body p {
                 margin: 0;
-                font-size: 0.85rem;
-                color: #666;
-                line-height: 1.5;
+                font-size: 0.9rem;
+                color: #555;
+                line-height: 1.6;
             }
 
             .report-char-count {
-                font-size: 0.73rem;
-                color: #aaa;
+                font-size: 0.78rem;
+                color: #888;
                 text-align: right;
-                margin-top: 5px;
+                margin-top: 6px;
             }
 
-            /* Blog-level report button in article header area */
+            /* Blog Report Button Styling */
             .blog-report-btn {
                 background: none;
                 border: 1px solid var(--border);
-                color: #888;
-                font-size: 0.78rem;
+                color: #666;
+                font-size: 0.8rem;
                 font-weight: 600;
-                padding: 5px 12px;
+                padding: 6px 14px;
                 border-radius: 20px;
                 cursor: pointer;
                 transition: border-color 0.15s, color 0.15s, background 0.15s;
                 display: inline-flex;
                 align-items: center;
-                gap: 5px;
+                gap: 6px;
             }
 
-            .blog-report-btn:hover { border-color: #c0450a; color: #c0450a; background: #fff7f4; }
+            .blog-report-btn:hover { border-color: var(--ink); color: var(--ink); background: #f5f3ee; }
 
+            /* ── Responsive Architecture Breakpoints ── */
             @media (max-width: 1024px) {
-                .page-grid { grid-template-columns: 1fr; }
+                .page-grid { 
+                    grid-template-columns: 1fr; 
+                    gap: 40px;
+                    margin-top: calc(var(--nav-height) + 24px);
+                }
                 .sidebar-col {
                     position: static;
                     height: auto;
@@ -707,6 +737,7 @@
                 .comment-panel {
                     height: auto;
                     overflow: visible;
+                    padding: 20px;
                 }
                 .comment-list {
                     overflow-y: visible;
@@ -714,6 +745,380 @@
                     padding-right: 0;
                 }
             }
+
+            @media (max-width: 640px) {
+                .page-grid {
+                    padding: 0 16px;
+                }
+                .cover-wrap {
+                    margin: 20px 0 25px;
+                    border-radius: 12px;
+                }
+                .blog-content {
+                    font-size: 1.1rem;
+                }
+                .comment-panel {
+                    padding: 16px;
+                    border-radius: 12px;
+                }
+                .replies-list {
+                    padding-left: 12px;
+                }
+
+                /* Mobile Bottom Sheet Layout for Report Modal */
+                .report-overlay {
+                    align-items: flex-end;
+                }
+
+                .report-modal {
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    margin: 0;
+                    max-width: 100%;
+                    border-radius: 20px 20px 0 0;
+                    max-height: 88vh;
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                    border-bottom: none;
+                }
+
+                .report-modal-body {
+                    padding: 16px 20px 20px;
+                    overflow-y: auto;
+                    flex: 1;
+                    scrollbar-width: thin;
+                }
+
+                .report-modal-header {
+                    padding: 20px 20px 14px;
+                    flex-shrink: 0;
+                }
+
+                .report-modal-footer {
+                    padding: 14px 20px 32px; /* Extra spacing for mobile navigation indicators */
+                    flex-shrink: 0;
+                    background: var(--surface);
+                }
+
+                .report-reason-list li label {
+                    padding: 12px;
+                    gap: 10px;
+                }
+
+                .report-reason-list li .reason-title { font-size: 0.88rem; }
+                .report-reason-list li .reason-desc { font-size: 0.75rem; }
+                .report-modal-header h2 { font-size: 1.25rem; }
+
+                /* Drag handle element style */
+                .report-modal::before {
+                    content: '';
+                    display: block;
+                    width: 40px;
+                    height: 5px;
+                    background: var(--border);
+                    border-radius: 4px;
+                    margin: 10px auto 0;
+                    flex-shrink: 0;
+                }
+            }
+
+            @media (min-width: 641px) and (max-width: 900px) {
+                .report-modal {
+                    max-width: 420px;
+                    margin: 16px auto;
+                }
+            }
+            @media (max-width: 640px) {
+    .report-overlay {
+        align-items: flex-end;
+    }
+
+    .report-modal {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0;
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+        /* Force a dynamic maximum height to fit cleanly on compact devices */
+        max-height: 85vh; 
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+        border-bottom: none;
+    }
+
+    /* Target the inner content steps to manage the inner flex scroll */
+    .report-step {
+        display: none;
+        flex-direction: column;
+        max-height: 85vh;
+    }
+    .report-step.active {
+        display: flex;
+    }
+
+    .report-modal-body {
+        padding: 16px 20px 20px;
+        /* Allow the list panel to take all available space and scroll */
+        overflow-y: auto; 
+        flex: 1;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .report-modal-header {
+        padding: 20px 20px 14px;
+        flex-shrink: 0;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .report-modal-footer {
+        padding: 14px 20px 32px; 
+        flex-shrink: 0;
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+    }
+}
+.report-step {
+    display: none;
+}
+.report-step.active {
+    display: block;
+}
+
+/* Ensure that when screen is small, flex engine kicks in */
+@media (max-width: 640px) {
+    .report-step.active {
+        display: flex;
+        flex-grow: 1;
+        overflow: hidden;
+    }
+}
+/* ── Updated & Hardened Report Modal Design System ── */
+.report-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 26, 26, 0.5);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+}
+
+.report-overlay.open {
+    display: flex;
+}
+
+.report-modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 480px;
+    margin: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh; /* Prevents overflow clipping on smaller laptops/tablets */
+    overflow: hidden;
+    box-sizing: border-box;
+    animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalIn {
+    from { opacity: 0; transform: translateY(15px) scale(0.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Structural Engine for Multi-step flows */
+.report-step {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    max-height: inherit; /* Sync heights with parent card limits */
+    overflow: hidden;
+}
+
+.report-step.active {
+    display: flex;
+    flex: 1;
+}
+
+.report-modal-header {
+    padding: 24px 24px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    box-sizing: border-box;
+    flex-shrink: 0; /* Keeps header pinned */
+}
+
+.report-modal-header h2 {
+    margin: 0;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    color: var(--ink);
+    font-weight: 700;
+}
+
+.report-modal-header p {
+    margin: 4px 0 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.report-close-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #888;
+    padding: 6px;
+    border-radius: 50%;
+    line-height: 0;
+    transition: background 0.15s, color 0.15s;
+    flex-shrink: 0;
+}
+
+.report-close-btn:hover { background: #f0ede8; color: var(--ink); }
+
+/* The core scrolling panel view setup */
+.report-modal-body {
+    padding: 24px;
+    box-sizing: border-box;
+    overflow-y: auto; /* Activates internal structural scrollbar rendering */
+    flex: 1; 
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Custom scrollbar matching your minimal aesthetic */
+.report-modal-body::-webkit-scrollbar { width: 4px; }
+.report-modal-body::-webkit-scrollbar-track { background: transparent; }
+.report-modal-body::-webkit-scrollbar-thumb { background: #d0cec8; border-radius: 4px; }
+
+.report-reason-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.report-reason-list li {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.report-reason-list li:hover { border-color: #b0aea8; background: #fafaf9; }
+
+.report-reason-list li label {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    cursor: pointer;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.report-reason-list li input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--ink);
+    flex-shrink: 0;
+    margin: 0;
+    cursor: pointer;
+}
+
+.report-reason-list li .reason-text { flex: 1; }
+.report-reason-list li .reason-title { font-size: 0.9rem; font-weight: 600; color: var(--ink); display: block; }
+.report-reason-list li .reason-desc { font-size: 0.78rem; color: #666; display: block; margin-top: 2px; line-height: 1.4; }
+.report-reason-list li:has(input:checked) { border-color: var(--ink); background: #f5f3ee; }
+
+.report-details-label { font-size: 0.9rem; font-weight: 600; color: var(--ink); display: block; margin-bottom: 4px; }
+.report-details-sub { font-size: 0.8rem; color: #666; display: block; margin-bottom: 14px; line-height: 1.4; }
+.report-details-textarea { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 0.9rem; resize: none; box-sizing: border-box; background: #fafaf9; color: var(--ink); transition: border-color 0.15s; outline: none; }
+.report-details-textarea:focus { border-color: var(--ink); background: var(--surface); }
+
+.report-selected-reason { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f5f3ee; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; }
+.report-selected-reason svg { color: var(--ink); flex-shrink: 0; }
+.report-selected-reason span { font-size: 0.88rem; font-weight: 600; color: var(--ink); }
+.report-selected-reason .back-link { margin-left: auto; background: none; border: none; font-size: 0.8rem; color: #666; cursor: pointer; font-weight: 600; padding: 0; text-decoration: underline; }
+.report-selected-reason .back-link:hover { color: var(--ink); }
+
+.report-modal-footer {
+    padding: 16px 24px 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    box-sizing: border-box;
+    flex-shrink: 0; /* Keeps footer pinned */
+    background: var(--surface);
+}
+
+.report-btn-cancel { background: none; border: 1px solid var(--border); padding: 10px 20px; border-radius: 30px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: #555; transition: background 0.15s, color 0.15s; }
+.report-btn-cancel:hover { background: #f5f3ee; color: var(--ink); }
+.report-btn-next, .report-btn-submit { background: var(--ink); color: #fff; border: none; padding: 10px 24px; border-radius: 30px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
+.report-btn-next:disabled, .report-btn-submit:disabled { opacity: 0.3; cursor: not-allowed; }
+.report-btn-next:not(:disabled):hover, .report-btn-submit:not(:disabled):hover { opacity: 0.85; }
+
+.report-success-icon { width: 56px; height: 56px; background: #f5f3ee; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; }
+.report-success-icon svg { width: 26px; height: 26px; color: var(--ink); }
+.report-success-body { text-align: center; padding: 12px 0 6px; }
+.report-success-body h3 { margin: 0 0 10px; font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; }
+.report-success-body p { margin: 0; font-size: 0.9rem; color: #555; line-height: 1.6; }
+.report-char-count { font-size: 0.78rem; color: #888; text-align: right; margin-top: 6px; }
+
+/* ── Mobile Architecture Override (Bottom Sheet) ── */
+@media (max-width: 640px) {
+    .report-overlay {
+        align-items: flex-end; /* Snaps card element down to screen base */
+    }
+
+    .report-modal {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        margin: 0;
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+        max-height: 85vh; /* Hard constraints for mobile device heights */
+    }
+
+    .report-modal-body {
+        padding: 16px 20px 24px;
+    }
+
+    .report-modal-header {
+        padding: 16px 20px 14px;
+    }
+
+    .report-modal-footer {
+        padding: 14px 20px 36px; /* Smooth padding area boundary buffer for iOS devices */
+    }
+
+    /* Minimal Top Sheet Bar Accent Indicator */
+    .report-modal::before {
+        content: '';
+        display: block;
+        width: 40px;
+        height: 5px;
+        background: var(--border);
+        border-radius: 4px;
+        margin: 10px auto 0;
+        flex-shrink: 0;
+    }
+}
         </style>
 </head>
 
@@ -763,12 +1168,12 @@
             </div>
 
             <section class="author-footer" style="padding: 40px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 60px;">
-                <div style="display: flex; align-items: flex-start; gap: 24px;">
+                <div style="display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap;">
                     <a href="/user/<%= blog.createdBy._id %>">
                         <img class="avatar" style="width: 80px; height: 80px; border: 1px solid var(--border);"
                             src="<%= blog.createdBy.profileImageURL || 'https://ui-avatars.com/api/?name=' + blog.createdBy.fullName %>">
                     </a>
-                    <div style="flex-grow: 1;">
+                    <div style="flex: 1; min-width: 250px;">
                         <p style="margin: 0 0 4px 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: 700;">Written by</p>
                         <h3 style="margin: 0 0 8px 0; font-family: 'Playfair Display', serif; font-size: 1.6rem;">
                             <a href="/user/<%= blog.createdBy._id %>" style="text-decoration: none; color: var(--ink);"><%= blog.createdBy.fullName %></a>
@@ -809,13 +1214,13 @@
                             <img class="avatar"
                                 src="<%= comment.createdBy.profileImageURL || 'https://ui-avatars.com/api/?name=' + comment.createdBy.fullName %>">
 
-                            <div style="width: 90%;" id="comment-body-wrapper-<%= comment._id %>">
+                            <div style="width: 90%; flex-grow: 1;" id="comment-body-wrapper-<%= comment._id %>">
                                 <div style="display: flex; align-items: baseline;">
                                     <span class="comment-name"><%= comment.createdBy.fullName %></span>
                                     <span class="comment-time"><%= timeAgo(comment.createdAt) %></span>
                                 </div>
 
-                                <p class="comment-body" id="text-<%= comment._id %>" style="margin: 4px 0; font-size: 0.92rem;">
+                                <p class="comment-body" id="text-<%= comment._id %>" style="margin: 4px 0; font-size: 0.92rem; word-break: break-word;">
                                     <%= comment.body %>
                                 </p>
 
@@ -864,13 +1269,13 @@
                                             <div class="reply-item" id="comment-container-<%= reply._id %>">
                                                 <img class="avatar" style="width:24px; height:24px;"
                                                     src="<%= reply.createdBy.profileImageURL || 'https://ui-avatars.com/api/?name=' + reply.createdBy.fullName %>">
-                                                <div style="width: 85%;">
+                                                <div style="width: 85%; flex-grow: 1;">
                                                     <div style="display:flex; align-items: baseline;">
                                                         <span class="comment-name" style="font-size:0.8rem;"><%= reply.createdBy.fullName %></span>
                                                         <span class="comment-time" style="font-size:0.7rem;"><%= timeAgo(reply.createdAt) %></span>
                                                     </div>
 
-                                                    <p class="comment-body" id="text-<%= reply._id %>" style="margin:2px 0; color:#444; font-size:0.88rem;">
+                                                    <p class="comment-body" id="text-<%= reply._id %>" style="margin:2px 0; color:#444; font-size:0.88rem; word-break: break-word;">
                                                         <%- reply.body.replace(/^(@\w+)/, '<span class="mention">$1</span>') %>
                                                     </p>
 
@@ -941,15 +1346,13 @@
         </aside>
     </div>
 
-    <!-- ── Report Modal ────────────────────────────────────────── -->
     <div class="report-overlay" id="report-overlay" onclick="handleOverlayClick(event)">
         <div class="report-modal" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
 
-            <!-- Step 1: Choose reason -->
             <div id="report-step-1" class="report-step active">
                 <div class="report-modal-header">
                     <div>
-                        <h2 id="report-modal-title">Report content</h2>
+                        <h2 id="report-modal-title">Report Content</h2>
                         <p>Why are you reporting this?</p>
                     </div>
                     <button class="report-close-btn" onclick="closeReportModal()" aria-label="Close">
@@ -1038,11 +1441,10 @@
                 </div>
             </div>
 
-            <!-- Step 2: Add details -->
             <div id="report-step-2" class="report-step">
                 <div class="report-modal-header">
                     <div>
-                        <h2>Add details</h2>
+                        <h2>Add Details</h2>
                         <p>Help us understand the issue better</p>
                     </div>
                     <button class="report-close-btn" onclick="closeReportModal()" aria-label="Close">
@@ -1051,11 +1453,11 @@
                 </div>
                 <div class="report-modal-body">
                     <div class="report-selected-reason">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         <span id="report-selected-label"></span>
                         <button class="back-link" onclick="goToStep1()">Change</button>
                     </div>
-                    <label class="report-details-label">Additional context <span style="font-weight:400; color:#aaa;">(optional)</span></label>
+                    <label class="report-details-label">Additional context <span style="font-weight:400; color:#888;">(optional)</span></label>
                     <span class="report-details-sub">Provide any specific details that will help our team review this report.</span>
                     <textarea
                         class="report-details-textarea"
@@ -1073,7 +1475,6 @@
                 </div>
             </div>
 
-            <!-- Step 3: Success -->
             <div id="report-step-3" class="report-step">
                 <div class="report-modal-header" style="border-bottom: none; padding-bottom: 0;">
                     <div></div>
@@ -1083,11 +1484,11 @@
                 </div>
                 <div class="report-modal-body report-success-body" style="padding-top: 10px; padding-bottom: 28px;">
                     <div class="report-success-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                     </div>
-                    <h3>Report submitted</h3>
+                    <h3>Report Submitted</h3>
                     <p>Thank you for helping keep this community safe. Our team will review your report and take appropriate action.</p>
-                    <button class="report-btn-next" style="margin-top: 22px;" onclick="closeReportModal()">Done</button>
+                    <button class="report-btn-next" style="margin-top: 22px; border-radius: 30px;" onclick="closeReportModal()">Done</button>
                 </div>
             </div>
 
@@ -1111,23 +1512,23 @@
             },
             {
                 label: '🐶', name: 'Animals',
-                emojis: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐕‍🦺','🐈','🐈‍⬛','🐓','🦃','🦚','🦜','🦢','🦩','🕊️','🐇','🦝','🦨','🦡','🦦','🦥','🐁','🐀','🐿️','🦔']
+                emojis: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐕‍🦺','🐈','🐈‍⬛','🐓','🦃','🦚','🦩','🕊️','🐇','🦝','🦨','🦡','🦦','🦥','🐁','🐀','🐿️','🦔']
             },
             {
                 label: '🍔', name: 'Food',
-                emojis: ['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶️','🫑','🥑','🧄','🧅','🥔','🍠','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🦴','🌭','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍘','🍥','🥮','🍢','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯','🧃','🥤','🧋','☕','🍵','🫖','🧉','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧊']
+                emojis: ['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶️','🫑','🥑','🧄','🧅','🥔','🍠','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍘','🍥','🥮','🍢','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯','🧃','🥤','🧋','☕','🍵','🫖','🧉','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧊']
             },
             {
                 label: '⚽', name: 'Activities',
-                emojis: ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🥌','🎿','⛷️','🏂','🪂','🏋️','🤼','🤸','⛹️','🤺','🏇','🧘','🏄','🏊','🚣','🧗','🚵','🚴','🏆','🥇','🥈','🥉','🏅','🎖️','🏵️','🎗️','🎫','🎟️','🎪','🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🪘','🎷','🎺','🎸','🪕','🎻','🎲','♟️','🎯','🎳','🎮','🎰','🧩']
+                emojis: ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🥌','🎿','⛷️','🏂','🪂','🏋️','🤼','🤸','⛹️','','🤺','🏇','🧘','🏄','🏊','🚣','🧗','🚵','🚴','🏆','🥇','🥈','🥉','🏅','🎖️','🏵️','🎗️','🎫','🎟️','🎪','🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🪘','🎷','🎺','🎸','🪕','🎻','🎲','♟️','🎯','🎳','🎮','🎰','🧩']
             },
             {
                 label: '🚗', name: 'Travel',
-                emojis: ['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🦯','🦽','🦼','🛴','🚲','🛵','🛺','🚁','🛸','🚀','🛶','⛵','🚤','🛥️','🛳️','⛴️','🚢','✈️','🛩️','🛫','🛬','🪂','💺','🚁','🚟','🚃','🚋','🚞','🚝','🚄','🚅','🚈','🚂','🚆','🚇','🚊','🚉','✈️','🛫','🛬','🚀','🛸','🌈','🌤️','⛅','🌥️','☁️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️','💨','🌪️','🌫️','🌊','💧','💦','☔']
+                emojis: ['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🦯','🦽','🦼','🛴','🚲','🛵','🛺','🚁','🛸','🚀','🛶','⛵','🚤','🛥️','🛳️','⛴️','🚢','✈️','🛩️','🛫','🛬','🪂','💺','🚟','🚃','🚋','🚞','🚝','🚄','🚅','🚈','🚂','🚆','🚇','🚊','🚉','🌈','🌤️','⛅','🌥️','☁️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️','💨','🌪️','🌫️','🌊','💧','💦','☔']
             },
             {
                 label: '💡', name: 'Objects',
-                emojis: ['⌚','📱','📲','💻','⌨️','🖥️','🖨️','🖱️','🖲️','🕹️','💾','💿','📀','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🧭','⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🔌','💡','🔦','🕯️','🪔','🧯','🛢️','💰','💴','💵','💶','💷','💸','💳','🪙','💎','⚖️','🧲','🔧','🔨','⚒️','🛠️','⛏️','🔩','🪛','🔫','🧨','💣','🪓','🔪','🗡️','⚔️','🛡️','🪚','🔬','🔭','🩺','💉','🩸','💊','🩹','🩼','🩻','🪤','🧸','🪆','🖼️','🧵','🧶','🪡','🧷','🪢','👓','🕶️','🥽','🌂','☂️','🧵','🎁','🎀','🎊','🎉','🎈']
+                emojis: ['⌚','📱','📲','💻','⌨️','🖥️','🖨️','鼠标','🖲️','🕹️','💾','💿','📀','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🧭','⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🔌','💡','🔦','🕯️','🪔','🧯','🛢️','💰','💴','💵','💶','💷','💸','💳','🪙','💎','⚖️','🧲','🔧','🔨','⚒️','🛠️','⛏️','螺丝','🪛','🔫','🧨','💣','🪓','🔪','🗡️','⚔️','🛡️','🪚','🔬','🔭','🩺','💉','🩸','💊','🩹','🩼','🩻','🪤','🧸','🪆','🖼️','🧵','🧶','🪡','🧷','🪢','👓','🕶️','🥽','🌂','☂️','🎁','🎀','🎊','🎉','🎈']
             }
         ];
 
@@ -1156,7 +1557,7 @@
             }
 
             const tabs = EMOJI_CATEGORIES.map((cat, i) =>
-                `<button class="emoji-tab${i === 0 ? ' active' : ''}" onclick="pickerTabClick('${pickerId}',${i})" title="${cat.name}">${cat.label}</button>`
+                `<button class="emoji-tab${i === 0 ? ' active' : ''}" type="button" onclick="pickerTabClick('${pickerId}',${i})" title="${cat.name}">${cat.label}</button>`
             ).join('');
 
             popup.innerHTML = `
@@ -1210,7 +1611,7 @@
                 const top = spaceBelow >= pickerH ? rect.bottom + 6 : rect.top - pickerH - 6;
                 const left = Math.min(rect.right - 300, window.innerWidth - 308);
 
-                popup.style.top  = top + 'px';
+                popup.style.top  = (top + window.scrollY) + 'px';
                 popup.style.left = Math.max(8, left) + 'px';
 
                 activePicker = pickerId;
@@ -1255,12 +1656,14 @@
 
         function openReportModal(type, id) {
             reportTarget = { type, id };
-            // Reset state
             document.querySelectorAll('input[name="report-reason"]').forEach(r => r.checked = false);
             document.getElementById('report-details-input').value = '';
             document.getElementById('report-char-count').textContent = '0';
             document.getElementById('report-next-btn').disabled = true;
             showStep(1);
+            const submitBtn = document.getElementById('report-submit-btn');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Report';
             document.getElementById('report-overlay').classList.add('open');
             document.body.style.overflow = 'hidden';
         }
@@ -1312,22 +1715,18 @@
             btn.textContent = 'Submitting...';
 
             try {
-                
                 const res = await fetch('/blog/report', {
-    method: 'POST',
-    credentials: 'same-origin',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({
-        targetType: reportTarget.type,
-        targetId: reportTarget.id,
-        blogId: '<%= blog._id %>',
-        reason,
-        details
-    })
-});
-                console.log('Report response status:', res.status);
+                    method: 'POST',
+                    credentials: 'same-origin',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        targetType: reportTarget.type,
+                        targetId: reportTarget.id,
+                        blogId: '<%= blog._id %>',
+                        reason,
+                        details
+                    })
+                });
                 if (res.ok) {
                     showStep(3);
                 } else {
@@ -1342,19 +1741,30 @@
                 btn.disabled = false;
                 btn.textContent = 'Submit Report';
             }
-            console.log('Report submission completed');
         }
 
-        // Close modal on Escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && document.getElementById('report-overlay').classList.contains('open')) {
                 closeReportModal();
             }
         });
 
-        // ── Existing functions ────────────────────────────────────────
-        document.querySelectorAll('.replies-list').forEach(el => {
-            el.style.maxHeight = el.scrollHeight + 'px';
+        // ── Layout adjustments & Existing handlers ────────────────────────────────
+        function setInitialRepliesState() {
+            document.querySelectorAll('.replies-list').forEach(el => {
+                if(!el.classList.contains('collapsed')) {
+                    el.style.maxHeight = el.scrollHeight + 'px';
+                }
+            });
+        }
+        window.addEventListener('load', setInitialRepliesState);
+        window.addEventListener('resize', () => {
+            document.querySelectorAll('.replies-list').forEach(el => {
+                if(!el.classList.contains('collapsed')) {
+                    el.style.maxHeight = 'none';
+                    el.style.maxHeight = el.scrollHeight + 'px';
+                }
+            });
         });
 
         function toggleReplies(commentId, count) {

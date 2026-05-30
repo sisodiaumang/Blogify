@@ -51,20 +51,31 @@ app.set("views", path.resolve("./views"));
 
 
 
-app.get("/", async (req, res) => {
-    const search = req.query.search; // ✅ correct place
+app.get('/', async (req, res) => {
+    const limit = 6; 
+    const page = parseInt(req.query.page) || 1;
+    const search = req.query.search || '';
+    const query = search ? { title: { $regex: search, $options: 'i' } } : {};
 
-    const query = search
-        ? { title: { $regex: search, $options: "i" } }
-        : {};
+    try {
+        const totalBlogs = await Blog.countDocuments(query);
+        const totalPages = Math.ceil(totalBlogs / limit);
+        
+        const blogs = await Blog.find(query)
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit);
 
-    const blogs = await Blog.find(query);
-
-    res.render("home", {
-        // user: req.user,
-        blogs: blogs,
-        search: search || null, // optional (for showing in input box)
-    });
+        res.render('home', {
+            blogs,
+            search,
+            currentPage: page,
+            totalPages
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send("Server Error");
+    }
 });
 
 

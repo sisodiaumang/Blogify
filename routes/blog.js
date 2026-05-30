@@ -252,10 +252,11 @@ router.post("/report", restrictTo(['USER', 'ADMIN', 'OWNER']), async (req, res) 
         }
         console.timeEnd("report");
         
-        return res.json({
+        res.json({
             success: true,
             message: "Report submitted successfully"
         });
+        return res.redirect('/blog/' + blogId);
 
     } catch (err) {
         console.error(err);
