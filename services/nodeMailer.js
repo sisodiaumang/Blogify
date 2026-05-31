@@ -101,7 +101,7 @@ async function sendWelcomeEmail(email, fullName) {
                                     </p>
 
                                     <div style="text-align: center; margin: 40px 0;">
-                                        <a href="http://localhost:8000/blog/add-new" style="background-color: #2d3e50; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 50px; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 15px rgba(45, 62, 80, 0.2);">
+                                        <a href="https://blogify-for-stories.vercel.app/blog/add-new" style="background-color: #2d3e50; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 50px; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 15px rgba(45, 62, 80, 0.2);">
                                             Write Your First Story
                                         </a>
                                     </div>
