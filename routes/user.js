@@ -11,7 +11,8 @@ const { uploadOnCloudinary, deleteCloudinary } = require("../services/cloudinary
 
 const generateOTP = require("../services/otpGenerator");
 const { sendOTP, sendWelcomeEmail } = require("../services/nodeMailer");
-
+const { sendConfirmation } = require("../services/nodeMailer");
+const {generateEmailConfirmationToken} = require("../services/emailConfirmationToken");
 
 const router = Router();
 
@@ -39,6 +40,9 @@ router.post('/signin', async (req, res) => {
             refreshToken,
             user
         } = await User.matchPasswordAndGenerateToken(email, password);
+        if(user.isVerified === false){
+            return res.render("signin", { error: "Please verify your email before signing in." });
+        }
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
             secure: true,
@@ -65,19 +69,34 @@ router.get('/signup', (req, res) => {
 router.post('/signup', async (req, res) => {
     const { fullName, email, password } = req.body;
     if (!validator.isEmail(email)) {
-        return res.status(400).render("signup", { error: "Enter an Valid email" });
+        return res.status(400).render("signup", {
+            error: "Enter a valid email"
+        });
     }
-    const user = await User.findOne({ email });
-    if (user) {
-        return res.render("signup", { error: "Email already exist" });
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+        if (!existingUser.isVerified) {
+            await existingUser.deleteOne();
+        } else {
+            return res.render("signup", {
+                error: "Email already exists"
+            });
+        }
     }
-    await User.create({
+
+    const token =await generateEmailConfirmationToken();
+
+    const newUser = await User.create({
         fullName,
         email,
         password,
+        emailVerificationToken: token,
+        isVerified: false
     });
-    await sendWelcomeEmail(email, fullName);
-    return res.redirect("/");
+
+    await sendConfirmation(newUser.email, token);
+
+    return res.render("verifyNotice");
 });
 
 router.get("/logout", async (req, res) => {

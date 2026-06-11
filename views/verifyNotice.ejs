@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head')%>
+    <title>Verify Email | The Feed</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #fcfaf7;
+            --accent-color: #2d3e50;
+            --text-main: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            max-width: 450px;
+            margin: auto;
+            padding: 40px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+            text-align: center;
+        }
+
+        .auth-header {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.0rem;
+            color: var(--accent-color);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 30px;
+        }
+
+        .icon-wrapper {
+            margin-bottom: 25px;
+            color: var(--accent-color);
+        }
+
+        .btn-signin {
+            width: 100%;
+            background-color: var(--accent-color);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            font-weight: 600;
+            border-radius: 4px;
+            text-decoration: none;
+            display: inline-block;
+            transition: background 0.3s;
+            cursor: pointer;
+        }
+
+        .btn-signin:hover {
+            background-color: #000;
+        }
+
+        .footer-link {
+            text-align: center;
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: #888;
+        }
+
+        .footer-link a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('./partials/nav')%>
+
+    <div class="container d-flex flex-grow-1">
+        <div class="auth-container">
+            <div class="icon-wrapper">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin: 0 auto;">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+            </div>
+
+            <h1 class="auth-header">Check your email</h1>
+            <p class="auth-subtitle">
+                We have sent a verification link to your email address. Please click the link inside to verify your account, and then proceed to sign in.
+            </p>
+            
+            <a href="/user/signin" class="btn-signin">Go to Sign In</a>
+
+            <div class="footer-link">
+                Need help? <a href="/contact">Contact Support</a>
+            </div>
+        </div>
+    </div>
+
+    <%- include('./partials/script')%>
+</body>
+
+</html>

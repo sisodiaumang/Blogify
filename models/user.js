@@ -1,6 +1,7 @@
 const { Schema, model } = require("mongoose");
 const { createHmac, randomBytes } = require('crypto');
 const { createAccessTokenForUser,createRefreshTokenForUser } = require("../services/authentication");
+const { isVAT } = require("validator");
 
 
 
@@ -8,6 +9,13 @@ const userSchema = new Schema({
     fullName: {
         type: String,
         required: true
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
+    },
+    emailVerificationToken: {
+        type: String,
     },
     email: {
         type: String,

@@ -188,4 +188,73 @@ async function reportToAdmin(adminEmail, targetType, targetId, blogId, reason, d
     }
 }
 
-    module.exports = { sendOTP, sendWelcomeEmail, reportToAdmin };
+async function sendConfirmation(email, token) {
+    // Construct the verification URL using the provided token
+    const verificationUrl = `https://blogify-for-stories.vercel.app/verify-email/${token}`;
+
+    await transporter.sendMail({
+        from: `"Blogify Support" <${process.env.EMAIL}>`,
+        to: email,
+        subject: "Activate your Blogify account",
+        html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+                @media only screen and (max-width: 600px) {
+                    .email-container { width: 100% !important; padding: 20px !important; }
+                    .header-text { font-size: 20px !important; }
+                    .verify-button { width: 100% !important; box-sizing: border-box !important; }
+                }
+            </style>
+        </head>
+        <body style="margin: 0; padding: 0; background-color: #fcfaf7;">
+            <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                <tr>
+                    <td align="center" style="padding: 20px 0;">
+                        <table class="email-container" width="500" cellspacing="0" cellpadding="0" border="0" style="background-color: #ffffff; border-radius: 12px; border: 1px solid #e5e0d8; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden;">
+                            <tr>
+                                <td style="padding: 40px;">
+                                    
+                                    <h2 class="header-text" style="font-family: 'Georgia', serif; color: #2d3e50; font-size: 24px; margin: 0 0 20px 0; text-align: center;">Welcome to Blogify!</h2>
+                                    
+                                    <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #666; text-align: center; margin: 0 0 30px 0;">
+                                        Thank you for signing up. Please click the button below to verify your email address and activate your account.
+                                    </p>
+
+                                    <!-- Verification Button -->
+                                    <div style="text-align: center; margin: 30px 0;">
+                                        <a href="${verificationUrl}" class="verify-button" style="display: inline-block; background-color: #2d3e50; color: #ffffff; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; font-weight: 600; text-decoration: none; padding: 15px 35px; border-radius: 8px; box-shadow: 0 4px 6px rgba(45,62,80,0.15);">
+                                            Verify Email Address
+                                        </a>
+                                    </div>
+
+                                    <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; line-height: 1.5; color: #999; text-align: center; margin: 30px 0 0 0;">
+                                        If the button above doesn't work, copy and paste this link into your browser:<br>
+                                        <a href="${verificationUrl}" style="color: #2d3e50; text-decoration: underline; word-break: break-all;">${verificationUrl}</a>
+                                    </p>
+
+                                    <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px; color: #999; text-align: center; margin: 20px 0 0 0;">
+                                        If you did not create a Blogify account, you can safely ignore this email.
+                                    </p>
+
+                                    <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
+
+                                    <div style="text-align: center; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: #aaa;">
+                                        <strong>Blogify</strong><br>
+                                        Stories & Ideas
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </body>
+        </html>
+        `,
+    });
+}
+
+    module.exports = { sendOTP, sendWelcomeEmail, reportToAdmin ,sendConfirmation };

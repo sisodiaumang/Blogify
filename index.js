@@ -11,7 +11,7 @@ const adminRoute = require("./routes/admin");
 const userRoute = require("./routes/user");
 const blogRoute = require("./routes/blog");
 const Blog = require("./models/blog");
-
+const emailVerifyRoute = require("./routes/emailVerify");
 
 
 
@@ -82,6 +82,7 @@ app.get('/', async (req, res) => {
 app.use('/user', userRoute);
 app.use('/blog', blogRoute);
 app.use('/admin', adminRoute);
+app.use('/verify-email', emailVerifyRoute);
 
 app.listen(PORT, () => {
     console.log("App is listening at port", PORT);
