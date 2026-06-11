@@ -41,21 +41,21 @@ A full-stack blogging platform built with Node.js and MongoDB that empowers user
 ##  Screenshots
 
 ### Home Page with Blog Listing & Search
-![Home Page with Blog Listing & Search](./public/screenshots/image1.png)
+![Home Page with Blog Listing & Search](./public/screenshots/image-1.png)
 
 ### Blog Reading View
-![Blog Detail Page](./public/screenshots/image2.png)
-![Blog Comments Section](./public/screenshots/image3.png)
-![Blog Markdown Rendering](./public/screenshots/image4.png)
+![Blog Detail Page](./public/screenshots/image-2.png)
+![Blog Comments Section](./public/screenshots/image-3.png)
+![Blog Markdown Rendering](./public/screenshots/image-4.png)
 
 ### User Dashboard & Account Settings
-![User Profile Page](./public/screenshots/image5.png)
-![Account Settings](./public/screenshots/image6.png)
-![User Dashboard](./public/screenshots/image7.png)
+![User Profile Page](./public/screenshots/image-5.png)
+![Account Settings](./public/screenshots/image-6.png)
+![User Dashboard](./public/screenshots/image-7.png)
 
 ### Admin Dashboard
-![Admin Dashboard Overview](./public/screenshots/image8.png)
-![Admin Blog Management](./public/screenshots/image9.png)
+![Admin Dashboard Overview](./public/screenshots/image-8.png)
+![Admin Blog Management](./public/screenshots/image-9.png)
 
 ---
 
