@@ -474,7 +474,7 @@
                             <% } %>
                             
                             <% if (blog.createdBy && blog.createdBy._id) { %>
-                                <a href="/user/profile/<%= blog.createdBy._id %>" class="writer-profile-link" title="View Profile">
+                                <a href="/user/<%= blog.createdBy._id %>" class="writer-profile-link" title="View Profile">
                                     <div class="writer-badge">
                                         <i class="bi bi-person-circle"></i> <%= blog.createdBy.fullName %>
                                     </div>
