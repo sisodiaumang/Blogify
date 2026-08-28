@@ -22,12 +22,13 @@ const upload = multer({ storage: storage })
 const router = Router();
 
 
+const { getRelatedBlogs, getTrendingBlogs } = require("../services/recommendationEngine");
+
 router.get("/add-new", (req, res) => {
     return res.render('addBlog', {
         // user:req.user,
     });
-})
-
+});
 
 router.get("/:id", async (req, res) => {
     try {
@@ -35,18 +36,17 @@ router.get("/:id", async (req, res) => {
         if (!blog) {
             return res.redirect("/");
         }
+
+        // Increment view count asynchronously for recommendation scoring
+        Blog.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } }).exec();
+
         const htmlContent = marked(blog.body);
         const comments = await Comment.find({
             commentedOn: req.params.id
         }).populate("createdBy", "fullName profileImageURL");
 
-        // Fetch related blogs (excluding current blog)
-        const relatedBlogs = await Blog.find({
-            _id: { $ne: req.params.id }
-        })
-        .populate("createdBy", "fullName profileImageURL")
-        .sort({ createdAt: -1 })
-        .limit(6);
+        // Run Hybrid Recommendation Engine
+        const relatedBlogs = await getRelatedBlogs(req.params.id, 6);
 
         return res.render("blog", {
             blog,
@@ -281,6 +281,26 @@ router.post("/report", commentLimiter, restrictTo(['USER', 'ADMIN', 'OWNER']), a
             success: false,
             message: "Failed to submit report"
         });
+    }
+});
+
+// Recommendation Engine APIs
+router.get("/recommendations/trending", async (req, res) => {
+    try {
+        const trending = await getTrendingBlogs(10);
+        return res.json({ success: true, count: trending.length, data: trending });
+    } catch (err) {
+        return res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.get("/recommendations/personalized", async (req, res) => {
+    try {
+        const userId = req.user ? req.user._id : null;
+        const personalized = await require("../services/recommendationEngine").getPersonalizedFeed(userId, 10);
+        return res.json({ success: true, count: personalized.length, data: personalized });
+    } catch (err) {
+        return res.status(500).json({ success: false, error: err.message });
     }
 });
 
