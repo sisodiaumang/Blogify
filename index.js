@@ -40,7 +40,7 @@ app.use(express.json()); // Add this if it's missing!
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(checkForAuthenticationCookie("accessToken"));
-app.use(express.static(path.resolve("./public")));
+app.use(express.static(path.join(__dirname, "public")));
 app.use(methodOverride("_method"));
 app.use((req, res, next) => {
     res.locals.user = req.user || null;
@@ -48,7 +48,7 @@ app.use((req, res, next) => {
 });
 
 app.set("view engine", "ejs");
-app.set("views", path.resolve("./views"));
+app.set("views", path.join(__dirname, "views"));
 
 
 
