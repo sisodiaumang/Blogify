@@ -9,24 +9,36 @@ async function rewriteNewsToBlog({ title, snippet, content, source, category = '
     const maxRetries = 5;
     let attempt = 0;
 
-    const systemPrompt = `You are a professional investigative journalist and chief editor for a modern high-traffic digital tech and news magazine.
-Your task is to take a news headline and snippet, and craft a comprehensive, engaging, well-researched, and formatted Markdown blog post based on it.
+    const systemPrompt = `You are a Senior Editor and Art Director for leading modern digital magazines and opinion blogs (such as The Quint Voices, India Today Blogs, ABP Live Blog, Vox, and Wired).
+Your task is to take breaking news or blog stories and transform them into deeply engaging, well-researched, high-quality Markdown blog articles accompanied by a vivid EDITORIAL CONCEPTUAL ARTWORK image prompt.
+
+CRITICAL INSTRUCTIONS FOR IMAGE PROMPT (Editorial Blog & Magazine Style):
+- The image MUST NOT be a boring, realistic living room or mundane snapshot.
+- Instead, create a STRIKING, MODERN EDITORIAL 3D CONCEPTUAL DIGITAL ARTWORK or VIBRANT EDITORIAL VECTOR ILLUSTRATION (just like The Quint, India Today, and ABP Live cover features).
+- Use imaginative visual metaphors:
+  * For AI / Tech / Innovation: Glowing futuristic 3D neural brain held in human hands, floating glowing cybernetic nodes, vibrant neon blue/purple circuits, holographic diagrams, sleek minimalist tech aesthetic.
+  * For Politics / Governance / Society: Dramatic high-contrast editorial concept art, symbolic silhouettes, vibrant civic color accents, expressive modern artistic composition.
+  * For Economy / Business / Jobs: 3D isometric glowing financial charts, stylized modern career desk setup with floating skill icons, upward growth arrows, vibrant modern color palette.
+  * For Environment / Nature / Climate: Dramatic atmospheric digital concept painting with vivid lighting and surreal nature elements.
+  * For Entertainment / Sports / Culture: Dynamic pop-art or vivid 3D stylized character render with cinematic glow and high energy.
+- Format: "modern editorial 3D digital illustration, [descriptive creative scene], vibrant color palette, clean studio lighting, Behance trending, 8k, highly detailed".
+- STRICT RULE: Do NOT include text, alphabet letters, words, watermarks, or brand logos in the image prompt.
 
 Respond strictly in valid JSON format with the following keys:
 {
-  "title": "A captivating, journalistic, SEO-friendly title",
-  "body": "Full Markdown article (at least 350-500 words) with proper markdown headings (##, ###), bullet points, background analysis, key highlights, and conclusion. Do NOT include markdown code blocks around the JSON.",
-  "imagePrompt": "A highly descriptive, photorealistic, cinematic prompt for an AI image generator (FLUX/SDXL) representing this news event visually. Avoid text, words, watermarks, or logos in the image prompt."
+  "title": "A captivating, journalistic, SEO-friendly headline (30-80 chars)",
+  "body": "Full Markdown article (at least 350-500 words) with proper markdown headings (##, ###), key bullet points, background analysis, context, and insightful takeaways. Do NOT include markdown code fences around the JSON.",
+  "imagePrompt": "A rich, creative 3D conceptual editorial illustration prompt following the style guidelines above."
 }`;
 
     const userPrompt = `
-News Details:
+News Story Details:
 - Original Title: ${title}
-- Source: ${source || 'News Wire'}
+- Source: ${source || 'Editorial Wire'}
 - Category: ${category}
 - Summary / Content: ${content || snippet || title}
 
-Please transform this into an original, insightful, well-structured markdown blog post. Provide the response as raw JSON matching the required schema.
+Please transform this into an original, insightful, well-structured markdown blog post with an editorial illustration prompt. Return valid JSON matching the schema.
 `;
 
     while (attempt < maxRetries) {
@@ -43,7 +55,7 @@ Please transform this into an original, insightful, well-structured markdown blo
                         { role: 'user', content: userPrompt }
                     ],
                     response_format: { type: 'json_object' },
-                    temperature: 0.7,
+                    temperature: 0.75,
                     max_tokens: 2048,
                 },
                 {
@@ -75,24 +87,23 @@ Please transform this into an original, insightful, well-structured markdown blo
             return {
                 title: parsed.title,
                 body: parsed.body,
-                imagePrompt: parsed.imagePrompt || `${title}, cinematic digital photography, high resolution, 8k`
+                imagePrompt: parsed.imagePrompt || `modern editorial 3D digital illustration of ${title}, vibrant colors, conceptual magazine cover art, 8k`
             };
 
         } catch (err) {
             const status = err.response?.status;
-            console.error(`[groqService] Attempt ${attempt} failed with key ${apiKey.slice(0, 10)}... Status: ${status || err.message}`);
+            console.error(`[groqService] Attempt ${attempt} failed with key ${apiKey ? apiKey.slice(0, 10) : 'none'}... Status: ${status || err.message}`);
 
             if (status === 429) {
                 keyManager.markKeyRateLimited(apiKey, 90);
             } else if (status === 401) {
-                keyManager.markKeyRateLimited(apiKey, 3600); // Invalid key, put on 1h cooldown
+                keyManager.markKeyRateLimited(apiKey, 3600);
             }
 
             if (attempt >= maxRetries) {
                 throw new Error(`Failed to generate blog after ${maxRetries} attempts with Groq. Last error: ${err.message}`);
             }
 
-            // Small delay before retry
             await new Promise(r => setTimeout(r, 1000));
         }
     }

@@ -9,45 +9,67 @@ const parser = new Parser({
 });
 
 const NEWS_FEEDS = [
+    // The Quint (Voices / Blogs / Top Stories)
     {
-        name: 'Google News - Top Stories',
+        name: 'The Quint - Voices & Blogs',
+        category: 'Opinion & Editorial',
+        url: 'https://news.google.com/rss/search?q=site:thequint.com+voices+OR+blog&hl=en-IN&gl=IN&ceid=IN:en'
+    },
+    {
+        name: 'The Quint - Top Stories',
         category: 'Top Stories',
-        url: 'https://news.google.com/rss?hl=en-US&gl=US&ceid=US:en'
+        url: 'https://news.google.com/rss/search?q=site:thequint.com&hl=en-IN&gl=IN&ceid=IN:en'
+    },
+
+    // India Today (Blogs & Top News)
+    {
+        name: 'India Today - Blogs & Editorial',
+        category: 'Editorial & Blogs',
+        url: 'https://news.google.com/rss/search?q=site:indiatoday.in/blogs-section+OR+site:indiatoday.in/opinion&hl=en-IN&gl=IN&ceid=IN:en'
     },
     {
-        name: 'Google News - Technology',
+        name: 'India Today - Home',
+        category: 'Top Stories',
+        url: 'https://www.indiatoday.in/rss/home'
+    },
+    {
+        name: 'India Today - Tech & Trends',
         category: 'Technology',
-        url: 'https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-US&gl=US&ceid=US:en'
+        url: 'https://www.indiatoday.in/rss/1206584'
+    },
+
+    // ABP Live (Blogs & Top News)
+    {
+        name: 'ABP Live - Blogs',
+        category: 'Editorial & Blogs',
+        url: 'https://news.google.com/rss/search?q=site:news.abplive.com/blog&hl=en-IN&gl=IN&ceid=IN:en'
     },
     {
-        name: 'Google News - Business',
+        name: 'ABP Live - Home',
+        category: 'Top Stories',
+        url: 'https://news.abplive.com/home/feed'
+    },
+    {
+        name: 'ABP Live - Technology',
+        category: 'Technology',
+        url: 'https://news.abplive.com/technology/feed'
+    },
+
+    // General Breaking News Feeds
+    {
+        name: 'Google News India - Top Headlines',
+        category: 'Top Stories',
+        url: 'https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en'
+    },
+    {
+        name: 'Google News India - Technology',
+        category: 'Technology',
+        url: 'https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-IN&gl=IN&ceid=IN:en'
+    },
+    {
+        name: 'Google News India - Business',
         category: 'Business',
-        url: 'https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-US&gl=US&ceid=US:en'
-    },
-    {
-        name: 'Google News - Science',
-        category: 'Science',
-        url: 'https://news.google.com/rss/headlines/section/topic/SCIENCE?hl=en-US&gl=US&ceid=US:en'
-    },
-    {
-        name: 'Google News - Entertainment',
-        category: 'Entertainment',
-        url: 'https://news.google.com/rss/headlines/section/topic/ENTERTAINMENT?hl=en-US&gl=US&ceid=US:en'
-    },
-    {
-        name: 'BBC World News',
-        category: 'World',
-        url: 'http://feeds.bbci.co.uk/news/world/rss.xml'
-    },
-    {
-        name: 'TechCrunch',
-        category: 'Technology',
-        url: 'https://techcrunch.com/feed/'
-    },
-    {
-        name: 'The Verge',
-        category: 'Technology',
-        url: 'https://www.theverge.com/rss/index.xml'
+        url: 'https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-IN&gl=IN&ceid=IN:en'
     }
 ];
 
@@ -70,7 +92,7 @@ function cleanHtml(html) {
  */
 async function fetchRecentNews(hoursWindow = 4) {
     const cutoffTime = new Date(Date.now() - hoursWindow * 60 * 60 * 1000);
-    console.log(`[newsFetcher] Fetching news published after: ${cutoffTime.toISOString()} (last ${hoursWindow} hours)`);
+    console.log(`[newsFetcher] Fetching news from The Quint, India Today, ABP Live & top feeds after: ${cutoffTime.toISOString()} (last ${hoursWindow} hours)`);
 
     const allArticles = [];
     const seenTitles = new Set();
@@ -100,7 +122,7 @@ async function fetchRecentNews(hoursWindow = 4) {
 
                 // Normalize for deduplication
                 const normalizedTitle = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (seenTitles.has(normalizedTitle)) {
+                if (seenTitles.has(normalizedTitle) || normalizedTitle.length < 5) {
                     continue;
                 }
                 seenTitles.add(normalizedTitle);
