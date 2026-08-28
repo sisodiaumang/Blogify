@@ -20,7 +20,14 @@ const blogSchema = new Schema({
         type:Schema.Types.ObjectId,
         ref:"user"
     },
-
+    sourceUrl: {
+        type: String,
+        required: false,
+    },
+    sourceTitle: {
+        type: String,
+        required: false,
+    }
 },{timestamps:true});
 
 const Blog = model("blog",blogSchema);

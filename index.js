@@ -12,6 +12,8 @@ const userRoute = require("./routes/user");
 const blogRoute = require("./routes/blog");
 const Blog = require("./models/blog");
 const emailVerifyRoute = require("./routes/emailVerify");
+const cron = require("node-cron");
+const { runNewsAutomation } = require("./services/newsAutomation");
 
 
 
@@ -86,4 +88,15 @@ app.use('/verify-email', emailVerifyRoute);
 
 app.listen(PORT, () => {
     console.log("App is listening at port", PORT);
-})
+
+    // Schedule automated news publishing every 4 hours
+    cron.schedule('0 */4 * * *', async () => {
+        console.log('[Cron] Running scheduled 4-hour news automation...');
+        try {
+            await runNewsAutomation({ hoursWindow: 4, maxArticles: 8 });
+        } catch (e) {
+            console.error('[Cron] Error running news automation:', e);
+        }
+    });
+    console.log("[Cron] Automated 4-hour news publishing job registered.");
+});

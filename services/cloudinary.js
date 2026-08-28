@@ -1,5 +1,5 @@
-import { v2 as cloudinary } from "cloudinary";
-import streamifier from "streamifier";
+const cloudinary = require("cloudinary").v2;
+const streamifier = require("streamifier");
 
 cloudinary.config({ 
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
@@ -59,7 +59,4 @@ const getPublicId = (url) => {
     return noVersion.split(".")[0];
 };
 
-
-
-
-export  {uploadOnCloudinary,deleteCloudinary,getPublicId}
+module.exports = { uploadOnCloudinary, deleteCloudinary, getPublicId };

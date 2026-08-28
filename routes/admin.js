@@ -70,4 +70,29 @@ router.post('/assign-role',restrictTo(["OWNER"]), async (req, res) => {
     }
 });
 
+const { runNewsAutomation } = require("../services/newsAutomation");
+
+router.post('/trigger-news', restrictTo(["ADMIN", "OWNER"]), async (req, res) => {
+    try {
+        const hoursWindow = parseFloat(req.body.hoursWindow) || 4;
+        const maxArticles = parseInt(req.body.maxArticles) || 5;
+
+        // Run automation in background or await
+        const stats = await runNewsAutomation({ hoursWindow, maxArticles });
+
+        return res.json({
+            success: true,
+            message: `News automation completed successfully!`,
+            stats
+        });
+    } catch (err) {
+        console.error("Admin trigger-news error:", err);
+        return res.status(500).json({
+            success: false,
+            message: "Failed to run news automation.",
+            error: err.message
+        });
+    }
+});
+
 module.exports = router;
