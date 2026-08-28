@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 class GroqKeyManager {
     constructor() {
         this.currentIndex = 0;

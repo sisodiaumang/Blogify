@@ -3,26 +3,21 @@ const axios = require('axios');
 const { uploadOnCloudinary } = require('./cloudinary');
 
 /**
- * Generates an AI editorial cover image using Pollinations FLUX and uploads it to Cloudinary.
+ * Generates an accurate AI cover image using Pollinations FLUX and uploads it to Cloudinary.
  * @param {string} prompt Descriptive prompt for the image.
  * @returns {Promise<{ coverImageURL: string, coverImagePublicId: string } | null>}
  */
 async function generateAndUploadImage(prompt) {
     try {
-        console.log(`[imageGen] Generating AI editorial image for prompt: "${prompt.slice(0, 90)}..."`);
+        console.log(`[imageGen] Generating AI image for prompt: "${prompt.slice(0, 95)}..."`);
         
         let cleanPrompt = prompt.replace(/[^\w\s,.-]/gi, ' ').trim();
         
-        // Ensure editorial aesthetic tags are included
-        let fullPrompt = cleanPrompt;
-        if (!fullPrompt.toLowerCase().includes('editorial')) {
-            fullPrompt = `modern editorial 3D conceptual illustration, ${cleanPrompt}, vibrant rich color palette, clean studio lighting, highly detailed digital art, 8k, no text`;
-        } else {
-            fullPrompt = `${cleanPrompt}, vibrant rich color palette, clean studio lighting, highly detailed digital art, 8k, no text`;
-        }
+        // Append clean photojournalistic/editorial quality modifiers
+        const fullPrompt = `${cleanPrompt}, high quality editorial photojournalism, vivid lighting, sharp focus, clean composition, 8k, photorealistic, no text, no watermark`;
 
         const seed = Math.floor(Math.random() * 1000000);
-        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt.slice(0, 350))}?width=1200&height=630&model=flux&nologo=true&seed=${seed}`;
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt.slice(0, 380))}?width=1200&height=630&model=flux&nologo=true&seed=${seed}`;
 
         const response = await axios.get(imageUrl, {
             responseType: 'arraybuffer',
@@ -37,7 +32,7 @@ async function generateAndUploadImage(prompt) {
         }
 
         const buffer = Buffer.from(response.data);
-        console.log(`[imageGen] AI Editorial image generated (${buffer.length} bytes). Uploading to Cloudinary...`);
+        console.log(`[imageGen] AI image generated (${buffer.length} bytes). Uploading to Cloudinary...`);
 
         const uploadResult = await uploadOnCloudinary(buffer);
 

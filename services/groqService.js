@@ -1,34 +1,51 @@
+require('dotenv').config();
 const axios = require('axios');
 const { keyManager } = require('../config/groqKeys');
 
 /**
- * Rewrites news article content and generates a blog title, detailed markdown post, and AI image prompt.
+ * Rewrites news article content and generates a blog title, detailed markdown post, and an accurate, topic-specific AI image prompt.
  * Uses Groq API with automatic key rotation and fallback handling.
  */
 async function rewriteNewsToBlog({ title, snippet, content, source, category = 'General' }) {
     const maxRetries = 5;
     let attempt = 0;
 
-    const systemPrompt = `You are a Senior Editor and Art Director for leading modern digital magazines and opinion blogs (such as The Quint Voices, India Today Blogs, ABP Live Blog, Vox, and Wired).
-Your task is to take breaking news or blog stories and transform them into deeply engaging, well-researched, high-quality Markdown blog articles accompanied by a vivid EDITORIAL CONCEPTUAL ARTWORK image prompt.
+    const systemPrompt = `You are a Senior Chief Editor and Photojournalist Director for premier digital publications (such as The Quint Voices, India Today Blogs, ABP Live, Vox, and Wired).
+Your task is to take a news headline, summary, and source, rewrite it into a compelling, insightful Markdown blog article, and create an ACCURATE, HIGHLY RELEVANT, CONTEXT-SPECIFIC AI IMAGE PROMPT.
 
-CRITICAL INSTRUCTIONS FOR IMAGE PROMPT (Editorial Blog & Magazine Style):
-- The image MUST NOT be a boring, realistic living room or mundane snapshot.
-- Instead, create a STRIKING, MODERN EDITORIAL 3D CONCEPTUAL DIGITAL ARTWORK or VIBRANT EDITORIAL VECTOR ILLUSTRATION (just like The Quint, India Today, and ABP Live cover features).
-- Use imaginative visual metaphors:
-  * For AI / Tech / Innovation: Glowing futuristic 3D neural brain held in human hands, floating glowing cybernetic nodes, vibrant neon blue/purple circuits, holographic diagrams, sleek minimalist tech aesthetic.
-  * For Politics / Governance / Society: Dramatic high-contrast editorial concept art, symbolic silhouettes, vibrant civic color accents, expressive modern artistic composition.
-  * For Economy / Business / Jobs: 3D isometric glowing financial charts, stylized modern career desk setup with floating skill icons, upward growth arrows, vibrant modern color palette.
-  * For Environment / Nature / Climate: Dramatic atmospheric digital concept painting with vivid lighting and surreal nature elements.
-  * For Entertainment / Sports / Culture: Dynamic pop-art or vivid 3D stylized character render with cinematic glow and high energy.
-- Format: "modern editorial 3D digital illustration, [descriptive creative scene], vibrant color palette, clean studio lighting, Behance trending, 8k, highly detailed".
-- STRICT RULE: Do NOT include text, alphabet letters, words, watermarks, or brand logos in the image prompt.
+=======================================================
+CRITICAL RULES FOR "imagePrompt" (ACCURACY & RELEVANCE):
+=======================================================
+1. The image MUST DIRECTLY and UNMISTAKABLY depict the actual real-world subject, country, institution, or event in the headline:
+   - For Indian Politics / Regional Governance (e.g. West Bengal, TMC, BJP, Elections, Rallies):
+     * Depict: A vibrant Indian political rally with enthusiastic supporters waving party flags, or an Indian voting booth with an Electronic Voting Machine (EVM), inked voter finger, or iconic backdrop of Kolkata's Howrah Bridge with Indian political campaign banners.
+   - For International Relations / Geopolitics (e.g. India-Canada, Taiwan, US-China):
+     * Depict: A formal bilateral diplomatic summit hall with national flags of the involved nations clearly visible beside formal delegates, or a stylized geopolitical map with glowing borders.
+   - For Gadgets / Tech / Phones (e.g. Samsung Galaxy, Google Pixel, Apple):
+     * Depict: A sleek, realistic close-up of the modern flagship smartphone on a clean minimalist desk with ambient studio lighting, highlighting its camera lenses and premium finish.
+   - For Natural Disasters / Climate / Wildlife (e.g. Nepal Floods, Arctic Ice, Himalayan rivers):
+     * Depict: A powerful photojournalistic scene of the specific event (e.g. Himalayan mountain river flood with emergency rescue boats, or polar bear on melting Arctic ice floe under dramatic skies).
+   - For Business / Economy / Jobs / Careers:
+     * Depict: Dynamic Indian financial market trading floor with Rupee symbol and green growth charts, or a modern collaborative workspace with young professionals at laptops.
+   - For Culture / Lifestyle / Food / Health:
+     * Depict: Rich, atmospheric cultural scene, traditional Indian festival atmosphere, or gourmet culinary preparation.
 
-Respond strictly in valid JSON format with the following keys:
+2. STRICT NEGATIVE RULES:
+   - NEVER generate generic blue sci-fi skyscrapers, cyberpunk cities, or abstract fantasy buildings unless the story is literally about futuristic architecture.
+   - Ground Indian news in authentic Indian visual aesthetics, architecture, flags, and people.
+   - NO text, letters, slogans, watermarks, or logos in the image prompt.
+
+3. ARTISTIC STYLE:
+   - Style keywords to use: "editorial photojournalism, vibrant colors, cinematic lighting, national geographic documentary quality, clean composition, 8k resolution, photorealistic or modern editorial digital art".
+
+=======================================================
+RESPONSE FORMAT (JSON ONLY):
+=======================================================
+Respond strictly in valid JSON format:
 {
   "title": "A captivating, journalistic, SEO-friendly headline (30-80 chars)",
   "body": "Full Markdown article (at least 350-500 words) with proper markdown headings (##, ###), key bullet points, background analysis, context, and insightful takeaways. Do NOT include markdown code fences around the JSON.",
-  "imagePrompt": "A rich, creative 3D conceptual editorial illustration prompt following the style guidelines above."
+  "imagePrompt": "A detailed, topic-specific prompt describing the exact scene, subjects, setting, lighting, and mood matching the headline."
 }`;
 
     const userPrompt = `
@@ -38,7 +55,7 @@ News Story Details:
 - Category: ${category}
 - Summary / Content: ${content || snippet || title}
 
-Please transform this into an original, insightful, well-structured markdown blog post with an editorial illustration prompt. Return valid JSON matching the schema.
+Please transform this into an original, insightful, well-structured markdown blog post with a direct, topic-specific image prompt. Return valid JSON matching the schema.
 `;
 
     while (attempt < maxRetries) {
@@ -55,7 +72,7 @@ Please transform this into an original, insightful, well-structured markdown blo
                         { role: 'user', content: userPrompt }
                     ],
                     response_format: { type: 'json_object' },
-                    temperature: 0.75,
+                    temperature: 0.7,
                     max_tokens: 2048,
                 },
                 {
@@ -87,7 +104,7 @@ Please transform this into an original, insightful, well-structured markdown blo
             return {
                 title: parsed.title,
                 body: parsed.body,
-                imagePrompt: parsed.imagePrompt || `modern editorial 3D digital illustration of ${title}, vibrant colors, conceptual magazine cover art, 8k`
+                imagePrompt: parsed.imagePrompt || `editorial photojournalism of ${title}, vibrant colors, clean composition, 8k`
             };
 
         } catch (err) {
