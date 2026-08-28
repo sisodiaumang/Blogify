@@ -90,7 +90,7 @@ app.use('/verify-email', emailVerifyRoute);
 app.get('/api/cron/fetch-news', async (req, res) => {
     console.log('[Vercel Cron] Triggered automated news publishing...');
     try {
-        const stats = await runNewsAutomation({ hoursWindow: 4, maxArticles: 5 });
+        const stats = await runNewsAutomation({ hoursWindow: 4, maxArticles: 20 });
         return res.status(200).json({
             success: true,
             message: "News automation executed successfully via Vercel Cron.",

@@ -40,12 +40,12 @@ async function getOrCreateNewsBotUser() {
  * Runs the full news automation pipeline.
  * @param {Object} options Configuration options
  * @param {number} options.hoursWindow Hours to look back (default 4)
- * @param {number} options.maxArticles Maximum number of articles to process in this run (default 10)
+ * @param {number} options.maxArticles Maximum number of articles to process in this run (default 25)
  */
-async function runNewsAutomation({ hoursWindow = 4, maxArticles = 10 } = {}) {
+async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25 } = {}) {
     console.log(`\n======================================================`);
     console.log(`[newsAutomation] Starting news automation pipeline...`);
-    console.log(`[newsAutomation] Looking back ${hoursWindow} hours (Max limit: ${maxArticles} articles)`);
+    console.log(`[newsAutomation] Looking back ${hoursWindow} hours (Max limit: ${maxArticles} main articles)`);
     console.log(`======================================================\n`);
 
     const stats = {
