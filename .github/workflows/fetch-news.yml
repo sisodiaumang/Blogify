@@ -1,0 +1,16 @@
+name: Automated 4-Hour News Publishing
+
+on:
+  schedule:
+    # Runs every 4 hours automatically
+    - cron: '0 */4 * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+
+jobs:
+  publish-news:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Vercel Live News Endpoint
+        run: |
+          echo "Triggering news automation endpoint on Vercel..."
+          curl -s -X GET "https://blogify-for-stories.vercel.app/api/cron/fetch-news"

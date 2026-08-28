@@ -4,11 +4,5 @@
       "source": "/(.*)",
       "destination": "/api/index"
     }
-  ],
-  "crons": [
-    {
-      "path": "/api/cron/fetch-news",
-      "schedule": "0 */4 * * *"
-    }
   ]
 }
