@@ -29,19 +29,35 @@ router.get("/add-new", (req, res) => {
 
 
 router.get("/:id", async (req, res) => {
-    const blog = await Blog.findById(req.params.id).populate("createdBy", "fullName profileImageURL bio");
-    const htmlContent = marked(blog.body);
-    const comments = await Comment.find({
-        commentedOn: req.params.id
-    }).populate("createdBy", "fullName profileImageURL");
-    return res.render("blog", {
-        blog,
-        htmlContent,
-        comments,
-        // user:req.user,
+    try {
+        const blog = await Blog.findById(req.params.id).populate("createdBy", "fullName profileImageURL bio");
+        if (!blog) {
+            return res.redirect("/");
+        }
+        const htmlContent = marked(blog.body);
+        const comments = await Comment.find({
+            commentedOn: req.params.id
+        }).populate("createdBy", "fullName profileImageURL");
 
-    });
-})
+        // Fetch related blogs (excluding current blog)
+        const relatedBlogs = await Blog.find({
+            _id: { $ne: req.params.id }
+        })
+        .populate("createdBy", "fullName profileImageURL")
+        .sort({ createdAt: -1 })
+        .limit(6);
+
+        return res.render("blog", {
+            blog,
+            htmlContent,
+            comments,
+            relatedBlogs,
+        });
+    } catch (err) {
+        console.error("Blog route error:", err);
+        return res.redirect("/");
+    }
+});
 
 router.post("/", upload.single("coverImage"), async (req, res) => {
     const {

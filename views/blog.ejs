@@ -41,22 +41,134 @@
                 position: sticky;
                 top: calc(var(--nav-height) + 20px);
                 z-index: 10;
-                height: calc(100vh - var(--nav-height) - 40px);
+                max-height: calc(100vh - var(--nav-height) - 40px);
                 display: flex;
                 flex-direction: column;
             }
 
-            .comment-panel {
+            .related-panel {
                 background: var(--surface);
                 border: 1px solid var(--border);
                 border-radius: var(--radius);
-                padding: 24px;
+                padding: 22px;
                 box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
                 display: flex;
                 flex-direction: column;
-                height: 100%;
+                max-height: calc(100vh - var(--nav-height) - 40px);
                 overflow: hidden;
                 box-sizing: border-box;
+            }
+
+            .related-title {
+                margin: 0 0 16px 0;
+                font-family: 'Playfair Display', serif;
+                font-size: 1.25rem;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: var(--ink);
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 12px;
+                flex-shrink: 0;
+            }
+
+            .related-list {
+                overflow-y: auto;
+                flex: 1;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                padding-right: 4px;
+                scrollbar-width: thin;
+                scrollbar-color: #d0cec8 transparent;
+            }
+
+            .related-list::-webkit-scrollbar { width: 4px; }
+            .related-list::-webkit-scrollbar-track { background: transparent; }
+            .related-list::-webkit-scrollbar-thumb { background: #d0cec8; border-radius: 4px; }
+
+            .related-item {
+                display: flex;
+                gap: 12px;
+                text-decoration: none;
+                color: inherit;
+                padding: 8px;
+                border-radius: 10px;
+                transition: background 0.2s ease, transform 0.2s ease;
+                border: 1px solid transparent;
+            }
+
+            .related-item:hover {
+                background: #fbf9f5;
+                border-color: var(--border);
+                transform: translateY(-2px);
+            }
+
+            .related-img-wrap {
+                width: 75px;
+                height: 55px;
+                border-radius: 8px;
+                overflow: hidden;
+                flex-shrink: 0;
+                background: #eee;
+            }
+
+            .related-img-wrap img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                transition: transform 0.3s ease;
+            }
+
+            .related-item:hover .related-img-wrap img {
+                transform: scale(1.05);
+            }
+
+            .related-info {
+                flex: 1;
+                min-width: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+
+            .related-meta {
+                font-size: 0.72rem;
+                color: #888;
+                font-weight: 600;
+                text-transform: uppercase;
+                margin-bottom: 3px;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .related-item-title {
+                margin: 0;
+                font-size: 0.85rem;
+                font-weight: 600;
+                line-height: 1.35;
+                color: var(--ink);
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+            }
+
+            .discussion-section {
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--radius);
+                padding: 32px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+                margin-bottom: 60px;
+            }
+
+            .comment-panel {
+                background: transparent;
+                padding: 0;
+                display: flex;
+                flex-direction: column;
             }
 
             .comment-panel > h3 {
@@ -1179,7 +1291,7 @@
                 <%- htmlContent %>
             </div>
 
-            <section class="author-footer" style="padding: 40px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 60px;">
+            <section class="author-footer" style="padding: 40px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 40px;">
                 <div style="display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap;">
                     <a href="/user/<%= blog.createdBy._id %>">
                         <img class="avatar" style="width: 80px; height: 80px; border: 1px solid var(--border);"
@@ -1197,29 +1309,38 @@
                     </div>
                 </div>
             </section>
-        </article>
 
-        <aside class="sidebar-col">
-            <div class="comment-panel">
+            <!-- Comments / Discussion Section Below Article Body -->
+            <section class="discussion-section">
                 <% const topLevelComments = comments.filter(c => !c.parentComment);
                    const replies = comments.filter(c => c.parentComment); %>
 
-                <h3 style="margin-top: 0; font-family: 'Playfair Display', serif;">
+                <h3 style="margin-top: 0; font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 20px;">
                     Discussion (<%= topLevelComments.length %>)
                 </h3>
 
                 <% if (locals.user) { %>
-                    <form action="/blog/comment/<%= blog._id %>" method="POST">
+                    <form action="/blog/comment/<%= blog._id %>" method="POST" style="margin-bottom: 30px;">
                         <div class="textarea-wrap">
                             <textarea name="content" id="main-comment-input" rows="3" placeholder="Share your thoughts..." required></textarea>
                             <button type="button" class="emoji-btn" onclick="togglePicker('main-picker', 'main-comment-input')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
                             <div class="emoji-picker-popup" id="main-picker"></div>
                         </div>
-                        <button class="btn-submit">Post Comment</button>
+                        <button class="btn-submit" style="margin-top: 10px;">Post Comment</button>
                     </form>
+                <% } else { %>
+                    <div style="background: #fbf9f5; border: 1px dashed var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: center;">
+                        <p style="margin: 0; font-size: 0.9rem; color: #666;">
+                            <a href="/user/signin" style="color: var(--ink); font-weight: 600; text-decoration: underline;">Sign in</a> to join the discussion.
+                        </p>
+                    </div>
                 <% } %>
 
                 <div class="comment-list" style="margin-top: 20px;">
+                    <% if (topLevelComments.length === 0) { %>
+                        <p style="color: #888; font-size: 0.92rem; text-align: center; padding: 30px 0;">No comments yet. Be the first to start the conversation!</p>
+                    <% } %>
+
                     <% topLevelComments.slice().reverse().forEach((comment, index) => { %>
                         <% const currentReplies = replies.filter(r => r.parentComment.toString() === comment._id.toString()); %>
                         <div class="comment-item" id="comment-container-<%= comment._id %>">
@@ -1353,6 +1474,36 @@
                             </div>
                         </div>
                     <% }) %>
+                </div>
+            </section>
+        </article>
+
+        <!-- Sidebar Column: Related Blogs -->
+        <aside class="sidebar-col">
+            <div class="related-panel">
+                <h3 class="related-title">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+                    Related Stories
+                </h3>
+
+                <div class="related-list">
+                    <% if (locals.relatedBlogs && relatedBlogs.length > 0) { %>
+                        <% relatedBlogs.forEach(rel => { %>
+                            <a href="/blog/<%= rel._id %>" class="related-item">
+                                <% if (rel.coverImageURL) { %>
+                                    <div class="related-img-wrap">
+                                        <img src="<%= rel.coverImageURL %>" alt="<%= rel.title %>" loading="lazy">
+                                    </div>
+                                <% } %>
+                                <div class="related-info">
+                                    <span class="related-meta"><%= rel.createdBy?.fullName || 'Editorial' %> &bull; <%= timeAgo(rel.createdAt) %></span>
+                                    <h4 class="related-item-title"><%= rel.title %></h4>
+                                </div>
+                            </a>
+                        <% }) %>
+                    <% } else { %>
+                        <p style="color: #888; font-size: 0.88rem; text-align: center; padding: 25px 0;">No other stories available.</p>
+                    <% } %>
                 </div>
             </div>
         </aside>
