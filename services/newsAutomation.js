@@ -2,6 +2,7 @@ const Blog = require('../models/blog');
 const User = require('../models/user');
 const { fetchRecentNews } = require('./newsFetcher');
 const { rewriteNewsToBlog } = require('./groqService');
+const { fetchAndUploadNonCopyrightedImage } = require('./imageSearchService');
 const { generateAndUploadImage } = require('./imageGenService');
 
 /**
@@ -107,9 +108,16 @@ async function runNewsAutomation({ hoursWindow = 4, maxArticles = 10 } = {}) {
                     finalBody += `\n\n---\n*Original Reporting & Source: [${article.source}](${article.link})*`;
                 }
 
-                // 4. Generate AI Image and upload to Cloudinary
-                console.log(`[newsAutomation] Generating AI cover image...`);
-                let coverData = await generateAndUploadImage(generatedContent.imagePrompt || generatedContent.title);
+                // 4. Search and Upload Non-Copyrighted Image from Web (Wikimedia / Openverse / CC), or AI Fallback
+                console.log(`[newsAutomation] Finding related non-copyrighted image...`);
+                let coverData = await fetchAndUploadNonCopyrightedImage(
+                    generatedContent.searchKeywords || [article.title]
+                );
+
+                if (!coverData) {
+                    console.log(`[newsAutomation] Generating topic-specific AI image...`);
+                    coverData = await generateAndUploadImage(generatedContent.imagePrompt || generatedContent.title);
+                }
 
                 // 5. Save the blog post in MongoDB
                 const newBlog = await Blog.create({
