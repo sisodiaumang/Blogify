@@ -1,0 +1,9 @@
+{
+  "version": 2,
+  "crons": [
+    {
+      "path": "/api/cron/fetch-news",
+      "schedule": "0 */4 * * *"
+    }
+  ]
+}

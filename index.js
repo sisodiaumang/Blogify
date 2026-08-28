@@ -86,6 +86,26 @@ app.use('/blog', blogRoute);
 app.use('/admin', adminRoute);
 app.use('/verify-email', emailVerifyRoute);
 
+// Vercel Cron Endpoint (Triggered automatically by Vercel Cron Jobs)
+app.get('/api/cron/fetch-news', async (req, res) => {
+    console.log('[Vercel Cron] Triggered automated news publishing...');
+    try {
+        const stats = await runNewsAutomation({ hoursWindow: 4, maxArticles: 5 });
+        return res.status(200).json({
+            success: true,
+            message: "News automation executed successfully via Vercel Cron.",
+            stats
+        });
+    } catch (err) {
+        console.error('[Vercel Cron] Execution failed:', err);
+        return res.status(500).json({
+            success: false,
+            message: "News automation failed.",
+            error: err.message
+        });
+    }
+});
+
 app.listen(PORT, () => {
     console.log("App is listening at port", PORT);
 
@@ -100,3 +120,5 @@ app.listen(PORT, () => {
     });
     console.log("[Cron] Automated 4-hour news publishing job registered.");
 });
+
+module.exports = app;
