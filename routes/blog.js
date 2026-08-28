@@ -11,6 +11,7 @@ const Comment = require("../models/comment");
 const { findById } = require("../models/user");
 const { reportToAdmin } = require("../services/nodeMailer");
 const { restrictTo } = require("../middleware/authorization");
+const { commentLimiter } = require("../middleware/rateLimiter");
 
 const storage = multer.memoryStorage();
 
@@ -136,7 +137,7 @@ router.delete("/delete/:id", async (req, res) => {
     return res.redirect(`/`);
 });
 
-router.post("/comment/:id", async (req, res) => {
+router.post("/comment/:id", commentLimiter, async (req, res) => {
     const blog = await Blog.findById(req.params.id);
     if (!blog) {
         return res.send("something went wrong");
@@ -203,7 +204,7 @@ router.delete("/comment/delete/:id", async (req, res) => {
         return res.status(500).json({ error: "Server Error" });
     }
 });
-router.post("/comment/reply/:commentId", async (req, res) => {
+router.post("/comment/reply/:commentId", commentLimiter, async (req, res) => {
     try {
 
         const { commentId } = req.params;
@@ -234,7 +235,7 @@ router.post("/comment/reply/:commentId", async (req, res) => {
     }
 });
 
-router.post("/report", restrictTo(['USER', 'ADMIN', 'OWNER']), async (req, res) => {
+router.post("/report", commentLimiter, restrictTo(['USER', 'ADMIN', 'OWNER']), async (req, res) => {
     try {
         const { targetType, targetId, blogId, reason, details } = req.body;
 

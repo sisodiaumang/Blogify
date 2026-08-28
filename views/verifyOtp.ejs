@@ -134,6 +134,7 @@
             </p>
 
             <form action="/user/verifyOtp" method="POST">
+                <input type="hidden" name="email" value="<%= locals.email || '' %>">
                 <div class="mb-3">
                     <label class="form-label">Enter Verification Code</label>
                     <input type="text" class="otp-input" name="otp" maxlength="6" placeholder="000000" required autofocus>
@@ -145,7 +146,7 @@
             <div class="timer-container">
                 <div id="timer-display">OTP expires in <span id="time">05:00</span></div>
                 <form action="/user/resend-otp" method="POST">
-                    <!-- <input type="text" class="hidden"name="email" value=""> -->
+                    <input type="hidden" name="email" value="<%= locals.email || '' %>">
                     <button type="submit" id="resend-link" class="resend-btn">Resend OTP</button>
                 </form>
             </div>

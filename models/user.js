@@ -44,6 +44,13 @@ const userSchema = new Schema({
     otpCreatedAt: {
         type: Date
     },
+    otpAttempts: {
+        type: Number,
+        default: 0
+    },
+    resetPasswordToken: {
+        type: String
+    },
     role: {
         type: String,
         enum: ['USER', 'ADMIN','OWNER'],

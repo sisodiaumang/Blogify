@@ -23,12 +23,13 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage: storage })
 
 
+const { otpRequestLimiter, otpVerifyLimiter, authLimiter } = require("../middleware/rateLimiter");
+
 router.get('/signin', (req, res) => {
     return res.render("signin");
-
 })
 
-router.post('/signin', async (req, res) => {
+router.post('/signin', authLimiter, async (req, res) => {
     const { email, password } = req.body;
     if (!email || !password) {
         return res.render("signin", { error: "Email and Password can not be empty" });
@@ -58,134 +59,238 @@ router.post('/signin', async (req, res) => {
     } catch (error) {
         return res.render("signin", { error: "Incorrect Password or Email" });
     };
-
 });
-
 
 router.get('/signup', (req, res) => {
     return res.render("signup");
 })
 
-router.post('/signup', async (req, res) => {
-    const { fullName, email, password } = req.body;
-    if (!validator.isEmail(email)) {
-        return res.status(400).render("signup", {
-            error: "Enter a valid email"
-        });
+router.post("/signup", authLimiter, async (req, res) => {
+    const { fullName, email, password, confirmPassword } = req.body;
+
+    if (!fullName || !email || !password || !confirmPassword) {
+        return res.render("signup", { error: "All fields are required" });
     }
+    if (password !== confirmPassword) {
+        return res.render("signup", { error: "Password and Confirm Password do not match" });
+    }
+
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-        if (!existingUser.isVerified) {
-            await existingUser.deleteOne();
-        } else {
-            return res.render("signup", {
-                error: "Email already exists"
-            });
-        }
+        return res.render("signup", { error: "Account with this email already exists" });
     }
 
-    const token =await generateEmailConfirmationToken();
+    try {
+        const verificationToken = generateEmailConfirmationToken();
+        const user = await User.create({
+            fullName,
+            email,
+            password,
+            emailVerificationToken: verificationToken,
+            isVerified: false
+        });
 
-    const newUser = await User.create({
-        fullName,
-        email,
-        password,
-        emailVerificationToken: token,
-        isVerified: false
-    });
-
-    await sendConfirmation(newUser.email, token);
-
-    return res.render("verifyNotice");
+        await sendConfirmation(email, verificationToken);
+        return res.render("verifyNotice", { email });
+    } catch (err) {
+        console.error("Signup error:", err);
+        return res.render("signup", { error: "Failed to create account. Please try again." });
+    }
 });
 
-router.get("/logout", async (req, res) => {
+router.get("/logout", (req, res) => {
     try {
-        const user = await User.findById(req.user._id);
-
-        if (user) {
-            user.refreshToken = "";
-            await user.save();
-        }
         res.clearCookie("refreshToken");
         res.clearCookie("accessToken");
         return res.redirect("/");
-
     } catch (err) {
         console.log(err);
         return res.redirect("/");
     }
 });
 
-
+// Forgot Password Request (Rate Limited + 60s Cooldown)
 router.get("/forgot-password", (req, res) => {
     return res.render("forgotPassword");
 });
-router.post("/forgot-password", async (req, res) => {
+
+router.post("/forgot-password", otpRequestLimiter, async (req, res) => {
     const { email } = req.body;
-    const user = await User.findOne({ email: `${email}` });
-    if (!user) {
-        return res.render("forgetPassword", { error: "Account does not exist" });
+    if (!email) {
+        return res.render("forgotPassword", { error: "Please provide your email address." });
     }
+
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
+    if (!user) {
+        return res.render("forgotPassword", { error: "Account with this email does not exist." });
+    }
+
+    // 60-second cooldown check to prevent spamming
+    if (user.otpCreatedAt && (Date.now() - user.otpCreatedAt.getTime() < 60 * 1000)) {
+        const remainingSeconds = Math.ceil((60 * 1000 - (Date.now() - user.otpCreatedAt.getTime())) / 1000);
+        return res.render("forgotPassword", { 
+            error: `Please wait ${remainingSeconds} seconds before requesting another OTP.` 
+        });
+    }
+
     const otp = crypto.randomInt(100000, 1000000);
     user.otp = otp;
-    user.otpCreatedAt = Date.now();
+    user.otpCreatedAt = new Date();
+    user.otpAttempts = 0;
     await user.save();
-    await sendOTP(email, otp);
+
+    await sendOTP(user.email, otp);
+
     return res.render("verifyOtp", {
+        email: user.email,
         otpCreatedAt: user.otpCreatedAt.getTime()
     });
 });
 
-router.post("/verifyOtp", async (req, res) => {
-    const { otp } = req.body;
+// Resend OTP Route (Rate Limited + 60s Cooldown)
+router.post("/resend-otp", otpRequestLimiter, async (req, res) => {
+    const { email } = req.body;
+    if (!email) {
+        return res.render("forgotPassword", { error: "Session expired. Please enter your email again." });
+    }
 
-    const user = await User.findOne({ otp: otp });
-
+    const user = await User.findOne({ email: email.trim().toLowerCase() });
     if (!user) {
+        return res.render("forgotPassword", { error: "Account not found." });
+    }
+
+    // 60-second cooldown check
+    if (user.otpCreatedAt && (Date.now() - user.otpCreatedAt.getTime() < 60 * 1000)) {
+        const remainingSeconds = Math.ceil((60 * 1000 - (Date.now() - user.otpCreatedAt.getTime())) / 1000);
         return res.render("verifyOtp", {
-            error: "Invalid OTP",
+            email: user.email,
+            error: `Please wait ${remainingSeconds} seconds before requesting a new OTP.`,
+            otpCreatedAt: user.otpCreatedAt.getTime()
+        });
+    }
+
+    const otp = crypto.randomInt(100000, 1000000);
+    user.otp = otp;
+    user.otpCreatedAt = new Date();
+    user.otpAttempts = 0;
+    await user.save();
+
+    await sendOTP(user.email, otp);
+
+    return res.render("verifyOtp", {
+        email: user.email,
+        otpCreatedAt: user.otpCreatedAt.getTime()
+    });
+});
+
+// Verify OTP (Brute-force protected + Expiration + Max 5 attempts)
+router.post("/verifyOtp", otpVerifyLimiter, async (req, res) => {
+    const { otp, email } = req.body;
+
+    if (!otp) {
+        return res.render("verifyOtp", {
+            email,
+            error: "Please enter the 6-digit OTP code.",
             otpCreatedAt: Date.now()
         });
     }
 
-    const createdTime = user.otpCreatedAt.getTime();
-    const expiryTime = createdTime + 5 * 60 * 1000;
+    const query = email ? { email: email.trim().toLowerCase() } : { otp: Number(otp) };
+    const user = await User.findOne(query);
 
-    if (Date.now() > expiryTime) {
+    if (!user || !user.otp) {
         return res.render("verifyOtp", {
-            error: "OTP expired",
+            email,
+            error: "Invalid or expired OTP. Please request a new code.",
+            otpCreatedAt: Date.now()
+        });
+    }
+
+    // Max 5 attempts check
+    if ((user.otpAttempts || 0) >= 5) {
+        user.otp = undefined;
+        user.otpCreatedAt = undefined;
+        await user.save();
+        return res.render("forgotPassword", {
+            error: "Too many failed attempts. For security, please request a new OTP."
+        });
+    }
+
+    // Check expiration (5 minutes)
+    const createdTime = user.otpCreatedAt ? user.otpCreatedAt.getTime() : 0;
+    if (Date.now() - createdTime > 5 * 60 * 1000) {
+        user.otp = undefined;
+        await user.save();
+        return res.render("verifyOtp", {
+            email: user.email,
+            error: "OTP has expired. Please click Resend OTP.",
             otpCreatedAt: createdTime
         });
     }
 
-    return res.redirect(`/user/resetPassword/${user.otp}`);
+    // Validate OTP match
+    if (Number(user.otp) !== Number(otp)) {
+        user.otpAttempts = (user.otpAttempts || 0) + 1;
+        await user.save();
+        const remaining = 5 - user.otpAttempts;
+        return res.render("verifyOtp", {
+            email: user.email,
+            error: `Invalid OTP. ${remaining} attempt(s) remaining.`,
+            otpCreatedAt: createdTime
+        });
+    }
+
+    // OTP Verified successfully -> Generate one-time secure reset token
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    user.otp = undefined;
+    user.otpAttempts = 0;
+    user.resetPasswordToken = resetToken;
+    await user.save();
+
+    return res.redirect(`/user/resetPassword/${resetToken}`);
 });
 
-router.get("/resetPassword/:otp", (req, res) => {
-    res.render("resetPassword", {
-        otp: req.params.otp
+router.get("/resetPassword/:token", async (req, res) => {
+    const user = await User.findOne({ resetPasswordToken: req.params.token });
+    if (!user) {
+        return res.render("forgotPassword", {
+            error: "Password reset link is invalid or has already been used."
+        });
+    }
+    return res.render("resetPassword", {
+        token: req.params.token
     });
 });
 
-router.post("/resetPassword/:otp", async (req, res) => {
+router.post("/resetPassword/:token", async (req, res) => {
     const { password, confirmPassword } = req.body;
     if (!password || !confirmPassword) {
-        return res.render("resetPassword", { error: "Password can not be empty" });
+        return res.render("resetPassword", {
+            token: req.params.token,
+            error: "Password cannot be empty"
+        });
     }
 
     if (password !== confirmPassword) {
-        return res.render("resetPassword", { error: "Password and Confirm password are not same" });
+        return res.render("resetPassword", {
+            token: req.params.token,
+            error: "Password and Confirm password do not match"
+        });
     }
-    const user = await User.findOne({ otp: req.params.otp });
+
+    const user = await User.findOne({ resetPasswordToken: req.params.token });
     if (!user) {
-        console.log("User not found");
+        return res.render("forgotPassword", {
+            error: "Password reset link is invalid or has already been used."
+        });
     }
+
     user.password = confirmPassword;
-    user.otp = undefined;
+    user.resetPasswordToken = undefined;
     await user.save();
+
     return res.redirect("/user/signin");
-})
+});
 
 router.get("/settings", (req, res) => {
     // req.user is provided by your auth middleware
