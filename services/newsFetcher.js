@@ -1,3 +1,5 @@
+const axios = require('axios');
+const cheerio = require('cheerio');
 const Parser = require('rss-parser');
 const parser = new Parser({
     customFields: {
@@ -8,68 +10,48 @@ const parser = new Parser({
     }
 });
 
-const NEWS_FEEDS = [
-    // The Quint (Voices / Blogs / Top Stories)
+const RSS_FEEDS = [
+    // 1. India Today Blogs & Opinion
     {
-        name: 'The Quint - Voices & Blogs',
-        category: 'Opinion & Editorial',
-        url: 'https://news.google.com/rss/search?q=site:thequint.com+voices+OR+blog&hl=en-IN&gl=IN&ceid=IN:en'
+        name: 'India Today Blogs',
+        category: 'Editorial & Opinion',
+        url: 'https://news.google.com/rss/search?q=site:indiatoday.in/opinion-columns+OR+site:indiatoday.in/blogs-section+OR+site:indiatoday.in/lifestyle&hl=en-IN&gl=IN&ceid=IN:en'
     },
     {
-        name: 'The Quint - Top Stories',
-        category: 'Top Stories',
-        url: 'https://news.google.com/rss/search?q=site:thequint.com&hl=en-IN&gl=IN&ceid=IN:en'
-    },
-
-    // India Today (Blogs & Top News)
-    {
-        name: 'India Today - Blogs & Editorial',
-        category: 'Editorial & Blogs',
-        url: 'https://news.google.com/rss/search?q=site:indiatoday.in/blogs-section+OR+site:indiatoday.in/opinion&hl=en-IN&gl=IN&ceid=IN:en'
-    },
-    {
-        name: 'India Today - Home',
+        name: 'India Today Top Stories',
         category: 'Top Stories',
         url: 'https://www.indiatoday.in/rss/home'
     },
+
+    // 2. The Quint Voices & Blogs
     {
-        name: 'India Today - Tech & Trends',
-        category: 'Technology',
-        url: 'https://www.indiatoday.in/rss/1206584'
+        name: 'The Quint Voices',
+        category: 'Opinion & Editorial',
+        url: 'https://news.google.com/rss/search?q=site:thequint.com/voices+OR+site:thequint.com/opinion&hl=en-IN&gl=IN&ceid=IN:en'
     },
 
-    // ABP Live (Blogs & Top News)
+    // 3. ABP Live Blogs & Top News
     {
-        name: 'ABP Live - Blogs',
+        name: 'ABP Live Blogs',
         category: 'Editorial & Blogs',
         url: 'https://news.google.com/rss/search?q=site:news.abplive.com/blog&hl=en-IN&gl=IN&ceid=IN:en'
     },
     {
-        name: 'ABP Live - Home',
+        name: 'ABP Live Top News',
         category: 'Top Stories',
         url: 'https://news.abplive.com/home/feed'
     },
-    {
-        name: 'ABP Live - Technology',
-        category: 'Technology',
-        url: 'https://news.abplive.com/technology/feed'
-    },
 
-    // General Breaking News Feeds
+    // General India & Tech Feeds
     {
-        name: 'Google News India - Top Headlines',
+        name: 'Google News India',
         category: 'Top Stories',
         url: 'https://news.google.com/rss?hl=en-IN&gl=IN&ceid=IN:en'
     },
     {
-        name: 'Google News India - Technology',
+        name: 'Google News Technology',
         category: 'Technology',
         url: 'https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=en-IN&gl=IN&ceid=IN:en'
-    },
-    {
-        name: 'Google News India - Business',
-        category: 'Business',
-        url: 'https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=en-IN&gl=IN&ceid=IN:en'
     }
 ];
 
@@ -86,7 +68,85 @@ function cleanHtml(html) {
 }
 
 /**
+ * Fetches latest stories directly from The Quint's official JSON API.
+ */
+async function fetchFromQuintAPI(cutoffTime) {
+    const articles = [];
+    try {
+        const res = await axios.get('https://www.thequint.com/api/v1/stories?limit=25', {
+            headers: { 'User-Agent': 'Mozilla/5.0' },
+            timeout: 10000
+        });
+        const stories = res.data?.stories || [];
+        for (const story of stories) {
+            const pubTimestamp = story['published-at'] || story['updated-at'];
+            const pubDate = pubTimestamp ? new Date(pubTimestamp) : new Date();
+
+            if (cutoffTime && pubDate < cutoffTime) {
+                continue;
+            }
+
+            const title = story.headline || story.name;
+            if (!title) continue;
+
+            const snippet = story.summary || (story.cards && story.cards[0]?.story_elements?.map(e => e.text).join(' ')) || '';
+            const link = story.slug ? (story.slug.startsWith('http') ? story.slug : `https://www.thequint.com/${story.slug}`) : '';
+
+            articles.push({
+                title: cleanHtml(title),
+                source: 'The Quint',
+                category: story.sections?.[0]?.name || 'Editorial',
+                link,
+                pubDate,
+                snippet: cleanHtml(snippet),
+                content: cleanHtml(snippet)
+            });
+        }
+    } catch (err) {
+        console.warn(`[newsFetcher] The Quint API notice: ${err.message}`);
+    }
+    return articles;
+}
+
+/**
+ * Fetches latest blog posts directly from ABP Live Blog section (https://news.abplive.com/blog).
+ */
+async function fetchFromABPLiveBlog(cutoffTime) {
+    const articles = [];
+    try {
+        const res = await axios.get('https://news.abplive.com/blog', {
+            headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)' },
+            timeout: 10000
+        });
+        const $ = cheerio.load(res.data);
+
+        $('a').each((_, el) => {
+            const href = $(el).attr('href') || '';
+            const title = $(el).text().trim();
+            if (href.includes('/blog/') && title.length > 25) {
+                const fullUrl = href.startsWith('http') ? href : `https://news.abplive.com${href}`;
+                if (!articles.some(a => a.link === fullUrl)) {
+                    articles.push({
+                        title: cleanHtml(title.replace(/^“|”$/g, '')),
+                        source: 'ABP Live Blog',
+                        category: 'Opinion & Editorial',
+                        link: fullUrl,
+                        pubDate: new Date(),
+                        snippet: title,
+                        content: title
+                    });
+                }
+            }
+        });
+    } catch (err) {
+        console.warn(`[newsFetcher] ABP Live Blog scraper notice: ${err.message}`);
+    }
+    return articles;
+}
+
+/**
  * Fetches news items published within the specified hours window (default: 4 hours).
+ * Sources include The Quint, India Today, ABP Live, and top Indian news feeds.
  * @param {number} hoursWindow Max age of news in hours (default 4)
  * @returns {Promise<Array>} List of unique news items
  */
@@ -97,7 +157,28 @@ async function fetchRecentNews(hoursWindow = 4) {
     const allArticles = [];
     const seenTitles = new Set();
 
-    for (const feed of NEWS_FEEDS) {
+    // 1. Direct fetch from The Quint API
+    const quintArticles = await fetchFromQuintAPI(cutoffTime);
+    for (const art of quintArticles) {
+        const norm = art.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!seenTitles.has(norm) && norm.length > 5) {
+            seenTitles.add(norm);
+            allArticles.push(art);
+        }
+    }
+
+    // 2. Direct fetch from ABP Live Blog Section
+    const abpArticles = await fetchFromABPLiveBlog(cutoffTime);
+    for (const art of abpArticles) {
+        const norm = art.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!seenTitles.has(norm) && norm.length > 5) {
+            seenTitles.add(norm);
+            allArticles.push(art);
+        }
+    }
+
+    // 3. RSS Feeds for India Today, The Quint, ABP Live & Google News
+    for (const feed of RSS_FEEDS) {
         try {
             const feedData = await parser.parseURL(feed.url);
             if (!feedData || !feedData.items) continue;
@@ -106,12 +187,11 @@ async function fetchRecentNews(hoursWindow = 4) {
                 const pubDate = item.pubDate || item.isoDate;
                 const articleDate = pubDate ? new Date(pubDate) : null;
 
-                // Only take news published within the specified hours window
+                // Check time window
                 if (!articleDate || isNaN(articleDate.getTime()) || articleDate < cutoffTime) {
                     continue;
                 }
 
-                // Clean title and extract source if available
                 let title = cleanHtml(item.title || '');
                 let source = feed.name;
                 if (title.includes(' - ')) {
@@ -120,12 +200,11 @@ async function fetchRecentNews(hoursWindow = 4) {
                     title = parts.join(' - ').trim();
                 }
 
-                // Normalize for deduplication
-                const normalizedTitle = title.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if (seenTitles.has(normalizedTitle) || normalizedTitle.length < 5) {
+                const norm = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (seenTitles.has(norm) || norm.length < 5) {
                     continue;
                 }
-                seenTitles.add(normalizedTitle);
+                seenTitles.add(norm);
 
                 const snippet = cleanHtml(item.contentSnippet || item.content || item.summary || '');
 
@@ -140,14 +219,14 @@ async function fetchRecentNews(hoursWindow = 4) {
                 });
             }
         } catch (err) {
-            console.warn(`[newsFetcher] Error fetching feed ${feed.name}: ${err.message}`);
+            console.warn(`[newsFetcher] RSS feed ${feed.name} notice: ${err.message}`);
         }
     }
 
     // Sort newest first
     allArticles.sort((a, b) => b.pubDate - a.pubDate);
-    console.log(`[newsFetcher] Found ${allArticles.length} new articles from the last ${hoursWindow} hours.`);
+    console.log(`[newsFetcher] Found ${allArticles.length} matching articles from The Quint, India Today, ABP Live & feeds.`);
     return allArticles;
 }
 
-module.exports = { fetchRecentNews, NEWS_FEEDS };
+module.exports = { fetchRecentNews, RSS_FEEDS, fetchFromQuintAPI, fetchFromABPLiveBlog };
