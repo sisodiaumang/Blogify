@@ -1,9 +1,9 @@
-name: Automated 4-Hour News Publishing
+name: Automated Hourly News Publishing
 
 on:
   schedule:
-    # Runs every 4 hours automatically
-    - cron: '0 */4 * * *'
+    # Runs every hour at the top of the hour (e.g. 1:00, 2:00, 3:00)
+    - cron: '0 * * * *'
   workflow_dispatch: # Allows manual trigger from GitHub Actions tab
 
 jobs:
@@ -12,5 +12,5 @@ jobs:
     steps:
       - name: Trigger Vercel Live News Endpoint
         run: |
-          echo "Triggering news automation endpoint on Vercel..."
+          echo "Triggering hourly news automation endpoint on Vercel..."
           curl -s -X GET "https://blogify-for-stories.vercel.app/api/cron/fetch-news"
