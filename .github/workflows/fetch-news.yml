@@ -2,15 +2,35 @@ name: Automated Hourly News Publishing
 
 on:
   schedule:
-    # Runs every hour at the top of the hour (e.g. 1:00, 2:00, 3:00)
+    # Runs every hour at minute 0 (e.g. 1:00, 2:00, 3:00, etc.)
     - cron: '0 * * * *'
-  workflow_dispatch: # Allows manual trigger from GitHub Actions tab
+  workflow_dispatch: # Allows manual trigger anytime from GitHub Actions tab
 
 jobs:
   publish-news:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Trigger Vercel Live News Endpoint
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Run News Publishing Automation
+        env:
+          MONGODB_URL: ${{ secrets.MONGODB_URL }}
+          GROQ_API_KEYS: ${{ secrets.GROQ_API_KEYS }}
+          CLOUDINARY_API_KEY: ${{ secrets.CLOUDINARY_API_KEY }}
+          CLOUDINARY_API_SECRET: ${{ secrets.CLOUDINARY_API_SECRET }}
+          CLOUDINARY_CLOUD_NAME: ${{ secrets.CLOUDINARY_CLOUD_NAME }}
+          ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
+          REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
         run: |
-          echo "Triggering hourly news automation endpoint on Vercel..."
-          curl -s -X GET "https://blogify-for-stories.vercel.app/api/cron/fetch-news"
+          node scripts/runNewsAutomation.js --hours=4 --limit=6

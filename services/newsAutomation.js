@@ -70,12 +70,15 @@ async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25 } = {}) {
             return stats;
         }
 
-        // Limit the number of articles per run to prevent excessive overhead
-        const articlesToProcess = articles.slice(0, maxArticles);
+        let createdCount = 0;
 
-        for (let i = 0; i < articlesToProcess.length; i++) {
-            const article = articlesToProcess[i];
-            console.log(`\n--- [${i + 1}/${articlesToProcess.length}] Processing: "${article.title}" ---`);
+        for (let i = 0; i < articles.length; i++) {
+            if (createdCount >= maxArticles) {
+                console.log(`[newsAutomation] Reached target quota of ${maxArticles} newly created articles. Finishing run.`);
+                break;
+            }
+
+            const article = articles[i];
 
             // 2. Check if this article was already imported
             const existingBlog = await Blog.findOne({
@@ -86,10 +89,11 @@ async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25 } = {}) {
             });
 
             if (existingBlog) {
-                console.log(`[newsAutomation] News item "${article.title.slice(0, 40)}..." already imported. Skipping.`);
                 stats.skippedExisting++;
                 continue;
             }
+
+            console.log(`\n--- [Created ${createdCount + 1}/${maxArticles} | Checked ${i + 1}/${articles.length}] Processing: "${article.title}" ---`);
 
             try {
                 // 3. Rewrite content with Groq LLM
@@ -132,6 +136,7 @@ async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25 } = {}) {
 
                 console.log(`[newsAutomation] SUCCESS! Created blog: "${newBlog.title}" (ID: ${newBlog._id})`);
                 stats.successfullyCreated++;
+                createdCount++;
 
                 // Delay between items to avoid hammering services
                 await new Promise(r => setTimeout(r, 2000));
