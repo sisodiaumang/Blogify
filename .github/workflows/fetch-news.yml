@@ -1,9 +1,9 @@
-name: Automated Hourly News Publishing
+name: Automated News Publishing
 
 on:
   schedule:
-    # Runs every hour at minute 0 (e.g. 1:00, 2:00, 3:00, etc.)
-    - cron: '0 * * * *'
+    # Runs every 30 minutes to ensure fresh news without GitHub top-of-the-hour queue delay
+    - cron: '*/30 * * * *'
   workflow_dispatch: # Allows manual trigger anytime from GitHub Actions tab
 
 jobs:
@@ -33,4 +33,4 @@ jobs:
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
           REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
         run: |
-          node scripts/runNewsAutomation.js --hours=4 --limit=6
+          node scripts/runNewsAutomation.js --hours=4 --limit=4
