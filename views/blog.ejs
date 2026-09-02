@@ -38,7 +38,7 @@
     <meta name="twitter:image" content="<%= blog.coverImageURL %>">
     <% } %>
 
-    <!-- Google NewsArticle Structured Data (JSON-LD) -->
+    <!-- Google NewsArticle & BlogPosting Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -54,19 +54,55 @@
       ],
       "datePublished": "<%= new Date(blog.createdAt).toISOString() %>",
       "dateModified": "<%= new Date(blog.updatedAt || blog.createdAt).toISOString() %>",
+      "wordCount": <%= blog.wordCount || 800 %>,
+      "timeRequired": "PT<%= blog.readTimeMinutes || 3 %>M",
+      "inLanguage": "en",
+      "isAccessibleForFree": "True",
       "author": {
         "@type": "Person",
-        "name": "<%= blog.createdBy?.fullName || 'Blogify Editorial Desk' %>"
+        "name": "<%= blog.createdBy?.fullName || 'Blogify Editorial Desk' %>",
+        "url": "https://blogify-for-stories.vercel.app/user/<%= blog.createdBy?._id %>"
       },
       "publisher": {
         "@type": "Organization",
         "name": "Blogify",
+        "url": "https://blogify-for-stories.vercel.app",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://blogify-for-stories.vercel.app/favicon-32x32.png"
+          "url": "https://blogify-for-stories.vercel.app/favicon-32x32.png",
+          "width": 32,
+          "height": 32
         }
       },
       "articleSection": "<%= blog.category || 'Editorial' %>"
+    }
+    </script>
+
+    <!-- Google BreadcrumbList Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://blogify-for-stories.vercel.app/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "<%= blog.category || 'Editorial' %>",
+          "item": "https://blogify-for-stories.vercel.app/?search=<%= encodeURIComponent(blog.category || 'Editorial') %>"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": <%- JSON.stringify(blog.title) %>,
+          "item": "<%= locals.canonicalUrl || ('https://blogify-for-stories.vercel.app/blog/' + blog._id) %>"
+        }
+      ]
     }
     </script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -1330,10 +1366,25 @@
 
     <div class="page-grid">
         <article>
+            <!-- Breadcrumbs Navigation -->
+            <nav aria-label="Breadcrumb" style="margin-bottom: 16px;">
+                <ol style="list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.8rem; color: #777;">
+                    <li><a href="/" style="color: inherit; text-decoration: none;">Home</a></li>
+                    <li><span style="opacity: 0.5;">/</span></li>
+                    <li><a href="/?search=<%= encodeURIComponent(blog.category || 'Editorial') %>" style="color: inherit; text-decoration: none; font-weight: 500;"><%= blog.category || 'Editorial' %></a></li>
+                    <li><span style="opacity: 0.5;">/</span></li>
+                    <li style="color: #444; font-weight: 600; max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= blog.title %></li>
+                </ol>
+            </nav>
+
             <header>
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 6px;">
-                    <p style="text-transform: uppercase; font-size: 11px; color: #888; font-weight: 600; margin: 0;">
-                        <%= blog.createdBy.fullName %> &bull; <%= timeAgo(blog.createdAt) %>
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
+                    <p style="text-transform: uppercase; font-size: 11.5px; color: #777; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 6px;">
+                        <span><%= blog.createdBy.fullName %></span>
+                        <span>&bull;</span>
+                        <time datetime="<%= new Date(blog.createdAt).toISOString() %>"><%= timeAgo(blog.createdAt) %></time>
+                        <span>&bull;</span>
+                        <span><%= blog.readTimeMinutes || 3 %> min read</span>
                     </p>
                     <% if (locals.user) { %>
                         <button class="blog-report-btn" onclick="openReportModal('blog', '<%= blog._id %>')">
@@ -1346,7 +1397,9 @@
             </header>
 
             <% if (blog.coverImageURL) { %>
-                <div class="cover-wrap"><img src="<%= blog.coverImageURL %>"></div>
+                <div class="cover-wrap">
+                    <img src="<%= blog.coverImageURL %>" alt="<%= blog.title %>" fetchpriority="high" loading="eager">
+                </div>
             <% } %>
 
             <div class="blog-content" style="margin-bottom: 60px;">

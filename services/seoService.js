@@ -1,10 +1,11 @@
 const Blog = require('../models/blog');
+const User = require('../models/user');
 const axios = require('axios');
 
-const SITE_URL = process.env.SITE_URL || 'https://blogify-for-stories.vercel.app';
+const SITE_URL = (process.env.SITE_URL || 'https://blogify-for-stories.vercel.app').replace(/\/+$/, '');
 
 /**
- * Strips markdown and HTML formatting to generate a clean SEO excerpt.
+ * Strips markdown and HTML formatting to generate a clean, click-worthy SEO meta description.
  * @param {string} text 
  * @param {number} maxLength 
  * @returns {string} Clean plain-text description
@@ -28,13 +29,13 @@ function generateSeoExcerpt(text, maxLength = 160) {
 }
 
 /**
- * Generates an XML Sitemap conforming to Google Search & Google News standards.
+ * Generates an Enterprise XML Sitemap conforming to Google Search & Google News standards.
  * @returns {Promise<string>} Valid XML Sitemap string
  */
 async function generateSitemapXml() {
     try {
         const blogs = await Blog.find()
-            .select('_id title coverImageURL category createdAt updatedAt')
+            .select('_id title slug coverImageURL category createdAt updatedAt')
             .sort({ createdAt: -1 })
             .lean();
 
@@ -72,8 +73,8 @@ async function generateSitemapXml() {
             xml += `  <url>
     <loc>${blogUrl}</loc>
     <lastmod>${lastMod}</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>0.8</priority>
+    <changefreq>${isRecentNews ? 'hourly' : 'weekly'}</changefreq>
+    <priority>${isRecentNews ? '0.9' : '0.7'}</priority>
 `;
 
             // Google News metadata for articles published within last 48 hours
@@ -124,6 +125,76 @@ async function generateSitemapXml() {
 }
 
 /**
+ * Generates an Enterprise RSS 2.0 / Atom Feed for search engines & RSS readers.
+ * @returns {Promise<string>} Valid RSS 2.0 XML string
+ */
+async function generateRssFeedXml() {
+    try {
+        const blogs = await Blog.find()
+            .populate('createdBy', 'fullName')
+            .sort({ createdAt: -1 })
+            .limit(30)
+            .lean();
+
+        const buildDate = new Date().toUTCString();
+
+        let rss = `<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0" 
+     xmlns:content="http://purl.org/rss/1.0/modules/content/"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>Blogify - Breaking Stories, Tech, Economy &amp; Thoughtful Ideas</title>
+  <link>${SITE_URL}</link>
+  <description>Fresh breaking stories, technology analysis, geopolitical perspectives, and in-depth essays on Blogify.</description>
+  <language>en-us</language>
+  <lastBuildDate>${buildDate}</lastBuildDate>
+  <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml" />
+  <image>
+    <url>${SITE_URL}/favicon-32x32.png</url>
+    <title>Blogify</title>
+    <link>${SITE_URL}</link>
+  </image>
+`;
+
+        for (const blog of blogs) {
+            const blogUrl = `${SITE_URL}/blog/${blog._id}`;
+            const pubDate = new Date(blog.createdAt).toUTCString();
+            const excerpt = generateSeoExcerpt(blog.body, 220)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            const cleanTitle = (blog.title || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            const author = blog.createdBy?.fullName || 'Blogify Editorial';
+
+            rss += `  <item>
+    <title>${cleanTitle}</title>
+    <link>${blogUrl}</link>
+    <guid isPermaLink="true">${blogUrl}</guid>
+    <pubDate>${pubDate}</pubDate>
+    <dc:creator><![CDATA[${author}]]></dc:creator>
+    <category><![CDATA[${blog.category || 'Editorial'}]]></category>
+    <description><![CDATA[${excerpt}]]></description>
+`;
+            if (blog.coverImageURL) {
+                rss += `    <enclosure url="${blog.coverImageURL.replace(/&/g, '&amp;')}" length="0" type="image/jpeg" />\n`;
+            }
+            rss += `  </item>\n`;
+        }
+
+        rss += `</channel>
+</rss>`;
+        return rss;
+    } catch (err) {
+        console.error('[seoService] Error generating RSS feed:', err);
+        throw err;
+    }
+}
+
+/**
  * Pings Google Search to notify that the sitemap has been updated.
  */
 async function pingGoogleSearch() {
@@ -142,6 +213,7 @@ async function pingGoogleSearch() {
 module.exports = {
     generateSeoExcerpt,
     generateSitemapXml,
+    generateRssFeedXml,
     pingGoogleSearch,
     SITE_URL
 };

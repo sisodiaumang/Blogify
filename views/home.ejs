@@ -293,19 +293,20 @@
 <body>
     <%- include('./partials/nav')%>
 
-    <div class="container">
-        <header class="home-header">
+    <main class="container">
+        <h1 class="home-header">
             Stories <span style="font-style: italic; color: #aaa;">&</span> Ideas
-        </header>
+        </h1>
 
         <div class="search-wrapper">
-            <form action="/" method="GET" class="search-form">
+            <form action="/" method="GET" class="search-form" role="search">
                 <input 
                     type="text" 
                     name="search" 
                     class="search-input" 
-                    placeholder="Search articles..." 
+                    placeholder="Search articles, topics, keywords..." 
                     value="<%= search || '' %>"
+                    aria-label="Search articles"
                 >
                 <button type="submit" class="btn-search">Search</button>
             </form>
@@ -321,24 +322,26 @@
         <div class="blog-grid">
             <% if (blogs && blogs.length > 0) { %>
                 <% blogs.forEach(blog => { %>
-                    <a href="/blog/<%= blog._id %>" class="blog-card">
-                        <div class="card-img-wrapper">
-                            <% if (blog.coverImageURL) { %>
-                                <img src="<%= blog.coverImageURL %>" alt="<%= blog.title %>">
-                            <% } else { %>
-                                <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1000" alt="Default">
-                            <% } %>
-                        </div>
-                        
-                        <div class="blog-card-body">
-                            <div class="card-category">Editorial</div>
-                            <h2 class="blog-card-title"><%= blog.title %></h2>
-                            <div class="card-footer">
-                                Read Article 
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                    <article>
+                        <a href="/blog/<%= blog._id %>" class="blog-card">
+                            <div class="card-img-wrapper">
+                                <% if (blog.coverImageURL) { %>
+                                    <img src="<%= blog.coverImageURL %>" alt="<%= blog.title %>" loading="lazy">
+                                <% } else { %>
+                                    <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1000" alt="<%= blog.title %>" loading="lazy">
+                                <% } %>
                             </div>
-                        </div>
-                    </a>
+                            
+                            <div class="blog-card-body">
+                                <div class="card-category"><%= blog.category || 'Editorial' %></div>
+                                <h2 class="blog-card-title"><%= blog.title %></h2>
+                                <div class="card-footer">
+                                    <span>Read Article</span>
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
                 <% }) %>
             <% } else { %>
                 <div style="grid-column: 1/-1; text-align: center; padding: 100px 0;">
@@ -407,7 +410,7 @@
 
             </nav>
         <% } %>
-    </div>
+    </main>
 
     <%- include('./partials/script')%>
 </body>

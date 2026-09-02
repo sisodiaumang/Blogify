@@ -30,25 +30,34 @@ router.get("/add-new", (req, res) => {
     });
 });
 
+const mongoose = require("mongoose");
 const { generateSeoExcerpt, SITE_URL } = require("../services/seoService");
 
-router.get("/:id", async (req, res) => {
+router.get(["/:id", "/:id/:slug"], async (req, res) => {
     try {
-        const blog = await Blog.findById(req.params.id).populate("createdBy", "fullName profileImageURL bio");
+        const param = req.params.id;
+        let blog;
+
+        if (mongoose.Types.ObjectId.isValid(param)) {
+            blog = await Blog.findById(param).populate("createdBy", "fullName profileImageURL bio");
+        }
+        if (!blog) {
+            blog = await Blog.findOne({ slug: param }).populate("createdBy", "fullName profileImageURL bio");
+        }
         if (!blog) {
             return res.redirect("/");
         }
 
         // Increment view count asynchronously for recommendation scoring
-        Blog.findByIdAndUpdate(req.params.id, { $inc: { views: 1 } }).exec();
+        Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } }).exec();
 
         const htmlContent = marked(blog.body);
         const comments = await Comment.find({
-            commentedOn: req.params.id
+            commentedOn: blog._id
         }).populate("createdBy", "fullName profileImageURL");
 
         // Run Hybrid Recommendation Engine
-        const relatedBlogs = await getRelatedBlogs(req.params.id, 6);
+        const relatedBlogs = await getRelatedBlogs(blog._id, 6);
 
         const seoExcerpt = generateSeoExcerpt(blog.body, 160);
         const canonicalUrl = `${SITE_URL}/blog/${blog._id}`;

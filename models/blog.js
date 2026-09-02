@@ -1,10 +1,32 @@
 const { Schema, model } = require("mongoose");
 
+function slugify(text) {
+    if (!text) return '';
+    return text
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/[^\w\s-]/g, '')
+        .replace(/[\s_-]+/g, '-')
+        .replace(/^-+|-+$/g, '')
+        .substring(0, 90);
+}
+
 const blogSchema = new Schema({
     title: {
         type: String,
         required: true,
         trim: true
+    },
+    slug: {
+        type: String,
+        trim: true,
+        index: true
+    },
+    metaDescription: {
+        type: String,
+        trim: true,
+        maxlength: 200
     },
     body: {
         type: String,
@@ -36,6 +58,10 @@ const blogSchema = new Schema({
         type: Number,
         default: 3
     },
+    wordCount: {
+        type: Number,
+        default: 0
+    },
     createdBy: {
         type: Schema.Types.ObjectId,
         ref: "user"
@@ -49,6 +75,18 @@ const blogSchema = new Schema({
         required: false,
     }
 }, { timestamps: true });
+
+// Pre-save hook to auto-compute slug, word count, and reading time
+blogSchema.pre('save', function () {
+    if (this.title && (!this.slug || this.isModified('title'))) {
+        this.slug = slugify(this.title);
+    }
+    if (this.body) {
+        const words = this.body.trim().split(/\s+/).length;
+        this.wordCount = words;
+        this.readTimeMinutes = Math.max(1, Math.ceil(words / 200));
+    }
+});
 
 // Text index for full-text search and recommendation scoring
 blogSchema.index({
