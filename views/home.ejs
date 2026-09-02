@@ -325,11 +325,13 @@
                     <article>
                         <a href="/blog/<%= blog._id %>" class="blog-card">
                             <div class="card-img-wrapper">
-                                <% if (blog.coverImageURL) { %>
-                                    <img src="<%= blog.coverImageURL %>" alt="<%= blog.title %>" loading="lazy">
-                                <% } else { %>
-                                    <img src="https://images.unsplash.com/photo-1499750310107-5fef28a66643?q=80&w=1000" alt="<%= blog.title %>" loading="lazy">
-                                <% } %>
+                                <img 
+                                    src="<%= (typeof imgOpt === 'function') ? imgOpt(blog.coverImageURL, 'card') : (blog.coverImageURL || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=480&h=270&q=70') %>" 
+                                    alt="<%= blog.title %>" 
+                                    loading="lazy"
+                                    width="480"
+                                    height="270"
+                                >
                             </div>
                             
                             <div class="blog-card-body">

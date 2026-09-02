@@ -32,6 +32,7 @@ router.get("/add-new", (req, res) => {
 
 const mongoose = require("mongoose");
 const { generateSeoExcerpt, SITE_URL } = require("../services/seoService");
+const cacheService = require("../services/cacheService");
 
 router.get(["/:id", "/:id/:slug"], async (req, res) => {
     try {
@@ -39,28 +40,37 @@ router.get(["/:id", "/:id/:slug"], async (req, res) => {
         let blog;
 
         if (mongoose.Types.ObjectId.isValid(param)) {
-            blog = await Blog.findById(param).populate("createdBy", "fullName profileImageURL bio");
+            blog = await Blog.findById(param).populate("createdBy", "fullName profileImageURL bio").lean();
         }
         if (!blog) {
-            blog = await Blog.findOne({ slug: param }).populate("createdBy", "fullName profileImageURL bio");
+            blog = await Blog.findOne({ slug: param }).populate("createdBy", "fullName profileImageURL bio").lean();
         }
         if (!blog) {
             return res.redirect("/");
         }
 
-        // Increment view count asynchronously for recommendation scoring
+        // Increment view count asynchronously
         Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } }).exec();
 
-        const htmlContent = marked(blog.body);
+        // 1. Cache rendered markdown HTML (5-min TTL)
+        const htmlContent = await cacheService.wrap(`blog:html:${blog._id}`, 300, async () => {
+            return marked(blog.body);
+        });
+
+        // 2. Fetch comments (lean)
         const comments = await Comment.find({
             commentedOn: blog._id
-        }).populate("createdBy", "fullName profileImageURL");
+        }).populate("createdBy", "fullName profileImageURL").lean();
 
-        // Run Hybrid Recommendation Engine
-        const relatedBlogs = await getRelatedBlogs(blog._id, 6);
+        // 3. Cache related stories recommendations (3-min TTL)
+        const relatedBlogs = await cacheService.wrap(`blog:related:${blog._id}`, 180, async () => {
+            return await getRelatedBlogs(blog._id, 6);
+        });
 
         const seoExcerpt = generateSeoExcerpt(blog.body, 160);
         const canonicalUrl = `${SITE_URL}/blog/${blog._id}`;
+
+        res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=180, stale-while-revalidate=86400');
 
         return res.render("blog", {
             blog,
@@ -95,9 +105,11 @@ router.post("/", upload.single("coverImage"), async (req, res) => {
         createdBy: req.user._id,
         coverImageURL: coverImageURL,
         coverImagePublicId: coverImagePublicId,
-    })
+    });
 
-    return res.redirect(`blog/${blog._id}`);
+    cacheService.invalidateBlogCaches();
+
+    return res.redirect(`/blog/${blog._id}`);
 })
 
 
@@ -139,6 +151,7 @@ router.patch("/edit/:id", upload.single("coverImage"), async (req, res) => {
     blog.body = body;
 
     await blog.save();
+    cacheService.invalidateBlogCaches();
 
     return res.redirect(`/blog/${blog._id}`);
 });
@@ -150,6 +163,7 @@ router.delete("/delete/:id", async (req, res) => {
     }
     deleteCloudinary(blog.coverImagePublicId);
     await blog.deleteOne();
+    cacheService.invalidateBlogCaches();
     return res.redirect(`/`);
 });
 

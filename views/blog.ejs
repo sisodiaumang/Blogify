@@ -1398,7 +1398,14 @@
 
             <% if (blog.coverImageURL) { %>
                 <div class="cover-wrap">
-                    <img src="<%= blog.coverImageURL %>" alt="<%= blog.title %>" fetchpriority="high" loading="eager">
+                    <img 
+                        src="<%= (typeof imgOpt === 'function') ? imgOpt(blog.coverImageURL, 'hero') : blog.coverImageURL %>" 
+                        alt="<%= blog.title %>" 
+                        fetchpriority="high" 
+                        loading="eager"
+                        width="1200"
+                        height="630"
+                    >
                 </div>
             <% } %>
 
@@ -1408,9 +1415,14 @@
 
             <section class="author-footer" style="padding: 40px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 40px;">
                 <div style="display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap;">
-                    <a href="/user/<%= blog.createdBy._id %>">
+                    <a href="/user/<%= blog.createdBy?._id %>">
                         <img class="avatar" style="width: 80px; height: 80px; border: 1px solid var(--border);"
-                            src="<%= blog.createdBy.profileImageURL || 'https://ui-avatars.com/api/?name=' + blog.createdBy.fullName %>">
+                            src="<%= (typeof imgOpt === 'function' && blog.createdBy?.profileImageURL) ? imgOpt(blog.createdBy.profileImageURL, 'avatar') : (blog.createdBy?.profileImageURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(blog.createdBy?.fullName || 'User')) %>"
+                            alt="<%= blog.createdBy?.fullName || 'Author' %>"
+                            loading="lazy"
+                            width="80"
+                            height="80"
+                        >
                     </a>
                     <div style="flex: 1; min-width: 250px;">
                         <p style="margin: 0 0 4px 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: 700;">Written by</p>
@@ -1607,7 +1619,13 @@
                             <a href="/blog/<%= rel._id %>" class="related-item">
                                 <% if (rel.coverImageURL) { %>
                                     <div class="related-img-wrap">
-                                        <img src="<%= rel.coverImageURL %>" alt="<%= rel.title %>" loading="lazy">
+                                        <img 
+                                            src="<%= (typeof imgOpt === 'function') ? imgOpt(rel.coverImageURL, 'thumb') : rel.coverImageURL %>" 
+                                            alt="<%= rel.title %>" 
+                                            loading="lazy"
+                                            width="160"
+                                            height="120"
+                                        >
                                     </div>
                                 <% } %>
                                 <div class="related-info">

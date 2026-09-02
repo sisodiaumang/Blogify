@@ -37,50 +37,65 @@ connectToMongoDB(process.env.MONGODB_URL)
 
 
 
+const compression = require("compression");
 const { globalLimiter } = require("./middleware/rateLimiter");
+const { getOptimizedImageUrl } = require("./services/imageOptimizer");
+const cacheService = require("./services/cacheService");
 
+app.use(compression());
 app.use(globalLimiter);
-app.use(express.json()); // Add this if it's missing!
+app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(checkForAuthenticationCookie("accessToken"));
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public"), {
+    maxAge: '7d',
+    etag: true
+}));
 app.use(methodOverride("_method"));
 app.use((req, res, next) => {
     res.locals.user = req.user || null;
+    res.locals.imgOpt = getOptimizedImageUrl;
     next();
 });
 
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
-
-
-
 app.get('/', async (req, res) => {
     const limit = 6; 
     const page = parseInt(req.query.page) || 1;
-    const search = req.query.search || '';
+    const search = (req.query.search || '').trim();
     const query = search ? { title: { $regex: search, $options: 'i' } } : {};
 
     try {
-        const totalBlogs = await Blog.countDocuments(query);
-        const totalPages = Math.ceil(totalBlogs / limit);
+        const cacheKey = `home:page:${page}:search:${search.toLowerCase()}`;
         
-        const blogs = await Blog.find(query)
-            .sort({ createdAt: -1 })
-            .skip((page - 1) * limit)
-            .limit(limit);
+        const data = await cacheService.wrap(cacheKey, 60, async () => {
+            const totalBlogs = await Blog.countDocuments(query);
+            const totalPages = Math.ceil(totalBlogs / limit);
+            
+            const blogs = await Blog.find(query)
+                .select('title slug coverImageURL category readTimeMinutes createdAt')
+                .sort({ createdAt: -1 })
+                .skip((page - 1) * limit)
+                .limit(limit)
+                .lean();
 
-        res.render('home', {
-            blogs,
+            return { blogs, totalPages };
+        });
+
+        res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=86400');
+
+        return res.render('home', {
+            blogs: data.blogs,
             search,
             currentPage: page,
-            totalPages
+            totalPages: data.totalPages
         });
     } catch (err) {
-        console.error(err);
-        res.status(500).send("Server Error");
+        console.error("Home route error:", err);
+        return res.status(500).send("Server Error");
     }
 });
 
