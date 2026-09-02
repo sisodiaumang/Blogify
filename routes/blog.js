@@ -30,6 +30,8 @@ router.get("/add-new", (req, res) => {
     });
 });
 
+const { generateSeoExcerpt, SITE_URL } = require("../services/seoService");
+
 router.get("/:id", async (req, res) => {
     try {
         const blog = await Blog.findById(req.params.id).populate("createdBy", "fullName profileImageURL bio");
@@ -48,11 +50,16 @@ router.get("/:id", async (req, res) => {
         // Run Hybrid Recommendation Engine
         const relatedBlogs = await getRelatedBlogs(req.params.id, 6);
 
+        const seoExcerpt = generateSeoExcerpt(blog.body, 160);
+        const canonicalUrl = `${SITE_URL}/blog/${blog._id}`;
+
         return res.render("blog", {
             blog,
             htmlContent,
             comments,
             relatedBlogs,
+            seoExcerpt,
+            canonicalUrl
         });
     } catch (err) {
         console.error("Blog route error:", err);

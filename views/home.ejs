@@ -3,7 +3,42 @@
 
 <head>
     <%- include('./partials/head')%>
-    <title>The Feed | Stories & Ideas</title>
+    <title>Blogify | Breaking Stories, Tech, Economy & Thoughtful Ideas</title>
+    <meta name="description" content="Discover fresh breaking news, thoughtful essays, technology updates, geopolitical analysis, and editorial stories on Blogify.">
+    <meta name="keywords" content="blog, news, technology, opinion, editorial, analysis, geopolitics, india news, world news">
+    <link rel="canonical" href="https://blogify-for-stories.vercel.app/">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Blogify">
+    <meta property="og:title" content="Blogify | Breaking Stories, Tech, Economy & Thoughtful Ideas">
+    <meta property="og:description" content="Discover fresh breaking news, thoughtful essays, technology updates, geopolitical analysis, and editorial stories on Blogify.">
+    <meta property="og:url" content="https://blogify-for-stories.vercel.app/">
+    <meta property="og:image" content="https://blogify-for-stories.vercel.app/apple-touch-icon.png">
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Blogify | Breaking Stories, Tech, Economy & Thoughtful Ideas">
+    <meta name="twitter:description" content="Discover fresh breaking news, thoughtful essays, technology updates, geopolitical analysis, and editorial stories on Blogify.">
+    <meta name="twitter:image" content="https://blogify-for-stories.vercel.app/apple-touch-icon.png">
+
+    <!-- Schema.org WebSite & Sitelinks SearchBox -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "Blogify",
+      "url": "https://blogify-for-stories.vercel.app/",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://blogify-for-stories.vercel.app/?search={search_term_string}"
+        },
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {

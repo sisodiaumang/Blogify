@@ -10,6 +10,7 @@ const methodOverride = require("method-override");
 const adminRoute = require("./routes/admin");
 const userRoute = require("./routes/user");
 const blogRoute = require("./routes/blog");
+const seoRoute = require("./routes/seo");
 const Blog = require("./models/blog");
 const emailVerifyRoute = require("./routes/emailVerify");
 const cron = require("node-cron");
@@ -88,6 +89,7 @@ app.use('/user', userRoute);
 app.use('/blog', blogRoute);
 app.use('/admin', adminRoute);
 app.use('/verify-email', emailVerifyRoute);
+app.use('/', seoRoute);
 
 // Automated News Publishing Endpoint (Triggered hourly by GitHub Actions / Cron)
 app.get('/api/cron/fetch-news', async (req, res) => {

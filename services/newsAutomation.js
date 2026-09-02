@@ -4,6 +4,7 @@ const { fetchRecentNews } = require('./newsFetcher');
 const { rewriteNewsToBlog } = require('./groqService');
 const { fetchAndUploadNonCopyrightedImage } = require('./imageSearchService');
 const { generateAndUploadImage } = require('./imageGenService');
+const { pingGoogleSearch } = require('./seoService');
 
 /**
  * Ensures an author user exists for automated AI news posts.
@@ -151,6 +152,11 @@ async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25 } = {}) {
         console.log(`[newsAutomation] Automation run completed!`);
         console.log(`[newsAutomation] Summary: Fetched: ${stats.totalFetched}, Created: ${stats.successfullyCreated}, Skipped: ${stats.skippedExisting}, Failed: ${stats.failed}`);
         console.log(`======================================================\n`);
+
+        if (stats.successfullyCreated > 0) {
+            console.log(`[newsAutomation] Pinging Google Search to re-crawl updated sitemap...`);
+            await pingGoogleSearch();
+        }
 
         return stats;
 

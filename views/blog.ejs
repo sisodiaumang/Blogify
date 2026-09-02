@@ -3,11 +3,73 @@
 
 <head>
     <%- include('./partials/head')%>
-        <title>
-            <%= blog.title %>
-        </title>
-        <link
-            href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <title><%= blog.title %> | Blogify</title>
+    
+    <!-- Primary SEO Metadata -->
+    <meta name="description" content="<%= locals.seoExcerpt || 'Read the full article and discussion on Blogify.' %>">
+    <meta name="keywords" content="<%= (blog.tags && blog.tags.length > 0) ? blog.tags.join(', ') : (blog.category || 'News, Analysis, Opinion, Editorial') %>">
+    <meta name="author" content="<%= blog.createdBy?.fullName || 'Blogify Editorial' %>">
+    <link rel="canonical" href="<%= locals.canonicalUrl || ('https://blogify-for-stories.vercel.app/blog/' + blog._id) %>">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="article">
+    <meta property="og:site_name" content="Blogify">
+    <meta property="og:title" content="<%= blog.title %>">
+    <meta property="og:description" content="<%= locals.seoExcerpt || 'Read the full article and discussion on Blogify.' %>">
+    <meta property="og:url" content="<%= locals.canonicalUrl || ('https://blogify-for-stories.vercel.app/blog/' + blog._id) %>">
+    <% if (blog.coverImageURL) { %>
+    <meta property="og:image" content="<%= blog.coverImageURL %>">
+    <meta property="og:image:alt" content="<%= blog.title %>">
+    <% } %>
+    <meta property="article:published_time" content="<%= new Date(blog.createdAt).toISOString() %>">
+    <meta property="article:modified_time" content="<%= new Date(blog.updatedAt || blog.createdAt).toISOString() %>">
+    <meta property="article:section" content="<%= blog.category || 'Editorial' %>">
+    <% if (blog.tags && blog.tags.length > 0) { %>
+        <% blog.tags.forEach(tag => { %>
+    <meta property="article:tag" content="<%= tag %>">
+        <% }) %>
+    <% } %>
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= blog.title %>">
+    <meta name="twitter:description" content="<%= locals.seoExcerpt || 'Read the full article and discussion on Blogify.' %>">
+    <% if (blog.coverImageURL) { %>
+    <meta name="twitter:image" content="<%= blog.coverImageURL %>">
+    <% } %>
+
+    <!-- Google NewsArticle Structured Data (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "NewsArticle",
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": "<%= locals.canonicalUrl || ('https://blogify-for-stories.vercel.app/blog/' + blog._id) %>"
+      },
+      "headline": <%- JSON.stringify(blog.title) %>,
+      "description": <%- JSON.stringify(locals.seoExcerpt || 'Read the full article and discussion on Blogify.') %>,
+      "image": [
+        "<%= blog.coverImageURL || 'https://blogify-for-stories.vercel.app/favicon.ico' %>"
+      ],
+      "datePublished": "<%= new Date(blog.createdAt).toISOString() %>",
+      "dateModified": "<%= new Date(blog.updatedAt || blog.createdAt).toISOString() %>",
+      "author": {
+        "@type": "Person",
+        "name": "<%= blog.createdBy?.fullName || 'Blogify Editorial Desk' %>"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Blogify",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://blogify-for-stories.vercel.app/favicon-32x32.png"
+        }
+      },
+      "articleSection": "<%= blog.category || 'Editorial' %>"
+    }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
         <style>
             :root {
                 --bg: #fdfcfb;
