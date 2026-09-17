@@ -19,6 +19,10 @@
     <meta property="og:url" content="<%= locals.canonicalUrl || ('https://blogify-for-stories.vercel.app/blog/' + blog._id) %>">
     <% if (blog.coverImageURL) { %>
     <meta property="og:image" content="<%= blog.coverImageURL %>">
+    <meta property="og:image:secure_url" content="<%= blog.coverImageURL %>">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
     <meta property="og:image:alt" content="<%= blog.title %>">
     <% } %>
     <meta property="article:published_time" content="<%= new Date(blog.createdAt).toISOString() %>">
@@ -47,10 +51,16 @@
         "@type": "WebPage",
         "@id": "<%= locals.canonicalUrl || ('https://blogify-for-stories.vercel.app/blog/' + blog._id) %>"
       },
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Blogify",
+        "alternateName": ["Blogify Stories", "Blogify Platform"],
+        "url": "https://blogify-for-stories.vercel.app/"
+      },
       "headline": <%- JSON.stringify(blog.title) %>,
       "description": <%- JSON.stringify(locals.seoExcerpt || 'Read the full article and discussion on Blogify.') %>,
       "image": [
-        "<%= blog.coverImageURL || 'https://blogify-for-stories.vercel.app/favicon.ico' %>"
+        "<%= blog.coverImageURL || 'https://blogify-for-stories.vercel.app/apple-touch-icon.png' %>"
       ],
       "datePublished": "<%= new Date(blog.createdAt).toISOString() %>",
       "dateModified": "<%= new Date(blog.updatedAt || blog.createdAt).toISOString() %>",
