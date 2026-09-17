@@ -1,7 +1,26 @@
 const { Router } = require('express');
 const { generateSitemapXml, generateRssFeedXml, SITE_URL } = require('../services/seoService');
+const Blog = require('../models/blog');
+const cacheService = require('../services/cacheService');
 
 const router = Router();
+
+// 0. Visual HTML Archive / Directory for Googlebot deep crawl
+router.get(['/archive', '/directory', '/sitemap-html'], async (req, res) => {
+    try {
+        const blogs = await cacheService.wrap('seo:archive_list', 180, async () => {
+            return await Blog.find()
+                .select('title slug category createdAt')
+                .sort({ createdAt: -1 })
+                .lean();
+        });
+        res.setHeader('Cache-Control', 'public, max-age=120, s-maxage=300, stale-while-revalidate=86400');
+        return res.render('archive', { blogs });
+    } catch (err) {
+        console.error('[SEO Route] Archive generation failed:', err);
+        return res.redirect('/');
+    }
+});
 
 // 1. Dynamic Google XML Sitemap endpoint
 router.get('/sitemap.xml', async (req, res) => {
