@@ -2,8 +2,8 @@ name: Automated News Publishing
 
 on:
   schedule:
-    # Runs every 30 minutes to ensure fresh news without GitHub top-of-the-hour queue delay
-    - cron: '*/30 * * * *'
+    # Runs every 45 minutes to capture real-time Google Trends spikes
+    - cron: '0,45 * * * *'
   workflow_dispatch: # Allows manual trigger anytime from GitHub Actions tab
 
 jobs:

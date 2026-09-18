@@ -68,6 +68,92 @@ function cleanHtml(html) {
 }
 
 /**
+ * Fetches real-time trending search topics and attached verified news coverage
+ * directly from Google Trends RSS feeds (India & Global/US).
+ */
+async function fetchGoogleTrends(cutoffTime) {
+    const googleTrendsParser = new Parser({
+        customFields: {
+            item: [
+                ['ht:approx_traffic', 'approxTraffic'],
+                ['ht:news_item', 'newsItems', { keepArray: true }],
+                ['ht:picture', 'picture'],
+                ['ht:picture_source', 'pictureSource']
+            ]
+        }
+    });
+
+    const trendFeeds = [
+        { name: 'Google Trends (India)', url: 'https://trends.google.com/trending/rss?geo=IN', region: 'India' },
+        { name: 'Google Trends (Global/US)', url: 'https://trends.google.com/trending/rss?geo=US', region: 'Global' }
+    ];
+
+    const trendingArticles = [];
+
+    for (const feed of trendFeeds) {
+        try {
+            const feedData = await googleTrendsParser.parseURL(feed.url);
+            if (!feedData || !feedData.items) continue;
+
+            for (const item of feedData.items) {
+                const pubDate = item.pubDate ? new Date(item.pubDate) : new Date();
+                if (cutoffTime && pubDate < cutoffTime) {
+                    continue;
+                }
+
+                const trendQuery = cleanHtml(item.title || '');
+                const traffic = item.approxTraffic ? `${item.approxTraffic} searches` : 'Trending Search';
+
+                // Extract verified news headlines covering this trend
+                const newsItems = item.newsItems || [];
+                const headlines = [];
+                let primaryLink = item.link || 'https://trends.google.com/trends/';
+
+                for (const n of newsItems) {
+                    const rawTitle = cleanHtml(n['ht:news_item_title']?.[0] || '');
+                    const rawSnippet = cleanHtml(n['ht:news_item_snippet']?.[0] || '');
+                    const rawSource = cleanHtml(n['ht:news_item_source']?.[0] || '');
+                    const rawUrl = n['ht:news_item_url']?.[0] || '';
+
+                    if (rawTitle) {
+                        headlines.push(`- Headline: "${rawTitle}" (Source: ${rawSource}) ${rawSnippet}`.trim());
+                    }
+                    if (rawUrl && primaryLink.includes('trends.google.com')) {
+                        primaryLink = rawUrl;
+                    }
+                }
+
+                if (!trendQuery || headlines.length === 0) continue;
+
+                // Pick the most comprehensive headline as title
+                const mainHeadline = headlines[0].replace(/^- Headline:\s*"/, '').replace(/"\s*\(Source:.*$/, '').trim();
+                const displayTitle = mainHeadline.length > 25 ? mainHeadline : `${trendQuery}: Why This Topic is Trending on Google`;
+
+                const contextSummary = `Trending Query on Google Trends (${feed.region} - ${traffic}): "${trendQuery}".\nKey Verified News Coverage:\n${headlines.join('\n')}`;
+
+                trendingArticles.push({
+                    title: displayTitle,
+                    trendQuery: trendQuery,
+                    source: `Google Trends (${feed.region})`,
+                    category: 'Trending News',
+                    link: primaryLink,
+                    pubDate,
+                    traffic,
+                    snippet: contextSummary,
+                    content: contextSummary,
+                    isTrending: true
+                });
+            }
+        } catch (err) {
+            console.warn(`[newsFetcher] Google Trends ${feed.name} notice: ${err.message}`);
+        }
+    }
+
+    console.log(`[newsFetcher] Fetched ${trendingArticles.length} live trending topics from Google Trends.`);
+    return trendingArticles;
+}
+
+/**
  * Fetches latest stories directly from The Quint's official JSON API.
  */
 async function fetchFromQuintAPI(cutoffTime) {
@@ -145,19 +231,29 @@ async function fetchFromABPLiveBlog(cutoffTime) {
 }
 
 /**
- * Fetches news items published within the specified hours window (default: 4 hours).
- * Sources include The Quint, India Today, ABP Live, and top Indian news feeds.
+ * Fetches news items published within the specified hours window.
+ * PRIORITIZES live Google Trends topics (India & Global) alongside top editorial feeds.
  * @param {number} hoursWindow Max age of news in hours (default 4)
  * @returns {Promise<Array>} List of unique news items
  */
 async function fetchRecentNews(hoursWindow = 4) {
     const cutoffTime = new Date(Date.now() - hoursWindow * 60 * 60 * 1000);
-    console.log(`[newsFetcher] Fetching news from The Quint, India Today, ABP Live & top feeds after: ${cutoffTime.toISOString()} (last ${hoursWindow} hours)`);
+    console.log(`[newsFetcher] Fetching real-time Google Trends & editorial feeds after: ${cutoffTime.toISOString()} (last ${hoursWindow} hours)`);
 
     const allArticles = [];
     const seenTitles = new Set();
 
-    // 1. Direct fetch from The Quint API
+    // 1. Google Trends (India & Global) - Highest Priority
+    const googleTrends = await fetchGoogleTrends(cutoffTime);
+    for (const trend of googleTrends) {
+        const norm = trend.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!seenTitles.has(norm) && norm.length > 5) {
+            seenTitles.add(norm);
+            allArticles.push(trend);
+        }
+    }
+
+    // 2. Direct fetch from The Quint API
     const quintArticles = await fetchFromQuintAPI(cutoffTime);
     for (const art of quintArticles) {
         const norm = art.title.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -167,7 +263,7 @@ async function fetchRecentNews(hoursWindow = 4) {
         }
     }
 
-    // 2. Direct fetch from ABP Live Blog Section
+    // 3. Direct fetch from ABP Live Blog Section
     const abpArticles = await fetchFromABPLiveBlog(cutoffTime);
     for (const art of abpArticles) {
         const norm = art.title.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -177,7 +273,7 @@ async function fetchRecentNews(hoursWindow = 4) {
         }
     }
 
-    // 3. RSS Feeds for India Today, The Quint, ABP Live & Google News
+    // 4. RSS Feeds for India Today, The Quint, ABP Live & Google News
     for (const feed of RSS_FEEDS) {
         try {
             const feedData = await parser.parseURL(feed.url);
@@ -223,10 +319,8 @@ async function fetchRecentNews(hoursWindow = 4) {
         }
     }
 
-    // Sort newest first
-    allArticles.sort((a, b) => b.pubDate - a.pubDate);
-    console.log(`[newsFetcher] Found ${allArticles.length} matching articles from The Quint, India Today, ABP Live & feeds.`);
+    console.log(`[newsFetcher] Found ${allArticles.length} matching candidate articles (Google Trends + Feeds).`);
     return allArticles;
 }
 
-module.exports = { fetchRecentNews, RSS_FEEDS, fetchFromQuintAPI, fetchFromABPLiveBlog };
+module.exports = { fetchRecentNews, fetchGoogleTrends, RSS_FEEDS, fetchFromQuintAPI, fetchFromABPLiveBlog };
