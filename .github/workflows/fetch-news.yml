@@ -2,8 +2,8 @@ name: Automated News Publishing
 
 on:
   schedule:
-    # Runs every 45 minutes to capture real-time Google Trends spikes
-    - cron: '0,45 * * * *'
+    # Runs every 30 minutes (2x per hour) for maximum trending coverage
+    - cron: '*/30 * * * *'
   workflow_dispatch: # Allows manual trigger anytime from GitHub Actions tab
 
 jobs:
@@ -33,4 +33,4 @@ jobs:
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
           REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
         run: |
-          node scripts/runNewsAutomation.js --hours=4 --limit=4
+          node scripts/runNewsAutomation.js --hours=6 --limit=8
