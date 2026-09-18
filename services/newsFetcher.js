@@ -323,4 +323,85 @@ async function fetchRecentNews(hoursWindow = 4) {
     return allArticles;
 }
 
-module.exports = { fetchRecentNews, fetchGoogleTrends, RSS_FEEDS, fetchFromQuintAPI, fetchFromABPLiveBlog };
+/**
+ * Fetches exclusively editorial news feeds (The Quint, ABP Live, India Today).
+ */
+async function fetchEditorialNews(hoursWindow = 4) {
+    const cutoffTime = new Date(Date.now() - hoursWindow * 60 * 60 * 1000);
+    const allArticles = [];
+    const seenTitles = new Set();
+
+    // 1. The Quint API
+    const quintArticles = await fetchFromQuintAPI(cutoffTime);
+    for (const art of quintArticles) {
+        const norm = art.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!seenTitles.has(norm) && norm.length > 5) {
+            seenTitles.add(norm);
+            allArticles.push(art);
+        }
+    }
+
+    // 2. ABP Live
+    const abpArticles = await fetchFromABPLiveBlog(cutoffTime);
+    for (const art of abpArticles) {
+        const norm = art.title.toLowerCase().replace(/[^a-z0-9]/g, '');
+        if (!seenTitles.has(norm) && norm.length > 5) {
+            seenTitles.add(norm);
+            allArticles.push(art);
+        }
+    }
+
+    // 3. RSS Feeds
+    for (const feed of RSS_FEEDS) {
+        try {
+            const feedData = await parser.parseURL(feed.url);
+            if (!feedData || !feedData.items) continue;
+
+            for (const item of feedData.items) {
+                const pubDate = item.pubDate || item.isoDate;
+                const articleDate = pubDate ? new Date(pubDate) : null;
+                if (!articleDate || isNaN(articleDate.getTime()) || articleDate < cutoffTime) {
+                    continue;
+                }
+
+                let title = cleanHtml(item.title || '');
+                let source = feed.name;
+                if (title.includes(' - ')) {
+                    const parts = title.split(' - ');
+                    source = parts.pop().trim();
+                    title = parts.join(' - ').trim();
+                }
+
+                const norm = title.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (seenTitles.has(norm) || norm.length < 5) continue;
+                seenTitles.add(norm);
+
+                const snippet = cleanHtml(item.contentSnippet || item.content || item.summary || '');
+                allArticles.push({
+                    title,
+                    source,
+                    category: feed.category,
+                    link: item.link,
+                    pubDate: articleDate,
+                    snippet,
+                    content: snippet
+                });
+            }
+        } catch (err) {
+            console.warn(`[newsFetcher] RSS feed ${feed.name} notice: ${err.message}`);
+        }
+    }
+
+    allArticles.sort((a, b) => b.pubDate - a.pubDate);
+    console.log(`[newsFetcher] Fetched ${allArticles.length} editorial news articles.`);
+    return allArticles;
+}
+
+module.exports = { 
+    fetchRecentNews, 
+    fetchGoogleTrends, 
+    fetchEditorialNews, 
+    RSS_FEEDS, 
+    fetchFromQuintAPI, 
+    fetchFromABPLiveBlog 
+};

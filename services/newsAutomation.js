@@ -1,6 +1,6 @@
 const Blog = require('../models/blog');
 const User = require('../models/user');
-const { fetchRecentNews } = require('./newsFetcher');
+const { fetchRecentNews, fetchGoogleTrends, fetchEditorialNews } = require('./newsFetcher');
 const { rewriteNewsToBlog } = require('./groqService');
 const { fetchAndUploadNonCopyrightedImage } = require('./imageSearchService');
 const { generateAndUploadImage } = require('./imageGenService');
@@ -42,10 +42,11 @@ async function getOrCreateNewsBotUser() {
  * @param {Object} options Configuration options
  * @param {number} options.hoursWindow Hours to look back (default 4)
  * @param {number} options.maxArticles Maximum number of articles to process in this run (default 25)
+ * @param {'all'|'trends'|'news'} options.mode Target feed mode (default: 'all')
  */
-async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25 } = {}) {
+async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25, mode = 'all' } = {}) {
     console.log(`\n======================================================`);
-    console.log(`[newsAutomation] Starting news automation pipeline...`);
+    console.log(`[newsAutomation] Starting news automation pipeline (${mode.toUpperCase()} MODE)...`);
     console.log(`[newsAutomation] Looking back ${hoursWindow} hours (Max limit: ${maxArticles} main articles)`);
     console.log(`======================================================\n`);
 
@@ -62,12 +63,22 @@ async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25 } = {}) {
             throw new Error("Could not find or create an author user for blog posting.");
         }
 
-        // 1. Fetch news articles from last N hours
-        const articles = await fetchRecentNews(hoursWindow);
+        // 1. Fetch articles based on mode
+        const cutoffTime = new Date(Date.now() - hoursWindow * 60 * 60 * 1000);
+        let articles = [];
+
+        if (mode === 'trends') {
+            articles = await fetchGoogleTrends(cutoffTime);
+        } else if (mode === 'news') {
+            articles = await fetchEditorialNews(hoursWindow);
+        } else {
+            articles = await fetchRecentNews(hoursWindow);
+        }
+
         stats.totalFetched = articles.length;
 
         if (articles.length === 0) {
-            console.log(`[newsAutomation] No new articles found in the last ${hoursWindow} hours.`);
+            console.log(`[newsAutomation] No new articles found for mode "${mode}" in the last ${hoursWindow} hours.`);
             return stats;
         }
 

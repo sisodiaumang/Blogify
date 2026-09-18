@@ -1,13 +1,13 @@
-name: Automated Editorial News Publishing
+name: Automated Google Trends Publishing
 
 on:
   schedule:
-    # Runs every 45 minutes on offset schedule for editorial opinion & news feeds
-    - cron: '20 * * * *'
+    # Runs every 45 minutes to capture real-time viral Google Trends spikes
+    - cron: '0,45 * * * *'
   workflow_dispatch: # Allows manual trigger anytime from GitHub Actions tab
 
 jobs:
-  publish-editorial-news:
+  publish-google-trends:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -23,7 +23,7 @@ jobs:
       - name: Install Dependencies
         run: npm ci
 
-      - name: Run Editorial News Publishing Automation
+      - name: Run Google Trends Publishing Automation
         env:
           MONGODB_URL: ${{ secrets.MONGODB_URL }}
           GROQ_API_KEYS: ${{ secrets.GROQ_API_KEYS }}
@@ -33,4 +33,4 @@ jobs:
           ACCESS_TOKEN_SECRET: ${{ secrets.ACCESS_TOKEN_SECRET }}
           REFRESH_TOKEN_SECRET: ${{ secrets.REFRESH_TOKEN_SECRET }}
         run: |
-          node scripts/runNewsAutomation.js --mode=news --hours=6 --limit=6
+          node scripts/runNewsAutomation.js --mode=trends --hours=12 --limit=6

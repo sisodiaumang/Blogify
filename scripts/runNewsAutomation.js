@@ -11,9 +11,10 @@ async function main() {
         await connectToMongoDB(process.env.MONGODB_URL);
         console.log('[Script] MongoDB connected successfully.');
 
-        // Extract CLI arguments if provided e.g. node runNewsAutomation.js --hours=4 --limit=5
+        // Extract CLI arguments if provided e.g. node runNewsAutomation.js --hours=4 --limit=5 --mode=trends
         let hoursWindow = 4;
         let maxArticles = 5;
+        let mode = 'all';
 
         process.argv.forEach(arg => {
             if (arg.startsWith('--hours=')) {
@@ -22,9 +23,12 @@ async function main() {
             if (arg.startsWith('--limit=')) {
                 maxArticles = parseInt(arg.split('=')[1]) || 5;
             }
+            if (arg.startsWith('--mode=')) {
+                mode = arg.split('=')[1].toLowerCase().trim() || 'all';
+            }
         });
 
-        await runNewsAutomation({ hoursWindow, maxArticles });
+        await runNewsAutomation({ hoursWindow, maxArticles, mode });
     } catch (err) {
         console.error('[Script] Execution error:', err);
     } finally {
