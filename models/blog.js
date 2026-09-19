@@ -39,6 +39,11 @@ const blogSchema = new Schema({
     coverImagePublicId: {
         type: String,
     },
+    images: [{
+        url: { type: String, required: true },
+        public_id: { type: String },
+        caption: { type: String, default: "" }
+    }],
     category: {
         type: String,
         default: "Editorial",
@@ -52,8 +57,18 @@ const blogSchema = new Schema({
     }],
     views: {
         type: Number,
-        default: 0
+        default: 0,
+        index: true
     },
+    likes: {
+        type: Number,
+        default: 0,
+        index: true
+    },
+    likedBy: [{
+        type: Schema.Types.ObjectId,
+        ref: "user"
+    }],
     readTimeMinutes: {
         type: Number,
         default: 3
@@ -87,6 +102,12 @@ blogSchema.pre('save', function () {
         this.readTimeMinutes = Math.max(1, Math.ceil(words / 200));
     }
 });
+
+// Compound indexes for high-speed multi-filter sorting
+blogSchema.index({ createdAt: -1 });
+blogSchema.index({ category: 1, createdAt: -1 });
+blogSchema.index({ views: -1, createdAt: -1 });
+blogSchema.index({ likes: -1, createdAt: -1 });
 
 // Text index for full-text search and recommendation scoring
 blogSchema.index({

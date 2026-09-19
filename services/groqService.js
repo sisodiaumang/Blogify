@@ -3,38 +3,40 @@ const axios = require('axios');
 const { keyManager } = require('../config/groqKeys');
 
 /**
- * Rewrites news article content and generates a blog title, detailed markdown post,
- * topic search keywords for non-copyrighted web images, and an AI fallback prompt.
+ * Rewrites news article content and generates a blog title, detailed multi-image markdown post,
+ * topic search keywords for non-copyrighted web images, and AI fallback prompts.
  */
 async function rewriteNewsToBlog({ title, snippet, content, source, category = 'General' }) {
     const maxRetries = 5;
     let attempt = 0;
 
     const systemPrompt = `You are a Senior Chief Editor and Photojournalist Director for premier digital publications (such as The Quint Voices, India Today Blogs, ABP Live, Vox, and Wired).
-Your task is to take a trending topic or news headline, summary, and verified news coverage, rewrite it into a compelling, insightful Markdown blog article optimized for Google Search & Google Discover, and extract EXACT REAL-WORLD SEARCH KEYWORDS to find related, non-copyrighted photojournalistic images on the web.
+Your task is to take a trending topic or news headline, summary, and verified news coverage, rewrite it into a compelling, insightful Markdown blog article optimized for Google Search & Google Discover with MULTIPLE high-quality editorial images embedded into the text.
 
-EDITORIAL STRUCTURE GUIDELINES:
-- If the topic is from Google Trends, explain clearly why it is surging in popularity, break down the core events, analyze why it matters, and provide structured takeaways.
-- Write at least 400-600 words with engaging Markdown formatting (## Main Headings, ### Subsections, bullet points, blockquotes for key quotes, and bold text).
-- Tone: Highly engaging, journalistic, informative, and authoritative (E-E-A-T compliant).
+EDITORIAL & MULTI-IMAGE STRUCTURE GUIDELINES:
+- Write at least 450-700 words with rich Markdown formatting (## Main Headings, ### Subsections, bullet points, blockquotes for key quotes, and bold text).
+- Explain clearly what happened, why it is surging on Google Trends / news wires, provide comprehensive background analysis, and outline the future impact.
+- Insert the exact placeholder token "{{INLINE_IMAGE_1}}" between two major sections in the body where a secondary contextual image or scene photo should be displayed.
+- Provide 2 distinct sets of image search keywords:
+  1. "searchKeywords": 2-3 search phrases for the primary Hero Cover image.
+  2. "inlineSearchKeywords": 2-3 search phrases for the secondary inline context/location image.
 
-CRITICAL INSTRUCTIONS FOR "searchKeywords":
-- Provide 2 to 4 precise, real-world search phrases to search for non-copyrighted Creative Commons / Public Domain photographs online.
-- Be very specific to the actual people, organizations, cities, devices, or events:
-  * For Indian Politics / Regional News: ["Gurugram skyline", "Delhi police investigation", "West Bengal legislative assembly"]
-  * For International / Geopolitics: ["Iran rally Tehran", "Middle East diplomacy summit", "Virgin Atlantic aircraft"]
-  * For Science / Health / Tech: ["Stanford University research laboratory", "Human brain neuroscience", "smartphone display"]
-  * For Economy / Markets: ["Stock market exchange trading floor", "Reserve Bank of India"]
+CRITICAL INSTRUCTIONS FOR IMAGE SEARCH KEYWORDS:
+- Use real-world, specific entity queries suitable for finding Creative Commons photographs:
+  * e.g., ["Gurugram cyber hub skyline", "Delhi police press conference", "Haryana government secretariat"]
+  * e.g., ["Stanford medical school laboratory", "neural cortex brain imaging", "research microscope"]
 
-CRITICAL INSTRUCTIONS FOR "imagePrompt" (as AI fallback):
-- Describe the exact real-world scene in editorial photojournalism style (no sci-fi, no abstract fantasy, no text).
+CRITICAL INSTRUCTIONS FOR "imagePrompt" & "inlineImagePrompt":
+- Describe realistic editorial photojournalism scenes for AI generation fallback.
 
 Respond strictly in valid JSON format:
 {
   "title": "A captivating, journalistic, SEO-friendly headline (30-80 chars)",
-  "body": "Full Markdown article (at least 400-600 words) with proper markdown headings (##, ###), key bullet points, background analysis, context, and insightful takeaways. Do NOT include markdown code fences around the JSON.",
-  "searchKeywords": ["keyword 1", "keyword 2", "keyword 3"],
-  "imagePrompt": "A detailed, topic-specific prompt describing the exact scene, subjects, setting, and mood matching the headline."
+  "body": "Full Markdown article (450-700 words) with ## headings, key takeaways, and the token {{INLINE_IMAGE_1}} placed between sections. Do NOT include markdown code fences around the JSON.",
+  "searchKeywords": ["hero keyword 1", "hero keyword 2", "hero keyword 3"],
+  "inlineSearchKeywords": ["inline keyword 1", "inline keyword 2"],
+  "imagePrompt": "Detailed photojournalistic prompt for main hero cover image.",
+  "inlineImagePrompt": "Detailed photojournalistic prompt for secondary inline context image."
 }`;
 
     const userPrompt = `
@@ -44,7 +46,7 @@ Story / Trend Details:
 - Category: ${category}
 - Context & News Coverage: ${content || snippet || title}
 
-Please transform this into an original, insightful, well-structured markdown blog post with specific non-copyrighted image search keywords. Return valid JSON matching the schema.
+Please transform this into an original, multi-image editorial markdown blog post with specific image keywords and the {{INLINE_IMAGE_1}} placeholder. Return valid JSON matching the schema.
 `;
 
     while (attempt < maxRetries) {
@@ -62,7 +64,7 @@ Please transform this into an original, insightful, well-structured markdown blo
                     ],
                     response_format: { type: 'json_object' },
                     temperature: 0.7,
-                    max_tokens: 2048,
+                    max_tokens: 2500,
                 },
                 {
                     headers: {
@@ -94,7 +96,9 @@ Please transform this into an original, insightful, well-structured markdown blo
                 title: parsed.title,
                 body: parsed.body,
                 searchKeywords: parsed.searchKeywords || [title],
-                imagePrompt: parsed.imagePrompt || `editorial photojournalism of ${title}, vibrant colors, clean composition, 8k`
+                inlineSearchKeywords: parsed.inlineSearchKeywords || [title],
+                imagePrompt: parsed.imagePrompt || `editorial photojournalism of ${title}, vibrant colors, clean composition, 8k`,
+                inlineImagePrompt: parsed.inlineImagePrompt || `editorial context photography of ${title}, journalistic style, 8k`
             };
 
         } catch (err) {

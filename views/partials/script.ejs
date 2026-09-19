@@ -1,2 +1,29 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6862029822893268" crossorigin="anonymous"></script>
+<script>
+  function updateThemeUI(theme) {
+    const icon = document.getElementById('themeToggleIcon');
+    const text = document.getElementById('themeToggleText');
+    if (!icon || !text) return;
+    if (theme === 'dark') {
+      icon.textContent = '☀️';
+      text.textContent = 'Light';
+    } else {
+      icon.textContent = '🌙';
+      text.textContent = 'Dark';
+    }
+  }
+
+  function toggleTheme() {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('blogify-theme', nextTheme);
+    updateThemeUI(nextTheme);
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+    updateThemeUI(currentTheme);
+  });
+</script>

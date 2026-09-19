@@ -5,7 +5,7 @@
     <%- include('./partials/head')%>
     <title>Blogify | Breaking Stories, Tech, Economy & Thoughtful Ideas</title>
     <meta name="description" content="Discover fresh breaking news, thoughtful essays, technology updates, geopolitical analysis, and editorial stories on Blogify.">
-    <meta name="keywords" content="blog, news, technology, opinion, editorial, analysis, geopolitics, india news, world news">
+    <meta name="keywords" content="blog, news, technology, opinion, editorial, analysis, geopolitics, google trends, world news">
     <link rel="canonical" href="https://blogify-for-stories.vercel.app/">
 
     <!-- Open Graph -->
@@ -40,57 +40,65 @@
       }
     }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg-color: #fcfaf7;
-            --accent-color: #2d3e50;
-            --text-main: #1a1a1a;
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
-            --card-hover-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
-            --border: #eceae5;
+        .home-hero {
+            text-align: center;
+            padding: 50px 0 30px;
         }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 24px;
-            box-sizing: border-box;
+        .home-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--accent-light);
+            color: var(--accent);
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
         }
 
         .home-header {
             font-family: 'DM Serif Display', serif;
-            font-size: clamp(2.2rem, 8vw, 3.5rem);
-            color: var(--accent-color);
-            margin-top: 60px;
-            margin-bottom: 20px;
+            font-size: clamp(2.4rem, 6vw, 3.8rem);
+            color: var(--ink);
+            margin: 0 0 16px;
             letter-spacing: -1px;
-            text-align: center;
+            line-height: 1.15;
+        }
+
+        .home-sub {
+            font-size: 1.15rem;
+            color: var(--ink-secondary);
+            max-width: 600px;
+            margin: 0 auto 36px;
+            line-height: 1.6;
         }
 
         /* --- Search Bar --- */
         .search-wrapper {
-            max-width: 550px;
-            margin: 0 auto 50px auto;
+            max-width: 580px;
+            margin: 0 auto 30px auto;
         }
 
         .search-form {
             display: flex;
             gap: 8px;
-            background: #fff;
+            background: var(--surface);
             padding: 6px;
             border-radius: 50px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            border: 1px solid #eee;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border);
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .search-form:focus-within {
+            border-color: var(--accent);
+            box-shadow: 0 6px 24px rgba(0,0,0,0.08);
         }
 
         .search-input {
@@ -99,31 +107,124 @@
             border: none;
             border-radius: 30px;
             outline: none;
-            font-size: 1rem;
+            font-size: 0.98rem;
             min-width: 0;
+            background: transparent;
+            color: var(--ink);
+        }
+
+        .search-input::placeholder {
+            color: var(--muted);
         }
 
         .btn-search {
-            background-color: var(--accent-color);
-            color: white;
+            background-color: var(--accent);
+            color: #ffffff;
             border: none;
             padding: 10px 24px;
             border-radius: 30px;
             font-weight: 600;
+            font-size: 0.9rem;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .btn-search:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        /* --- Category Filter Bar & Sort Controls --- */
+        .feed-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 36px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .category-pills {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            scrollbar-width: none;
+            padding: 4px 0;
+            flex: 1;
+            min-width: 280px;
+        }
+
+        .category-pills::-webkit-scrollbar {
+            display: none;
+        }
+
+        .category-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--ink-secondary);
+            background: var(--surface);
+            border: 1px solid var(--border);
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .category-pill:hover {
+            border-color: var(--ink);
+            color: var(--ink);
+            background: var(--surface-raised);
+            transform: translateY(-1px);
+        }
+
+        .category-pill.active {
+            background: var(--ink);
+            color: var(--surface);
+            border-color: var(--ink);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        }
+
+        .sort-select-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.88rem;
+            color: var(--ink-secondary);
+        }
+
+        .sort-select {
+            background: var(--surface);
+            color: var(--ink);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s ease;
+        }
+
+        .sort-select:focus {
+            border-color: var(--accent);
         }
 
         /* --- Blog Grid --- */
         .blog-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
             gap: 32px;
-            padding-bottom: 40px;
+            padding-bottom: 20px;
         }
 
         .blog-card {
-            background: #ffffff;
+            background: var(--card-bg);
             border-radius: 20px;
             overflow: hidden;
             text-decoration: none;
@@ -131,73 +232,168 @@
             display: flex;
             flex-direction: column;
             box-shadow: var(--card-shadow);
-            border: 1px solid rgba(0,0,0,0.02);
-            transition: transform 0.4s cubic-bezier(0.165, 0.84, 0.44, 1), 
-                        box-shadow 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+            border: 1px solid var(--border);
+            transition: transform 0.35s cubic-bezier(0.165, 0.84, 0.44, 1), 
+                        box-shadow 0.35s cubic-bezier(0.165, 0.84, 0.44, 1),
+                        border-color 0.2s ease;
+            height: 100%;
         }
 
         .card-img-wrapper {
             width: 100%;
-            height: 240px;
+            height: 220px;
             overflow: hidden;
+            position: relative;
+            background: var(--surface-raised);
         }
 
         .blog-card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            transition: transform 0.6s ease;
+            transition: transform 0.5s ease;
+        }
+
+        .card-badge-overlay {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            border-radius: 20px;
         }
 
         .blog-card-body {
-            padding: 24px;
+            padding: 22px;
             display: flex;
             flex-direction: column;
             flex-grow: 1;
         }
 
-        .card-category {
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #a0a0a0;
-            font-weight: 700;
-            margin-bottom: 8px;
+        .card-meta-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.78rem;
+            color: var(--muted);
+            margin-bottom: 10px;
+            font-weight: 600;
         }
 
         .blog-card-title {
             font-family: 'DM Serif Display', serif;
-            font-size: 1.5rem;
-            margin-bottom: 16px;
-            color: var(--text-main);
-            line-height: 1.25;
+            font-size: 1.45rem;
+            margin-bottom: 12px;
+            color: var(--ink);
+            line-height: 1.3;
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
         }
 
+        .card-excerpt {
+            font-size: 0.92rem;
+            color: var(--ink-secondary);
+            line-height: 1.55;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
         .card-footer {
             margin-top: auto;
             display: flex;
             align-items: center;
+            justify-content: space-between;
             font-size: 0.85rem;
             font-weight: 600;
-            color: var(--accent-color);
-            gap: 6px;
+            color: var(--accent);
+            padding-top: 14px;
+            border-top: 1px solid var(--border);
         }
 
-        .card-footer svg {
-            transition: transform 0.3s ease;
+        .card-stats {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.8rem;
+            color: var(--muted);
         }
 
-        /* ── Improved Pagination Control Interface ── */
+        .card-stats span {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* --- Hover Effects --- */
+        @media (hover: hover) {
+            .blog-card:hover {
+                transform: translateY(-6px);
+                box-shadow: var(--card-hover-shadow);
+                border-color: var(--border-hover);
+            }
+
+            .blog-card:hover img {
+                transform: scale(1.05);
+            }
+
+            .blog-card:hover .read-link-arrow {
+                transform: translateX(4px);
+            }
+        }
+
+        .read-link-arrow {
+            transition: transform 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* --- Infinite Scroll & Sentinel --- */
+        #scroll-sentinel {
+            text-align: center;
+            padding: 30px 0 50px;
+        }
+
+        .spinner-loader {
+            display: none;
+            width: 36px;
+            height: 36px;
+            border: 3px solid var(--border);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .feed-end-message {
+            display: none;
+            font-size: 0.95rem;
+            color: var(--muted);
+            font-weight: 500;
+        }
+
+        /* --- Pagination Controls --- */
         .pagination-container {
             display: flex;
             justify-content: center;
             align-items: center;
             gap: 8px;
-            padding: 40px 0 80px 0;
+            padding: 30px 0 60px 0;
             flex-wrap: wrap;
             border-top: 1px solid var(--border);
             margin-top: 20px;
@@ -207,17 +403,17 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             box-sizing: border-box;
             border-radius: 50%;
             border: 1px solid var(--border);
-            background: #ffffff;
-            color: var(--text-main);
+            background: var(--surface);
+            color: var(--ink);
             text-decoration: none;
             font-size: 0.9rem;
             font-weight: 600;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.2s ease;
         }
 
         .pagination-link svg {
@@ -231,62 +427,45 @@
         }
 
         .pagination-link:hover:not(.disabled):not(.active) {
-            border-color: var(--text-main);
-            background: #fafaf9;
+            border-color: var(--ink);
+            background: var(--surface-raised);
             transform: translateY(-1px);
         }
 
         .pagination-link.active {
-            background: var(--accent-color);
-            border-color: var(--accent-color);
+            background: var(--accent);
+            border-color: var(--accent);
             color: #ffffff;
             cursor: default;
-            box-shadow: 0 4px 12px rgba(45, 62, 80, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
         }
 
         .pagination-link.disabled {
             opacity: 0.35;
             cursor: not-allowed;
-            background: #fafaf9;
+            background: var(--surface-raised);
             border-color: var(--border);
-            color: #aaa;
+            color: var(--muted);
         }
 
         .pagination-ellipsis {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            width: 36px;
-            height: 44px;
-            color: #999;
+            width: 32px;
+            height: 42px;
+            color: var(--muted);
             font-size: 0.95rem;
             letter-spacing: 1.5px;
             font-weight: 500;
         }
 
-        /* --- HOVER EFFECTS --- */
-        @media (hover: hover) {
-            .blog-card:hover {
-                transform: translateY(-10px);
-                box-shadow: var(--card-hover-shadow);
-            }
-
-            .blog-card:hover img {
-                transform: scale(1.08);
-            }
-
-            .blog-card:hover .card-footer svg {
-                transform: translateX(4px);
-            }
-        }
-
-        /* --- MOBILE TWEAKS --- */
         @media (max-width: 768px) {
-            .container { padding: 0 20px; }
             .blog-grid { grid-template-columns: 1fr; gap: 24px; }
-            .card-img-wrapper { height: 210px; }
-            .search-form { padding: 4px; }
-            .pagination-link { width: 38px; height: 38px; font-size: 0.85rem; }
+            .card-img-wrapper { height: 200px; }
+            .home-header { font-size: 2.2rem; }
+            .feed-controls { flex-direction: column; align-items: stretch; }
+            .category-pills { padding-bottom: 8px; }
         }
     </style>
 </head>
@@ -294,33 +473,108 @@
 <body>
     <%- include('./partials/nav')%>
 
-    <main class="container">
-        <h1 class="home-header">
-            Stories <span style="font-style: italic; color: #aaa;">&</span> Ideas
-        </h1>
+    <% 
+        const currentCategory = locals.selectedCategory || '';
+        const currentSort = locals.selectedSort || 'newest';
+        const currentSearch = locals.search || '';
+        
+        const categories = [
+            { id: '', label: '✨ All Feeds' },
+            { id: 'Google Trends', label: '🔥 Google Trends' },
+            { id: 'Technology', label: '💻 Tech & AI' },
+            { id: 'Geopolitics', label: '🌍 Geopolitics' },
+            { id: 'Economy', label: '📊 Economy' },
+            { id: 'Breaking News', label: '⚡ Breaking' },
+            { id: 'Editorial', label: '✍️ Editorial' }
+        ];
 
-        <div class="search-wrapper">
-            <form action="/" method="GET" class="search-form" role="search">
-                <input 
-                    type="text" 
-                    name="search" 
-                    class="search-input" 
-                    placeholder="Search articles, topics, keywords..." 
-                    value="<%= search || '' %>"
-                    aria-label="Search articles"
-                >
-                <button type="submit" class="btn-search">Search</button>
-            </form>
-            <% if (search) { %>
-                <div style="margin-top: 16px; text-align: center;">
-                    <a href="/" style="color: #666; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
-                        Clear Search Filter
+        function timeAgo(date) {
+            const seconds = Math.floor((new Date() - new Date(date)) / 1000);
+            let interval = Math.floor(seconds / 31536000);
+            if (interval >= 1) return interval + "y ago";
+            interval = Math.floor(seconds / 2592000);
+            if (interval >= 1) return interval + "mo ago";
+            interval = Math.floor(seconds / 604800);
+            if (interval >= 1) return interval + "w ago";
+            interval = Math.floor(seconds / 86400);
+            if (interval >= 1) return interval + "d ago";
+            interval = Math.floor(seconds / 3600);
+            if (interval >= 1) return interval + "h ago";
+            interval = Math.floor(seconds / 60);
+            if (interval >= 1) return interval + "m ago";
+            return "just now";
+        }
+    %>
+
+    <main class="container">
+        <!-- Hero Header -->
+        <header class="home-hero">
+            <div class="home-badge">
+                <span>⚡ Real-Time Editorial & Trend Intelligence</span>
+            </div>
+            <h1 class="home-header">
+                Stories, Trends <span style="font-style: italic; opacity: 0.7;">&</span> Deep Ideas
+            </h1>
+            <p class="home-sub">
+                Explore real-time stories curated from global trend wires, technology developments, economic perspectives, and thoughtful essays.
+            </p>
+
+            <!-- Search Bar -->
+            <div class="search-wrapper">
+                <form action="/" method="GET" class="search-form" role="search">
+                    <% if (currentCategory) { %>
+                        <input type="hidden" name="category" value="<%= currentCategory %>">
+                    <% } %>
+                    <% if (currentSort && currentSort !== 'newest') { %>
+                        <input type="hidden" name="sort" value="<%= currentSort %>">
+                    <% } %>
+                    <input 
+                        type="text" 
+                        name="search" 
+                        class="search-input" 
+                        placeholder="Search stories, trending topics, keywords..." 
+                        value="<%= currentSearch %>"
+                        aria-label="Search articles"
+                    >
+                    <button type="submit" class="btn-search">Search</button>
+                </form>
+                <% if (currentSearch) { %>
+                    <div style="margin-top: 12px; text-align: center;">
+                        <a href="/?category=<%= encodeURIComponent(currentCategory) %>&sort=<%= encodeURIComponent(currentSort) %>" style="color: var(--muted); font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 4px;">
+                            ✕ Clear "<%= currentSearch %>"
+                        </a>
+                    </div>
+                <% } %>
+            </div>
+        </header>
+
+        <!-- Feed Controls: Category Filter Tabs & Sort Dropdown -->
+        <div class="feed-controls">
+            <div class="category-pills" role="tablist">
+                <% categories.forEach(cat => { %>
+                    <% 
+                        const isActive = (currentCategory === cat.id) || (!currentCategory && cat.id === '');
+                        const catUrl = `/?category=${encodeURIComponent(cat.id)}${currentSort ? '&sort=' + encodeURIComponent(currentSort) : ''}${currentSearch ? '&search=' + encodeURIComponent(currentSearch) : ''}`;
+                    %>
+                    <a href="<%= catUrl %>" class="category-pill <%= isActive ? 'active' : '' %>" role="tab" aria-selected="<%= isActive %>">
+                        <%= cat.label %>
                     </a>
-                </div>
-            <% } %>
+                <% }) %>
+            </div>
+
+            <div class="sort-select-wrapper">
+                <label for="sortSelect">Sort by:</label>
+                <select id="sortSelect" class="sort-select" onchange="changeSort(this.value)">
+                    <option value="newest" <%= currentSort === 'newest' ? 'selected' : '' %>>⚡ Newest</option>
+                    <option value="trending" <%= currentSort === 'trending' ? 'selected' : '' %>>🔥 Trending</option>
+                    <option value="views" <%= currentSort === 'views' ? 'selected' : '' %>>👁️ Most Viewed</option>
+                    <option value="likes" <%= currentSort === 'likes' ? 'selected' : '' %>>👏 Most Liked</option>
+                </select>
+            </div>
         </div>
 
-        <div class="blog-grid">
+        <!-- Blog Grid Container -->
+        <div class="blog-grid" id="blog-grid">
             <% if (blogs && blogs.length > 0) { %>
                 <% blogs.forEach(blog => { %>
                     <article>
@@ -333,36 +587,62 @@
                                     width="480"
                                     height="270"
                                 >
+                                <span class="card-badge-overlay"><%= blog.category || 'Editorial' %></span>
                             </div>
                             
                             <div class="blog-card-body">
-                                <div class="card-category"><%= blog.category || 'Editorial' %></div>
+                                <div class="card-meta-row">
+                                    <span><%= blog.createdBy?.fullName || 'Blogify Editorial' %></span>
+                                    <span><%= timeAgo(blog.createdAt) %> &bull; <%= blog.readTimeMinutes || 3 %> min</span>
+                                </div>
+
                                 <h2 class="blog-card-title"><%= blog.title %></h2>
+
+                                <p class="card-excerpt">
+                                    <%= blog.body ? blog.body.replace(/[#*`_>\[\]]/g, '').slice(0, 140) + '...' : '' %>
+                                </p>
+
                                 <div class="card-footer">
-                                    <span>Read Article</span>
-                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                    <div class="card-stats">
+                                        <span>👁️ <%= blog.views || 0 %></span>
+                                        <span>👏 <%= blog.likes || 0 %></span>
+                                    </div>
+                                    <span class="read-link-arrow">
+                                        Read Story
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                    </span>
                                 </div>
                             </div>
                         </a>
                     </article>
                 <% }) %>
             <% } else { %>
-                <div style="grid-column: 1/-1; text-align: center; padding: 100px 0;">
-                    <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.8rem; margin: 0 0 8px 0;">No stories found</h3>
-                    <p class="text-muted" style="margin: 0; color: #666;">Try another keyword or <a href="/" style="color: var(--accent-color); font-weight: 600;">view all posts</a>.</p>
+                <div style="grid-column: 1/-1; text-align: center; padding: 80px 0;">
+                    <h3 style="font-family: 'DM Serif Display', serif; font-size: 1.8rem; margin: 0 0 10px 0;">No stories found</h3>
+                    <p class="text-muted" style="margin: 0; color: var(--muted);">Try another category, adjust your search, or <a href="/" style="color: var(--accent); font-weight: 600;">view all stories</a>.</p>
                 </div>
             <% } %>
         </div>
 
+        <!-- Infinite Scroll Sentinel & Loader -->
+        <div id="scroll-sentinel">
+            <div class="spinner-loader" id="scroll-spinner"></div>
+            <div class="feed-end-message" id="feed-end-msg">✨ You've reached the end of the feed</div>
+        </div>
+
+        <!-- Classical Pagination Controls Fallback / Static SEO Navigation -->
         <% if (locals.totalPages && totalPages > 1) { %>
             <% 
                 const current = parseInt(currentPage) || 1;
-                const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+                const searchParam = currentSearch ? `&search=${encodeURIComponent(currentSearch)}` : '';
+                const catParam = currentCategory ? `&category=${encodeURIComponent(currentCategory)}` : '';
+                const sortParam = currentSort ? `&sort=${encodeURIComponent(currentSort)}` : '';
+                const queryParams = `${catParam}${sortParam}${searchParam}`;
             %>
-            <nav class="pagination-container" aria-label="Page navigation">
+            <nav class="pagination-container" id="pagination-nav" aria-label="Page navigation">
                 
                 <% if (current > 1) { %>
-                    <a href="?page=<%= current - 1 %><%= searchParam %>" class="pagination-link" aria-label="Previous page">
+                    <a href="?page=<%= current - 1 %><%= queryParams %>" class="pagination-link" aria-label="Previous page">
                         <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
                     </a>
                 <% } else { %>
@@ -384,25 +664,25 @@
                 %>
 
                 <% if (startPage > 1) { %>
-                    <a href="?page=1<%= searchParam %>" class="pagination-link <%= current === 1 ? 'active' : '' %>">1</a>
+                    <a href="?page=1<%= queryParams %>" class="pagination-link <%= current === 1 ? 'active' : '' %>">1</a>
                     <% if (startPage > 2) { %>
                         <span class="pagination-ellipsis">&bull;&bull;&bull;</span>
                     <% } %>
                 <% } %>
 
                 <% for (let i = startPage; i <= endPage; i++) { %>
-                    <a href="?page=<%= i %><%= searchParam %>" class="pagination-link <%= current === i ? 'active' : '' %>"><%= i %></a>
+                    <a href="?page=<%= i %><%= queryParams %>" class="pagination-link <%= current === i ? 'active' : '' %>"><%= i %></a>
                 <% } %>
 
                 <% if (endPage < totalPages) { %>
                     <% if (endPage < totalPages - 1) { %>
                         <span class="pagination-ellipsis">&bull;&bull;&bull;</span>
                     <% } %>
-                    <a href="?page=<%= totalPages %><%= searchParam %>" class="pagination-link <%= current === totalPages ? 'active' : '' %>"><%= totalPages %></a>
+                    <a href="?page=<%= totalPages %><%= queryParams %>" class="pagination-link <%= current === totalPages ? 'active' : '' %>"><%= totalPages %></a>
                 <% } %>
 
                 <% if (current < totalPages) { %>
-                    <a href="?page=<%= current + 1 %><%= searchParam %>" class="pagination-link" aria-label="Next page">
+                    <a href="?page=<%= current + 1 %><%= queryParams %>" class="pagination-link" aria-label="Next page">
                         <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
                     </a>
                 <% } else { %>
@@ -416,5 +696,130 @@
     </main>
 
     <%- include('./partials/script')%>
+
+    <!-- Infinite Scroll Observer Engine -->
+    <script>
+        function changeSort(sortVal) {
+            const url = new URL(window.location.href);
+            url.searchParams.set('sort', sortVal);
+            url.searchParams.set('page', '1');
+            window.location.href = url.toString();
+        }
+
+        (function() {
+            let currentPage = parseInt('<%= locals.currentPage || 1 %>');
+            const totalPages = parseInt('<%= locals.totalPages || 1 %>');
+            const category = '<%= currentCategory %>';
+            const sort = '<%= currentSort %>';
+            const search = '<%= currentSearch %>';
+
+            let isLoading = false;
+            let hasMore = currentPage < totalPages;
+
+            const grid = document.getElementById('blog-grid');
+            const sentinel = document.getElementById('scroll-sentinel');
+            const spinner = document.getElementById('scroll-spinner');
+            const endMsg = document.getElementById('feed-end-msg');
+            const paginationNav = document.getElementById('pagination-nav');
+
+            if (paginationNav) {
+                // Hide static pagination when infinite scroll is supported
+                paginationNav.style.display = 'none';
+            }
+
+            function renderCard(blog) {
+                const cover = blog.coverImageURL || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=480&h=270&q=70';
+                const cat = blog.category || 'Editorial';
+                const author = (blog.createdBy && blog.createdBy.fullName) ? blog.createdBy.fullName : 'Blogify Editorial';
+                const readMin = blog.readTimeMinutes || 3;
+                const views = blog.views || 0;
+                const likes = blog.likes || 0;
+                const cleanBody = (blog.body || '').replace(/[#*`_>\[\]]/g, '').slice(0, 140) + '...';
+
+                const article = document.createElement('article');
+                article.innerHTML = `
+                    <a href="/blog/${blog._id}" class="blog-card">
+                        <div class="card-img-wrapper">
+                            <img src="${cover}" alt="${blog.title}" loading="lazy" width="480" height="270">
+                            <span class="card-badge-overlay">${cat}</span>
+                        </div>
+                        <div class="blog-card-body">
+                            <div class="card-meta-row">
+                                <span>${author}</span>
+                                <span>just now &bull; ${readMin} min</span>
+                            </div>
+                            <h2 class="blog-card-title">${blog.title}</h2>
+                            <p class="card-excerpt">${cleanBody}</p>
+                            <div class="card-footer">
+                                <div class="card-stats">
+                                    <span>👁️ ${views}</span>
+                                    <span>👏 ${likes}</span>
+                                </div>
+                                <span class="read-link-arrow">
+                                    Read Story
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+                                </span>
+                            </div>
+                        </div>
+                    </a>
+                `;
+                return article;
+            }
+
+            async function loadMoreFeed() {
+                if (isLoading || !hasMore) return;
+                isLoading = true;
+                spinner.style.display = 'block';
+
+                try {
+                    const nextPage = currentPage + 1;
+                    const params = new URLSearchParams({
+                        page: nextPage,
+                        category: category,
+                        sort: sort,
+                        search: search
+                    });
+
+                    const res = await fetch(`/api/feed?${params.toString()}`);
+                    const data = await res.json();
+
+                    if (data.success && data.blogs && data.blogs.length > 0) {
+                        data.blogs.forEach(blog => {
+                            grid.appendChild(renderCard(blog));
+                        });
+
+                        currentPage = data.currentPage;
+                        hasMore = data.hasMore;
+
+                        if (!hasMore) {
+                            endMsg.style.display = 'block';
+                            if (observer) observer.disconnect();
+                        }
+                    } else {
+                        hasMore = false;
+                        endMsg.style.display = 'block';
+                        if (observer) observer.disconnect();
+                    }
+                } catch (err) {
+                    console.error('Infinite scroll error:', err);
+                } finally {
+                    isLoading = false;
+                    spinner.style.display = 'none';
+                }
+            }
+
+            let observer;
+            if ('IntersectionObserver' in window && sentinel && hasMore) {
+                observer = new IntersectionObserver((entries) => {
+                    if (entries[0].isIntersecting) {
+                        loadMoreFeed();
+                    }
+                }, { rootMargin: '250px' });
+                observer.observe(sentinel);
+            } else if (!hasMore && totalPages > 0) {
+                endMsg.style.display = 'block';
+            }
+        })();
+    </script>
 </body>
 </html>

@@ -104,7 +104,7 @@
           "@type": "ListItem",
           "position": 2,
           "name": "<%= blog.category || 'Editorial' %>",
-          "item": "https://blogify-for-stories.vercel.app/?search=<%= encodeURIComponent(blog.category || 'Editorial') %>"
+          "item": "https://blogify-for-stories.vercel.app/?category=<%= encodeURIComponent(blog.category || 'Editorial') %>"
         },
         {
           "@type": "ListItem",
@@ -115,1246 +115,522 @@
       ]
     }
     </script>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-        <style>
-            :root {
-                --bg: #fdfcfb;
-                --surface: #ffffff;
-                --ink: #1a1a1a;
-                --border: #eceae5;
-                --radius: 16px;
-                --nav-height: 75px;
-            }
-
-            body {
-                font-family: 'Inter', sans-serif;
-                background: var(--bg);
-                color: var(--ink);
-                margin: 0;
-                line-height: 1.7;
-            }
-
-            .page-grid {
-                display: grid;
-                grid-template-columns: 1fr 360px;
-                gap: 50px;
-                max-width: 1200px;
-                margin: calc(var(--nav-height) + 40px) auto 60px;
-                padding: 0 24px;
-                align-items: start;
-                box-sizing: border-box;
-            }
-
-            .sidebar-col {
-                position: sticky;
-                top: calc(var(--nav-height) + 20px);
-                z-index: 10;
-                max-height: calc(100vh - var(--nav-height) - 40px);
-                display: flex;
-                flex-direction: column;
-            }
-
-            .related-panel {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                padding: 22px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-                display: flex;
-                flex-direction: column;
-                max-height: calc(100vh - var(--nav-height) - 40px);
-                overflow: hidden;
-                box-sizing: border-box;
-            }
-
-            .related-title {
-                margin: 0 0 16px 0;
-                font-family: 'Playfair Display', serif;
-                font-size: 1.25rem;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                color: var(--ink);
-                border-bottom: 1px solid var(--border);
-                padding-bottom: 12px;
-                flex-shrink: 0;
-            }
-
-            .related-list {
-                overflow-y: auto;
-                flex: 1;
-                display: flex;
-                flex-direction: column;
-                gap: 16px;
-                padding-right: 4px;
-                scrollbar-width: thin;
-                scrollbar-color: #d0cec8 transparent;
-            }
-
-            .related-list::-webkit-scrollbar { width: 4px; }
-            .related-list::-webkit-scrollbar-track { background: transparent; }
-            .related-list::-webkit-scrollbar-thumb { background: #d0cec8; border-radius: 4px; }
-
-            .related-item {
-                display: flex;
-                gap: 12px;
-                text-decoration: none;
-                color: inherit;
-                padding: 8px;
-                border-radius: 10px;
-                transition: background 0.2s ease, transform 0.2s ease;
-                border: 1px solid transparent;
-            }
-
-            .related-item:hover {
-                background: #fbf9f5;
-                border-color: var(--border);
-                transform: translateY(-2px);
-            }
-
-            .related-img-wrap {
-                width: 75px;
-                height: 55px;
-                border-radius: 8px;
-                overflow: hidden;
-                flex-shrink: 0;
-                background: #eee;
-            }
-
-            .related-img-wrap img {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                transition: transform 0.3s ease;
-            }
-
-            .related-item:hover .related-img-wrap img {
-                transform: scale(1.05);
-            }
-
-            .related-info {
-                flex: 1;
-                min-width: 0;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-
-            .related-meta {
-                font-size: 0.72rem;
-                color: #888;
-                font-weight: 600;
-                text-transform: uppercase;
-                margin-bottom: 3px;
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
-
-            .related-item-title {
-                margin: 0;
-                font-size: 0.85rem;
-                font-weight: 600;
-                line-height: 1.35;
-                color: var(--ink);
-                display: -webkit-box;
-                -webkit-line-clamp: 2;
-                -webkit-box-orient: vertical;
-                overflow: hidden;
-            }
-
-            .discussion-section {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                padding: 32px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-                margin-bottom: 60px;
-            }
-
-            .comment-panel {
-                background: transparent;
-                padding: 0;
-                display: flex;
-                flex-direction: column;
-            }
-
-            .comment-panel > h3 {
-                flex-shrink: 0;
-            }
-
-            .comment-panel > form {
-                flex-shrink: 0;
-            }
-
-            .comment-list {
-                overflow-y: auto;
-                flex: 1;
-                padding-right: 6px;
-                scrollbar-width: thin;
-                scrollbar-color: #d0cec8 transparent;
-            }
-
-            .comment-list::-webkit-scrollbar { width: 4px; }
-            .comment-list::-webkit-scrollbar-track { background: transparent; }
-            .comment-list::-webkit-scrollbar-thumb { background: #d0cec8; border-radius: 4px; }
-            .comment-list::-webkit-scrollbar-thumb:hover { background: #b0aea8; }
-
-            .comment-item {
-                display: flex;
-                gap: 12px;
-                padding: 18px 0;
-                border-top: 1px solid var(--border);
-                position: relative;
-            }
-
-            .dots-menu {
-                position: absolute;
-                right: 0;
-                top: 18px;
-                cursor: pointer;
-                padding: 5px;
-                border-radius: 50%;
-                transition: 0.2s;
-                color: #888;
-            }
-
-            .dots-menu:hover { background: #f0ede8; color: #000; }
-
-            .dropdown-content {
-                display: none;
-                position: absolute;
-                right: 0;
-                top: 40px;
-                background: white;
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-                z-index: 100;
-                min-width: 140px;
-                overflow: hidden;
-            }
-
-            .dropdown-content button {
-                display: block;
-                padding: 10px 15px;
-                text-decoration: none;
-                color: var(--ink);
-                font-size: 0.85rem;
-                border: none;
-                background: none;
-                width: 100%;
-                text-align: left;
-                cursor: pointer;
-            }
-
-            .dropdown-content button:hover { background: #f5f3ee; }
-            .dropdown-content .delete-btn { color: #d93025; }
-            .dropdown-content .report-btn { color: var(--ink); }
-            .show { display: block; }
-
-            .edit-area,
-            .reply-area {
-                display: none;
-                width: 100%;
-                margin-top: 10px;
-            }
-
-            .edit-textarea,
-            .reply-textarea {
-                width: 100%;
-                padding: 10px;
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-family: inherit;
-                font-size: 0.9rem;
-                resize: none;
-                box-sizing: border-box;
-                background: #fafaf9;
-                color: var(--ink);
-            }
-
-            .edit-buttons,
-            .reply-buttons {
-                display: flex;
-                justify-content: flex-end;
-                gap: 10px;
-                margin-top: 8px;
-            }
-
-            .btn-cancel {
-                background: none;
-                border: none;
-                font-weight: 600;
-                cursor: pointer;
-                color: #666;
-                font-size: 0.85rem;
-            }
-
-            .btn-save,
-            .btn-reply-submit {
-                background: var(--ink);
-                color: white;
-                border: none;
-                padding: 6px 15px;
-                border-radius: 20px;
-                font-weight: 600;
-                cursor: pointer;
-                font-size: 0.85rem;
-            }
-
-            .btn-reply-trigger {
-                background: none;
-                border: none;
-                color: var(--ink);
-                font-size: 0.8rem;
-                font-weight: 600;
-                cursor: pointer;
-                padding: 0;
-                margin-top: 5px;
-                text-decoration: underline;
-                text-underline-offset: 2px;
-            }
-
-            .btn-toggle-replies {
-                background: none;
-                border: none;
-                color: #888;
-                font-size: 0.78rem;
-                font-weight: 600;
-                cursor: pointer;
-                padding: 0;
-                margin-top: 6px;
-                display: inline-flex;
-                align-items: center;
-                gap: 4px;
-                transition: color 0.15s;
-            }
-
-            .btn-toggle-replies:hover { color: var(--ink); }
-
-            .btn-toggle-replies .chevron {
-                display: inline-block;
-                transition: transform 0.2s;
-                font-style: normal;
-            }
-
-            .btn-toggle-replies.open .chevron { transform: rotate(180deg); }
-
-            .replies-list {
-                margin-top: 10px;
-                padding-left: 20px;
-                border-left: 2px solid var(--border);
-                overflow: hidden;
-                transition: max-height 0.25s ease, opacity 0.2s ease;
-            }
-
-            .replies-list.collapsed {
-                max-height: 0 !important;
-                opacity: 0;
-                margin-top: 0;
-            }
-
-            .reply-item {
-                display: flex;
-                gap: 10px;
-                padding: 12px 0;
-                font-size: 0.88rem;
-                position: relative;
-                border-top: 1px dashed var(--border);
-            }
-
-            .reply-item:first-child { border-top: none; }
-
-            .mention { color: var(--ink); font-weight: 600; background: #fafaf9; padding: 1px 4px; border-radius: 4px; }
-
-            .blog-title {
-                font-family: 'Playfair Display', serif;
-                font-size: clamp(2.2rem, 5vw, 3.5rem);
-                line-height: 1.15;
-                margin: 10px 0 25px;
-            }
-
-            .cover-wrap {
-                border-radius: var(--radius);
-                overflow: hidden;
-                aspect-ratio: 16/9;
-                margin: 30px 0 40px;
-                box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
-            }
-
-            .cover-wrap img { width: 100%; height: 100%; object-fit: cover; }
-
-            .blog-content { font-size: 1.2rem; color: #2c2c2c; word-wrap: break-word; }
-
-            textarea {
-                width: 100%;
-                padding: 14px;
-                border: 1px solid var(--border);
-                border-radius: 12px;
-                resize: none;
-                background: #fafaf9;
-                font-family: inherit;
-                box-sizing: border-box;
-                color: var(--ink);
-            }
-
-            .btn-submit {
-                width: 100%;
-                padding: 12px;
-                background: var(--ink);
-                color: #fff;
-                border: none;
-                border-radius: 10px;
-                font-weight: 600;
-                cursor: pointer;
-                margin-top: 10px;
-            }
-
-            .avatar {
-                width: 36px;
-                height: 36px;
-                border-radius: 50%;
-                object-fit: cover;
-                flex-shrink: 0;
-            }
-
-            .comment-name { font-weight: 600; font-size: 0.88rem; }
-            .comment-time { font-size: 0.75rem; color: #888; margin-left: 6px; }
-
-            /* ── Emoji picker ── */
-            .textarea-wrap { position: relative; }
-
-            .emoji-btn {
-                position: absolute;
-                bottom: 8px;
-                right: 10px;
-                background: none;
-                border: none;
-                cursor: pointer;
-                padding: 4px;
-                border-radius: 6px;
-                color: #aaa;
-                line-height: 0;
-                transition: color 0.15s, background 0.15s;
-                z-index: 2;
-            }
-
-            .emoji-btn svg { display: block; width: 18px; height: 18px; }
-            .emoji-btn:hover { color: #555; background: #f0ede8; }
-
-            .emoji-picker-popup {
-                display: none;
-                position: fixed;
-                width: 300px;
-                background: #fff;
-                border: 1px solid var(--border);
-                border-radius: 12px;
-                box-shadow: 0 8px 28px rgba(0,0,0,0.15);
-                z-index: 9999;
-                overflow: hidden;
-                user-select: none;
-            }
-
-            .emoji-picker-popup.open { display: block; }
-
-            .emoji-tabs {
-                display: flex;
-                gap: 2px;
-                padding: 8px 8px 0;
-                border-bottom: 1px solid var(--border);
-                overflow-x: auto;
-                scrollbar-width: none;
-            }
-
-            .emoji-tabs::-webkit-scrollbar { display: none; }
-
-            .emoji-tab {
-                background: none;
-                border: none;
-                cursor: pointer;
-                font-size: 1.1rem;
-                padding: 5px 7px;
-                border-radius: 6px 6px 0 0;
-                border-bottom: 2px solid transparent;
-                flex-shrink: 0;
-                transition: background 0.12s;
-            }
-
-            .emoji-tab:hover { background: #f5f3ee; }
-            .emoji-tab.active { border-bottom-color: var(--ink); background: #f5f3ee; }
-
-            .emoji-search {
-                padding: 8px 10px;
-                border-bottom: 1px solid var(--border);
-            }
-
-            .emoji-search input {
-                width: 100%;
-                padding: 6px 10px;
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                font-size: 0.82rem;
-                font-family: inherit;
-                background: #fafaf9;
-                box-sizing: border-box;
-                outline: none;
-            }
-
-            .emoji-grid {
-                display: grid;
-                grid-template-columns: repeat(8, 1fr);
-                gap: 2px;
-                padding: 8px;
-                max-height: 200px;
-                overflow-y: auto;
-                scrollbar-width: thin;
-                scrollbar-color: #d0cec8 transparent;
-            }
-
-            .emoji-grid::-webkit-scrollbar { width: 4px; }
-            .emoji-grid::-webkit-scrollbar-thumb { background: #d0cec8; border-radius: 4px; }
-
-            .emoji-cell {
-                font-size: 1.3rem;
-                text-align: center;
-                padding: 4px 2px;
-                border-radius: 6px;
-                cursor: pointer;
-                transition: background 0.1s;
-                line-height: 1.4;
-            }
-
-            .emoji-cell:hover { background: #f0ede8; }
-
-            .textarea-wrap textarea { padding-right: 36px; }
-
-            /* ── Theme Matching Report Modal ── */
-            .report-overlay {
-                display: none;
-                position: fixed;
-                inset: 0;
-                background: rgba(26, 26, 26, 0.4);
-                z-index: 10000;
-                align-items: center;
-                justify-content: center;
-                backdrop-filter: blur(4px);
-            }
-
-            .report-overlay.open {
-                display: flex;
-            }
-
-            .report-modal {
-                background: var(--surface);
-                border: 1px solid var(--border);
-                border-radius: var(--radius);
-                width: 100%;
-                max-width: 460px;
-                margin: 16px;
-                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
-                overflow: hidden;
-                animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-                box-sizing: border-box;
-            }
-
-            @keyframes modalIn {
-                from { opacity: 0; transform: translateY(15px) scale(0.98); }
-                to   { opacity: 1; transform: translateY(0) scale(1); }
-            }
-
-            .report-modal-header {
-                padding: 24px 24px 16px;
-                border-bottom: 1px solid var(--border);
-                display: flex;
-                align-items: flex-start;
-                justify-content: space-between;
-                box-sizing: border-box;
-            }
-
-            .report-modal-header h2 {
-                margin: 0;
-                font-family: 'Playfair Display', serif;
-                font-size: 1.4rem;
-                color: var(--ink);
-                font-weight: 700;
-            }
-
-            .report-modal-header p {
-                margin: 4px 0 0;
-                font-size: 0.85rem;
-                color: #666;
-            }
-
-            .report-close-btn {
-                background: none;
-                border: none;
-                cursor: pointer;
-                color: #888;
-                padding: 6px;
-                border-radius: 50%;
-                line-height: 0;
-                transition: background 0.15s, color 0.15s;
-                flex-shrink: 0;
-            }
-
-            .report-close-btn:hover { background: #f0ede8; color: var(--ink); }
-
-            .report-modal-body {
-                padding: 24px;
-                box-sizing: border-box;
-            }
-
-            .report-step { display: none; }
-            .report-step.active { display: block; }
-
-            .report-reason-list {
-                list-style: none;
-                padding: 0;
-                margin: 0;
-                display: flex;
-                flex-direction: column;
-                gap: 8px;
-            }
-
-            .report-reason-list li {
-                border: 1px solid var(--border);
-                border-radius: 10px;
-                background: var(--surface);
-                transition: border-color 0.15s, background 0.15s;
-            }
-
-            .report-reason-list li:hover { border-color: #b0aea8; background: #fafaf9; }
-
-            .report-reason-list li label {
-                display: flex;
-                align-items: center;
-                gap: 14px;
-                padding: 14px;
-                cursor: pointer;
-                width: 100%;
-                box-sizing: border-box;
-            }
-
-            .report-reason-list li input[type="radio"] {
-                width: 18px;
-                height: 18px;
-                accent-color: var(--ink);
-                flex-shrink: 0;
-                cursor: pointer;
-                margin: 0;
-            }
-
-            .report-reason-list li .reason-text {
-                flex: 1;
-            }
-
-            .report-reason-list li .reason-title {
-                font-size: 0.9rem;
-                font-weight: 600;
-                color: var(--ink);
-                display: block;
-            }
-
-            .report-reason-list li .reason-desc {
-                font-size: 0.78rem;
-                color: #666;
-                display: block;
-                margin-top: 2px;
-                line-height: 1.4;
-            }
-
-            .report-reason-list li:has(input:checked) {
-                border-color: var(--ink);
-                background: #f5f3ee;
-            }
-
-            .report-details-label {
-                font-size: 0.9rem;
-                font-weight: 600;
-                color: var(--ink);
-                display: block;
-                margin-bottom: 4px;
-            }
-
-            .report-details-sub {
-                font-size: 0.8rem;
-                color: #666;
-                display: block;
-                margin-bottom: 14px;
-                line-height: 1.4;
-            }
-
-            .report-details-textarea {
-                width: 100%;
-                padding: 14px;
-                border: 1px solid var(--border);
-                border-radius: 10px;
-                font-family: inherit;
-                font-size: 0.9rem;
-                resize: none;
-                box-sizing: border-box;
-                background: #fafaf9;
-                color: var(--ink);
-                transition: border-color 0.15s;
-                outline: none;
-            }
-
-            .report-details-textarea:focus { border-color: var(--ink); background: var(--surface); }
-
-            .report-selected-reason {
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                padding: 12px 14px;
-                background: #f5f3ee;
-                border: 1px solid var(--border);
-                border-radius: 8px;
-                margin-bottom: 20px;
-            }
-
-            .report-selected-reason svg {
-                color: var(--ink);
-                flex-shrink: 0;
-            }
-
-            .report-selected-reason span {
-                font-size: 0.88rem;
-                font-weight: 600;
-                color: var(--ink);
-            }
-
-            .report-selected-reason .back-link {
-                margin-left: auto;
-                background: none;
-                border: none;
-                font-size: 0.8rem;
-                color: #666;
-                cursor: pointer;
-                font-weight: 600;
-                padding: 0;
-                text-decoration: underline;
-            }
-            .report-selected-reason .back-link:hover { color: var(--ink); }
-
-            .report-modal-footer {
-                padding: 16px 24px 24px;
-                border-top: 1px solid var(--border);
-                display: flex;
-                justify-content: flex-end;
-                gap: 12px;
-                box-sizing: border-box;
-            }
-
-            .report-btn-cancel {
-                background: none;
-                border: 1px solid var(--border);
-                padding: 10px 20px;
-                border-radius: 30px;
-                font-size: 0.88rem;
-                font-weight: 600;
-                cursor: pointer;
-                color: #555;
-                transition: background 0.15s, color 0.15s;
-            }
-
-            .report-btn-cancel:hover { background: #f5f3ee; color: var(--ink); }
-
-            .report-btn-next,
-            .report-btn-submit {
-                background: var(--ink);
-                color: #fff;
-                border: none;
-                padding: 10px 24px;
-                border-radius: 30px;
-                font-size: 0.88rem;
-                font-weight: 600;
-                cursor: pointer;
-                transition: opacity 0.15s;
-            }
-
-            .report-btn-next:disabled,
-            .report-btn-submit:disabled {
-                opacity: 0.3;
-                cursor: not-allowed;
-            }
-
-            .report-btn-next:not(:disabled):hover,
-            .report-btn-submit:not(:disabled):hover { opacity: 0.85; }
-
-            .report-success-icon {
-                width: 56px;
-                height: 56px;
-                background: #f5f3ee;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0 auto 18px;
-            }
-
-            .report-success-icon svg {
-                width: 26px;
-                height: 26px;
-                color: var(--ink);
-            }
-
-            .report-success-body {
-                text-align: center;
-                padding: 12px 0 6px;
-            }
-
-            .report-success-body h3 {
-                margin: 0 0 10px;
-                font-family: 'Playfair Display', serif;
-                font-size: 1.3rem;
-                font-weight: 700;
-            }
-
-            .report-success-body p {
-                margin: 0;
-                font-size: 0.9rem;
-                color: #555;
-                line-height: 1.6;
-            }
-
-            .report-char-count {
-                font-size: 0.78rem;
-                color: #888;
-                text-align: right;
-                margin-top: 6px;
-            }
-
-            /* Blog Report Button Styling */
-            .blog-report-btn {
-                background: none;
-                border: 1px solid var(--border);
-                color: #666;
-                font-size: 0.8rem;
-                font-weight: 600;
-                padding: 6px 14px;
-                border-radius: 20px;
-                cursor: pointer;
-                transition: border-color 0.15s, color 0.15s, background 0.15s;
-                display: inline-flex;
-                align-items: center;
-                gap: 6px;
-            }
-
-            .blog-report-btn:hover { border-color: var(--ink); color: var(--ink); background: #f5f3ee; }
-
-            /* ── Responsive Architecture Breakpoints ── */
-            @media (max-width: 1024px) {
-                .page-grid { 
-                    grid-template-columns: 1fr; 
-                    gap: 40px;
-                    margin-top: calc(var(--nav-height) + 24px);
-                }
-                .sidebar-col {
-                    position: static;
-                    height: auto;
-                }
-                .comment-panel {
-                    height: auto;
-                    overflow: visible;
-                    padding: 20px;
-                }
-                .comment-list {
-                    overflow-y: visible;
-                    max-height: none;
-                    padding-right: 0;
-                }
-            }
-
-            @media (max-width: 640px) {
-                .page-grid {
-                    padding: 0 16px;
-                }
-                .cover-wrap {
-                    margin: 20px 0 25px;
-                    border-radius: 12px;
-                }
-                .blog-content {
-                    font-size: 1.1rem;
-                }
-                .comment-panel {
-                    padding: 16px;
-                    border-radius: 12px;
-                }
-                .replies-list {
-                    padding-left: 12px;
-                }
-
-                /* Mobile Bottom Sheet Layout for Report Modal */
-                .report-overlay {
-                    align-items: flex-end;
-                }
-
-                .report-modal {
-                    position: fixed;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    margin: 0;
-                    max-width: 100%;
-                    border-radius: 20px 20px 0 0;
-                    max-height: 88vh;
-                    display: flex;
-                    flex-direction: column;
-                    overflow: hidden;
-                    border-bottom: none;
-                }
-
-                .report-modal-body {
-                    padding: 16px 20px 20px;
-                    overflow-y: auto;
-                    flex: 1;
-                    scrollbar-width: thin;
-                }
-
-                .report-modal-header {
-                    padding: 20px 20px 14px;
-                    flex-shrink: 0;
-                }
-
-                .report-modal-footer {
-                    padding: 14px 20px 32px; /* Extra spacing for mobile navigation indicators */
-                    flex-shrink: 0;
-                    background: var(--surface);
-                }
-
-                .report-reason-list li label {
-                    padding: 12px;
-                    gap: 10px;
-                }
-
-                .report-reason-list li .reason-title { font-size: 0.88rem; }
-                .report-reason-list li .reason-desc { font-size: 0.75rem; }
-                .report-modal-header h2 { font-size: 1.25rem; }
-
-                /* Drag handle element style */
-                .report-modal::before {
-                    content: '';
-                    display: block;
-                    width: 40px;
-                    height: 5px;
-                    background: var(--border);
-                    border-radius: 4px;
-                    margin: 10px auto 0;
-                    flex-shrink: 0;
-                }
-            }
-
-            @media (min-width: 641px) and (max-width: 900px) {
-                .report-modal {
-                    max-width: 420px;
-                    margin: 16px auto;
-                }
-            }
-            @media (max-width: 640px) {
-    .report-overlay {
-        align-items: flex-end;
-    }
-
-    .report-modal {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: 0;
-        max-width: 100%;
-        border-radius: 20px 20px 0 0;
-        /* Force a dynamic maximum height to fit cleanly on compact devices */
-        max-height: 85vh; 
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-        border-bottom: none;
-    }
-
-    /* Target the inner content steps to manage the inner flex scroll */
-    .report-step {
-        display: none;
-        flex-direction: column;
-        max-height: 85vh;
-    }
-    .report-step.active {
-        display: flex;
-    }
-
-    .report-modal-body {
-        padding: 16px 20px 20px;
-        /* Allow the list panel to take all available space and scroll */
-        overflow-y: auto; 
-        flex: 1;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .report-modal-header {
-        padding: 20px 20px 14px;
-        flex-shrink: 0;
-        border-bottom: 1px solid var(--border);
-    }
-
-    .report-modal-footer {
-        padding: 14px 20px 32px; 
-        flex-shrink: 0;
-        background: var(--surface);
-        border-top: 1px solid var(--border);
-    }
-}
-.report-step {
-    display: none;
-}
-.report-step.active {
-    display: block;
-}
-
-/* Ensure that when screen is small, flex engine kicks in */
-@media (max-width: 640px) {
-    .report-step.active {
-        display: flex;
-        flex-grow: 1;
-        overflow: hidden;
-    }
-}
-/* ── Updated & Hardened Report Modal Design System ── */
-.report-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(26, 26, 26, 0.5);
-    z-index: 10000;
-    align-items: center;
-    justify-content: center;
-    backdrop-filter: blur(4px);
-}
-
-.report-overlay.open {
-    display: flex;
-}
-
-.report-modal {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    width: 100%;
-    max-width: 480px;
-    margin: 16px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.08);
-    display: flex;
-    flex-direction: column;
-    max-height: 85vh; /* Prevents overflow clipping on smaller laptops/tablets */
-    overflow: hidden;
-    box-sizing: border-box;
-    animation: modalIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes modalIn {
-    from { opacity: 0; transform: translateY(15px) scale(0.98); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-/* Structural Engine for Multi-step flows */
-.report-step {
-    display: none;
-    flex-direction: column;
-    width: 100%;
-    max-height: inherit; /* Sync heights with parent card limits */
-    overflow: hidden;
-}
-
-.report-step.active {
-    display: flex;
-    flex: 1;
-}
-
-.report-modal-header {
-    padding: 24px 24px 16px;
-    border-bottom: 1px solid var(--border);
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    box-sizing: border-box;
-    flex-shrink: 0; /* Keeps header pinned */
-}
-
-.report-modal-header h2 {
-    margin: 0;
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    color: var(--ink);
-    font-weight: 700;
-}
-
-.report-modal-header p {
-    margin: 4px 0 0;
-    font-size: 0.85rem;
-    color: #666;
-}
-
-.report-close-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: #888;
-    padding: 6px;
-    border-radius: 50%;
-    line-height: 0;
-    transition: background 0.15s, color 0.15s;
-    flex-shrink: 0;
-}
-
-.report-close-btn:hover { background: #f0ede8; color: var(--ink); }
-
-/* The core scrolling panel view setup */
-.report-modal-body {
-    padding: 24px;
-    box-sizing: border-box;
-    overflow-y: auto; /* Activates internal structural scrollbar rendering */
-    flex: 1; 
-    -webkit-overflow-scrolling: touch;
-}
-
-/* Custom scrollbar matching your minimal aesthetic */
-.report-modal-body::-webkit-scrollbar { width: 4px; }
-.report-modal-body::-webkit-scrollbar-track { background: transparent; }
-.report-modal-body::-webkit-scrollbar-thumb { background: #d0cec8; border-radius: 4px; }
-
-.report-reason-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.report-reason-list li {
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    background: var(--surface);
-    transition: border-color 0.15s, background 0.15s;
-}
-
-.report-reason-list li:hover { border-color: #b0aea8; background: #fafaf9; }
-
-.report-reason-list li label {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 14px;
-    cursor: pointer;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.report-reason-list li input[type="radio"] {
-    width: 18px;
-    height: 18px;
-    accent-color: var(--ink);
-    flex-shrink: 0;
-    margin: 0;
-    cursor: pointer;
-}
-
-.report-reason-list li .reason-text { flex: 1; }
-.report-reason-list li .reason-title { font-size: 0.9rem; font-weight: 600; color: var(--ink); display: block; }
-.report-reason-list li .reason-desc { font-size: 0.78rem; color: #666; display: block; margin-top: 2px; line-height: 1.4; }
-.report-reason-list li:has(input:checked) { border-color: var(--ink); background: #f5f3ee; }
-
-.report-details-label { font-size: 0.9rem; font-weight: 600; color: var(--ink); display: block; margin-bottom: 4px; }
-.report-details-sub { font-size: 0.8rem; color: #666; display: block; margin-bottom: 14px; line-height: 1.4; }
-.report-details-textarea { width: 100%; padding: 14px; border: 1px solid var(--border); border-radius: 10px; font-family: inherit; font-size: 0.9rem; resize: none; box-sizing: border-box; background: #fafaf9; color: var(--ink); transition: border-color 0.15s; outline: none; }
-.report-details-textarea:focus { border-color: var(--ink); background: var(--surface); }
-
-.report-selected-reason { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: #f5f3ee; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 20px; }
-.report-selected-reason svg { color: var(--ink); flex-shrink: 0; }
-.report-selected-reason span { font-size: 0.88rem; font-weight: 600; color: var(--ink); }
-.report-selected-reason .back-link { margin-left: auto; background: none; border: none; font-size: 0.8rem; color: #666; cursor: pointer; font-weight: 600; padding: 0; text-decoration: underline; }
-.report-selected-reason .back-link:hover { color: var(--ink); }
-
-.report-modal-footer {
-    padding: 16px 24px 24px;
-    border-top: 1px solid var(--border);
-    display: flex;
-    justify-content: flex-end;
-    gap: 12px;
-    box-sizing: border-box;
-    flex-shrink: 0; /* Keeps footer pinned */
-    background: var(--surface);
-}
-
-.report-btn-cancel { background: none; border: 1px solid var(--border); padding: 10px 20px; border-radius: 30px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: #555; transition: background 0.15s, color 0.15s; }
-.report-btn-cancel:hover { background: #f5f3ee; color: var(--ink); }
-.report-btn-next, .report-btn-submit { background: var(--ink); color: #fff; border: none; padding: 10px 24px; border-radius: 30px; font-size: 0.88rem; font-weight: 600; cursor: pointer; transition: opacity 0.15s; }
-.report-btn-next:disabled, .report-btn-submit:disabled { opacity: 0.3; cursor: not-allowed; }
-.report-btn-next:not(:disabled):hover, .report-btn-submit:not(:disabled):hover { opacity: 0.85; }
-
-.report-success-icon { width: 56px; height: 56px; background: #f5f3ee; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 18px; }
-.report-success-icon svg { width: 26px; height: 26px; color: var(--ink); }
-.report-success-body { text-align: center; padding: 12px 0 6px; }
-.report-success-body h3 { margin: 0 0 10px; font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 700; }
-.report-success-body p { margin: 0; font-size: 0.9rem; color: #555; line-height: 1.6; }
-.report-char-count { font-size: 0.78rem; color: #888; text-align: right; margin-top: 6px; }
-
-/* ── Mobile Architecture Override (Bottom Sheet) ── */
-@media (max-width: 640px) {
-    .report-overlay {
-        align-items: flex-end; /* Snaps card element down to screen base */
-    }
-
-    .report-modal {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        margin: 0;
-        max-width: 100%;
-        border-radius: 20px 20px 0 0;
-        max-height: 85vh; /* Hard constraints for mobile device heights */
-    }
-
-    .report-modal-body {
-        padding: 16px 20px 24px;
-    }
-
-    .report-modal-header {
-        padding: 16px 20px 14px;
-    }
-
-    .report-modal-footer {
-        padding: 14px 20px 36px; /* Smooth padding area boundary buffer for iOS devices */
-    }
-
-    /* Minimal Top Sheet Bar Accent Indicator */
-    .report-modal::before {
-        content: '';
-        display: block;
-        width: 40px;
-        height: 5px;
-        background: var(--border);
-        border-radius: 4px;
-        margin: 10px auto 0;
-        flex-shrink: 0;
-    }
-}
-.emoji-picker-popup {
-    display: none;
-    position: fixed;          /* was: fixed — keep this */
-    width: 300px;
-    background: #fff;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    box-shadow: 0 8px 28px rgba(0,0,0,0.15);
-    z-index: 9999;
-    overflow: hidden;
-    user-select: none;
-}
-        </style>
+    <style>
+        :root {
+            --radius: 16px;
+            --nav-height: 75px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--ink);
+            margin: 0;
+            line-height: 1.75;
+        }
+
+        /* Reading Progress Bar */
+        #reading-progress-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            z-index: 9999;
+            background: transparent;
+        }
+
+        #reading-progress-bar {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #2d3e50);
+            transition: width 0.08s ease-out;
+        }
+
+        .page-grid {
+            display: grid;
+            grid-template-columns: 1fr 360px;
+            gap: 50px;
+            max-width: 1200px;
+            margin: 30px auto 60px;
+            padding: 0 24px;
+            align-items: start;
+            box-sizing: border-box;
+        }
+
+        .article-main-col {
+            min-width: 0;
+        }
+
+        .article-header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .action-pills-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .reader-mode-btn, .clap-btn, .blog-report-btn {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--ink);
+            font-size: 0.82rem;
+            font-weight: 600;
+            padding: 6px 14px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+        }
+
+        .reader-mode-btn:hover, .clap-btn:hover, .blog-report-btn:hover {
+            border-color: var(--ink);
+            background: var(--surface-raised);
+            transform: translateY(-1px);
+        }
+
+        .clap-btn.active {
+            background: var(--accent-light);
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .blog-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2.2rem, 5vw, 3.4rem);
+            line-height: 1.2;
+            margin: 10px 0 20px;
+            color: var(--ink);
+            letter-spacing: -0.5px;
+        }
+
+        .cover-wrap {
+            border-radius: var(--radius);
+            overflow: hidden;
+            aspect-ratio: 16/9;
+            margin: 25px 0 35px;
+            box-shadow: var(--card-shadow);
+            background: var(--surface-raised);
+        }
+
+        .cover-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .blog-content {
+            font-size: 1.18rem;
+            color: var(--ink);
+            line-height: 1.85;
+            word-wrap: break-word;
+        }
+
+        .blog-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin: 24px 0;
+            box-shadow: var(--card-shadow);
+        }
+
+        .blog-content h2, .blog-content h3, .blog-content h4 {
+            font-family: 'DM Serif Display', serif;
+            color: var(--ink);
+            margin-top: 36px;
+            margin-bottom: 16px;
+            line-height: 1.3;
+        }
+
+        .blog-content blockquote {
+            border-left: 4px solid var(--accent);
+            padding: 12px 24px;
+            margin: 24px 0;
+            background: var(--surface-raised);
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            color: var(--ink-secondary);
+        }
+
+        .blog-content pre {
+            background: var(--surface-raised);
+            padding: 16px;
+            border-radius: 10px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+        }
+
+        .blog-content code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9em;
+            background: var(--surface-raised);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Sidebar & Related Panel */
+        .sidebar-col {
+            position: sticky;
+            top: 90px;
+            z-index: 10;
+        }
+
+        .related-panel {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .related-title {
+            margin: 0 0 16px 0;
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--ink);
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+
+        .related-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .related-item {
+            display: flex;
+            gap: 12px;
+            text-decoration: none;
+            color: inherit;
+            padding: 8px;
+            border-radius: 10px;
+            transition: all 0.2s ease;
+            border: 1px solid transparent;
+        }
+
+        .related-item:hover {
+            background: var(--surface-raised);
+            border-color: var(--border);
+            transform: translateY(-2px);
+        }
+
+        .related-img-wrap {
+            width: 80px;
+            height: 60px;
+            border-radius: 8px;
+            overflow: hidden;
+            flex-shrink: 0;
+            background: var(--surface-raised);
+        }
+
+        .related-img-wrap img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .related-info {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .related-meta {
+            font-size: 0.72rem;
+            color: var(--muted);
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 3px;
+        }
+
+        .related-item-title {
+            margin: 0;
+            font-size: 0.88rem;
+            font-weight: 600;
+            line-height: 1.35;
+            color: var(--ink);
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Discussion & Comments */
+        .discussion-section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 32px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 60px;
+        }
+
+        .comment-item {
+            display: flex;
+            gap: 12px;
+            padding: 18px 0;
+            border-top: 1px solid var(--border);
+            position: relative;
+        }
+
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+
+        .comment-name { font-weight: 600; font-size: 0.9rem; color: var(--ink); }
+        .comment-time { font-size: 0.75rem; color: var(--muted); margin-left: 6px; }
+
+        textarea {
+            width: 100%;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            resize: none;
+            background: var(--input-bg);
+            font-family: inherit;
+            box-sizing: border-box;
+            color: var(--ink);
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        textarea:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-submit:hover {
+            opacity: 0.9;
+        }
+
+        .dots-menu {
+            position: absolute;
+            right: 0;
+            top: 18px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            color: var(--muted);
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            right: 0;
+            top: 40px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            z-index: 100;
+            min-width: 140px;
+            overflow: hidden;
+        }
+
+        .dropdown-content button {
+            display: block;
+            padding: 10px 15px;
+            color: var(--ink);
+            font-size: 0.85rem;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown-content button:hover { background: var(--surface-raised); }
+        .dropdown-content .delete-btn { color: #d93025; }
+        .show { display: block; }
+
+        .edit-area, .reply-area { display: none; width: 100%; margin-top: 10px; }
+        .btn-cancel { background: none; border: none; font-weight: 600; cursor: pointer; color: var(--muted); font-size: 0.85rem; }
+        .btn-save, .btn-reply-submit { background: var(--accent); color: white; border: none; padding: 6px 15px; border-radius: 20px; font-weight: 600; cursor: pointer; font-size: 0.85rem; }
+        .btn-reply-trigger { background: none; border: none; color: var(--accent); font-size: 0.82rem; font-weight: 600; cursor: pointer; padding: 0; margin-top: 5px; text-decoration: underline; }
+        .btn-toggle-replies { background: none; border: none; color: var(--muted); font-size: 0.8rem; font-weight: 600; cursor: pointer; padding: 0; margin-top: 6px; display: inline-flex; align-items: center; gap: 4px; }
+        .replies-list { margin-top: 10px; padding-left: 20px; border-left: 2px solid var(--border); }
+        .reply-item { display: flex; gap: 10px; padding: 12px 0; font-size: 0.88rem; position: relative; border-top: 1px dashed var(--border); }
+        .mention { color: var(--accent); font-weight: 600; background: var(--surface-raised); padding: 1px 4px; border-radius: 4px; }
+
+        /* Emoji picker */
+        .textarea-wrap { position: relative; }
+        .emoji-btn { position: absolute; bottom: 8px; right: 10px; background: none; border: none; cursor: pointer; padding: 4px; color: var(--muted); }
+        .emoji-picker-popup { display: none; position: fixed; width: 300px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--card-shadow); z-index: 9999; overflow: hidden; }
+        .emoji-picker-popup.open { display: block; }
+        .emoji-tabs { display: flex; gap: 2px; padding: 8px 8px 0; border-bottom: 1px solid var(--border); overflow-x: auto; }
+        .emoji-tab { background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 5px 7px; border-radius: 6px 6px 0 0; }
+        .emoji-tab.active { border-bottom: 2px solid var(--ink); background: var(--surface-raised); }
+        .emoji-search { padding: 8px 10px; border-bottom: 1px solid var(--border); }
+        .emoji-search input { width: 100%; padding: 6px 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.82rem; background: var(--input-bg); color: var(--ink); outline: none; }
+        .emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; padding: 8px; max-height: 200px; overflow-y: auto; }
+        .emoji-cell { font-size: 1.3rem; text-align: center; padding: 4px 2px; border-radius: 6px; cursor: pointer; }
+        .emoji-cell:hover { background: var(--surface-raised); }
+
+        /* ===================================================
+           DISTRACTION-FREE READING MODE (Full Screen Overlay)
+           =================================================== */
+        .reader-mode-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            color: #1a1a1a;
+            z-index: 20000;
+            overflow-y: auto;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .reader-mode-overlay.open {
+            display: block;
+        }
+
+        /* Reader Mode Themes */
+        .reader-mode-overlay[data-reader-theme="paper"] {
+            background: #fdfcf9;
+            color: #1a1a1a;
+        }
+        .reader-mode-overlay[data-reader-theme="sepia"] {
+            background: #f4ecd8;
+            color: #433422;
+        }
+        .reader-mode-overlay[data-reader-theme="dark"] {
+            background: #121212;
+            color: #d1d5db;
+        }
+
+        /* Reader Mode Fonts */
+        .reader-mode-overlay[data-reader-font="serif"] .reader-content-body {
+            font-family: 'DM Serif Display', 'Playfair Display', Georgia, serif;
+        }
+        .reader-mode-overlay[data-reader-font="sans"] .reader-content-body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+        .reader-mode-overlay[data-reader-font="mono"] .reader-content-body {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .reader-toolbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 24px;
+            backdrop-filter: blur(12px);
+            background: inherit;
+            border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+        }
+
+        .reader-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .reader-btn {
+            background: rgba(128, 128, 128, 0.12);
+            border: 1px solid rgba(128, 128, 128, 0.2);
+            color: inherit;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .reader-btn:hover {
+            background: rgba(128, 128, 128, 0.25);
+        }
+
+        .reader-content-wrap {
+            max-width: 760px;
+            margin: 40px auto 100px;
+            padding: 0 24px;
+        }
+
+        .reader-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: clamp(2.4rem, 5vw, 3.6rem);
+            line-height: 1.2;
+            margin-bottom: 20px;
+        }
+
+        .reader-content-body {
+            font-size: 20px;
+            line-height: 1.9;
+        }
+
+        .reader-content-body img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            margin: 28px 0;
+        }
+
+        /* Report Modal */
+        .report-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+        .report-overlay.open { display: flex; }
+        .report-modal { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); width: 100%; max-width: 480px; margin: 16px; box-shadow: var(--card-shadow); display: flex; flex-direction: column; max-height: 85vh; overflow: hidden; }
+        .report-step { display: none; flex-direction: column; width: 100%; overflow: hidden; }
+        .report-step.active { display: flex; flex: 1; }
+        .report-modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: flex-start; justify-content: space-between; }
+        .report-modal-body { padding: 24px; overflow-y: auto; flex: 1; }
+        .report-modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 12px; background: var(--surface); }
+        .report-reason-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+        .report-reason-list li { border: 1px solid var(--border); border-radius: 10px; background: var(--surface); }
+        .report-reason-list li label { display: flex; align-items: center; gap: 14px; padding: 12px; cursor: pointer; width: 100%; }
+        .report-btn-cancel { background: none; border: 1px solid var(--border); padding: 8px 18px; border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; color: var(--ink-secondary); }
+        .report-btn-next, .report-btn-submit { background: var(--accent); color: #fff; border: none; padding: 8px 22px; border-radius: 30px; font-size: 0.85rem; font-weight: 600; cursor: pointer; }
+        .report-close-btn { background: none; border: none; cursor: pointer; color: var(--muted); }
+
+        @media (max-width: 900px) {
+            .page-grid { grid-template-columns: 1fr; gap: 40px; }
+            .sidebar-col { position: static; }
+        }
+    </style>
 </head>
 
 <body>
+    <!-- Reading Progress Bar -->
+    <div id="reading-progress-container">
+        <div id="reading-progress-bar"></div>
+    </div>
+
     <%- include('./partials/nav')%>
 
     <% function timeAgo(date) {
@@ -1375,34 +651,44 @@
     } %>
 
     <div class="page-grid">
-        <article>
+        <article class="article-main-col" id="article-main">
             <!-- Breadcrumbs Navigation -->
             <nav aria-label="Breadcrumb" style="margin-bottom: 16px;">
-                <ol style="list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.8rem; color: #777;">
+                <ol style="list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 0.82rem; color: var(--muted);">
                     <li><a href="/" style="color: inherit; text-decoration: none;">Home</a></li>
                     <li><span style="opacity: 0.5;">/</span></li>
-                    <li><a href="/?search=<%= encodeURIComponent(blog.category || 'Editorial') %>" style="color: inherit; text-decoration: none; font-weight: 500;"><%= blog.category || 'Editorial' %></a></li>
+                    <li><a href="/?category=<%= encodeURIComponent(blog.category || 'Editorial') %>" style="color: inherit; text-decoration: none; font-weight: 500;"><%= blog.category || 'Editorial' %></a></li>
                     <li><span style="opacity: 0.5;">/</span></li>
-                    <li style="color: #444; font-weight: 600; max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= blog.title %></li>
+                    <li style="color: var(--ink); font-weight: 600; max-width: 320px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><%= blog.title %></li>
                 </ol>
             </nav>
 
             <header>
-                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; margin-bottom: 8px;">
-                    <p style="text-transform: uppercase; font-size: 11.5px; color: #777; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 6px;">
-                        <span><%= blog.createdBy.fullName %></span>
+                <div class="article-header-actions">
+                    <p style="text-transform: uppercase; font-size: 11.5px; color: var(--muted); font-weight: 600; margin: 0; display: flex; align-items: center; gap: 6px;">
+                        <span><%= blog.createdBy?.fullName || 'Editorial' %></span>
                         <span>&bull;</span>
                         <time datetime="<%= new Date(blog.createdAt).toISOString() %>"><%= timeAgo(blog.createdAt) %></time>
                         <span>&bull;</span>
                         <span><%= blog.readTimeMinutes || 3 %> min read</span>
                     </p>
-                    <% if (locals.user) { %>
-                        <button class="blog-report-btn" onclick="openReportModal('blog', '<%= blog._id %>')">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
-                            Report
+
+                    <div class="action-pills-group">
+                        <button class="reader-mode-btn" onclick="openReaderMode()" title="Distraction-free Reading Mode">
+                            📖 Reader Mode
                         </button>
-                    <% } %>
+                        <button class="clap-btn" id="clap-btn" onclick="clapBlog('<%= blog._id %>')" title="Clap for this story">
+                            👏 <span id="clap-counter"><%= blog.likes || 0 %></span>
+                        </button>
+                        <% if (locals.user) { %>
+                            <button class="blog-report-btn" onclick="openReportModal('blog', '<%= blog._id %>')">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+                                Report
+                            </button>
+                        <% } %>
+                    </div>
                 </div>
+
                 <h1 class="blog-title"><%= blog.title %></h1>
             </header>
 
@@ -1419,40 +705,37 @@
                 </div>
             <% } %>
 
-            <div class="blog-content" style="margin-bottom: 60px;">
+            <div class="blog-content" id="blog-body-content" style="margin-bottom: 60px;">
                 <%- htmlContent %>
             </div>
 
-            <section class="author-footer" style="padding: 40px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 40px;">
+            <section class="author-footer" style="padding: 36px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); margin-bottom: 40px;">
                 <div style="display: flex; align-items: flex-start; gap: 24px; flex-wrap: wrap;">
                     <a href="/user/<%= blog.createdBy?._id %>">
-                        <img class="avatar" style="width: 80px; height: 80px; border: 1px solid var(--border);"
+                        <img class="avatar" style="width: 72px; height: 72px; border: 1px solid var(--border);"
                             src="<%= (typeof imgOpt === 'function' && blog.createdBy?.profileImageURL) ? imgOpt(blog.createdBy.profileImageURL, 'avatar') : (blog.createdBy?.profileImageURL || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(blog.createdBy?.fullName || 'User')) %>"
                             alt="<%= blog.createdBy?.fullName || 'Author' %>"
                             loading="lazy"
-                            width="80"
-                            height="80"
+                            width="72"
+                            height="72"
                         >
                     </a>
                     <div style="flex: 1; min-width: 250px;">
-                        <p style="margin: 0 0 4px 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: #888; font-weight: 700;">Written by</p>
-                        <h3 style="margin: 0 0 8px 0; font-family: 'Playfair Display', serif; font-size: 1.6rem;">
-                            <a href="/user/<%= blog.createdBy._id %>" style="text-decoration: none; color: var(--ink);"><%= blog.createdBy.fullName %></a>
+                        <p style="margin: 0 0 4px 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700;">Written by</p>
+                        <h3 style="margin: 0 0 8px 0; font-family: 'DM Serif Display', serif; font-size: 1.5rem;">
+                            <a href="/user/<%= blog.createdBy?._id %>" style="text-decoration: none; color: var(--ink);"><%= blog.createdBy?.fullName || 'Blogify Editorial' %></a>
                         </h3>
-                        <p style="margin: 0; font-size: 1rem; color: #666; max-width: 500px; line-height: 1.5;"><%= blog.createdBy.bio %></p>
-                        <div style="margin-top: 15px;">
-                            <a href="/user/<%= blog.createdBy._id %>" style="text-decoration: none; font-weight: 600; font-size: 0.85rem; color: var(--ink); border-bottom: 1px solid var(--ink);">View Profile</a>
-                        </div>
+                        <p style="margin: 0; font-size: 0.95rem; color: var(--ink-secondary); max-width: 500px; line-height: 1.5;"><%= blog.createdBy?.bio || 'Curating stories on trends, technology, culture, and perspectives.' %></p>
                     </div>
                 </div>
             </section>
 
-            <!-- Comments / Discussion Section Below Article Body -->
+            <!-- Comments / Discussion Section -->
             <section class="discussion-section">
                 <% const topLevelComments = comments.filter(c => !c.parentComment);
                    const replies = comments.filter(c => c.parentComment); %>
 
-                <h3 style="margin-top: 0; font-family: 'Playfair Display', serif; font-size: 1.5rem; margin-bottom: 20px;">
+                <h3 style="margin-top: 0; font-family: 'DM Serif Display', serif; font-size: 1.5rem; margin-bottom: 20px;">
                     Discussion (<%= topLevelComments.length %>)
                 </h3>
 
@@ -1460,22 +743,22 @@
                     <form action="/blog/comment/<%= blog._id %>" method="POST" style="margin-bottom: 30px;">
                         <div class="textarea-wrap">
                             <textarea name="content" id="main-comment-input" rows="3" placeholder="Share your thoughts..." required></textarea>
-                            <button type="button" class="emoji-btn" onclick="togglePicker('main-picker', 'main-comment-input')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
+                            <button type="button" class="emoji-btn" onclick="togglePicker('main-picker', 'main-comment-input')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
                             <div class="emoji-picker-popup" id="main-picker"></div>
                         </div>
                         <button class="btn-submit" style="margin-top: 10px;">Post Comment</button>
                     </form>
                 <% } else { %>
-                    <div style="background: #fbf9f5; border: 1px dashed var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: center;">
-                        <p style="margin: 0; font-size: 0.9rem; color: #666;">
-                            <a href="/user/signin" style="color: var(--ink); font-weight: 600; text-decoration: underline;">Sign in</a> to join the discussion.
+                    <div style="background: var(--surface-raised); border: 1px dashed var(--border); border-radius: 8px; padding: 16px; margin-bottom: 24px; text-align: center;">
+                        <p style="margin: 0; font-size: 0.9rem; color: var(--ink-secondary);">
+                            <a href="/user/signin" style="color: var(--accent); font-weight: 600; text-decoration: underline;">Sign in</a> to join the discussion.
                         </p>
                     </div>
                 <% } %>
 
                 <div class="comment-list" style="margin-top: 20px;">
                     <% if (topLevelComments.length === 0) { %>
-                        <p style="color: #888; font-size: 0.92rem; text-align: center; padding: 30px 0;">No comments yet. Be the first to start the conversation!</p>
+                        <p style="color: var(--muted); font-size: 0.92rem; text-align: center; padding: 30px 0;">No comments yet. Be the first to start the conversation!</p>
                     <% } %>
 
                     <% topLevelComments.slice().reverse().forEach((comment, index) => { %>
@@ -1490,17 +773,17 @@
                                     <span class="comment-time"><%= timeAgo(comment.createdAt) %></span>
                                 </div>
 
-                                <p class="comment-body" id="text-<%= comment._id %>" style="margin: 4px 0; font-size: 0.92rem; word-break: break-word;">
+                                <p class="comment-body" id="text-<%= comment._id %>" style="margin: 4px 0; font-size: 0.92rem; word-break: break-word; color: var(--ink);">
                                     <%= comment.body %>
                                 </p>
 
                                 <div class="edit-area" id="edit-area-<%= comment._id %>">
                                     <div class="textarea-wrap">
                                         <textarea class="edit-textarea" id="input-<%= comment._id %>"><%= comment.body %></textarea>
-                                        <button type="button" class="emoji-btn" onclick="togglePicker('picker-edit-<%= comment._id %>', 'input-<%= comment._id %>')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
+                                        <button type="button" class="emoji-btn" onclick="togglePicker('picker-edit-<%= comment._id %>', 'input-<%= comment._id %>')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
                                         <div class="emoji-picker-popup" id="picker-edit-<%= comment._id %>"></div>
                                     </div>
-                                    <div class="edit-buttons">
+                                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
                                         <button class="btn-cancel" onclick="cancelEdit('<%= comment._id %>')">Cancel</button>
                                         <button class="btn-save" onclick="saveEdit('<%= comment._id %>')">Save</button>
                                     </div>
@@ -1515,7 +798,6 @@
                                     <% if (currentReplies.length > 0) { %>
                                         <button class="btn-toggle-replies open" id="toggle-btn-<%= comment._id %>"
                                             onclick="toggleReplies('<%= comment._id %>', <%= currentReplies.length %>)">
-                                            <i class="chevron">&#8964;</i>
                                             <span id="toggle-label-<%= comment._id %>"><%= currentReplies.length %> <%= currentReplies.length === 1 ? 'reply' : 'replies' %></span>
                                         </button>
                                     <% } %>
@@ -1524,10 +806,10 @@
                                 <div class="reply-area" id="reply-area-<%= comment._id %>">
                                     <div class="textarea-wrap">
                                         <textarea class="reply-textarea" id="reply-input-<%= comment._id %>" rows="2" placeholder="Write a reply..."></textarea>
-                                        <button type="button" class="emoji-btn" onclick="togglePicker('picker-reply-<%= comment._id %>', 'reply-input-<%= comment._id %>')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
+                                        <button type="button" class="emoji-btn" onclick="togglePicker('picker-reply-<%= comment._id %>', 'reply-input-<%= comment._id %>')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
                                         <div class="emoji-picker-popup" id="picker-reply-<%= comment._id %>"></div>
                                     </div>
-                                    <div class="reply-buttons">
+                                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
                                         <button class="btn-cancel" onclick="cancelReply('<%= comment._id %>')">Cancel</button>
                                         <button class="btn-reply-submit" onclick="submitReply('<%= comment._id %>')">Reply</button>
                                     </div>
@@ -1545,7 +827,7 @@
                                                         <span class="comment-time" style="font-size:0.7rem;"><%= timeAgo(reply.createdAt) %></span>
                                                     </div>
 
-                                                    <p class="comment-body" id="text-<%= reply._id %>" style="margin:2px 0; color:#444; font-size:0.88rem; word-break: break-word;">
+                                                    <p class="comment-body" id="text-<%= reply._id %>" style="margin:2px 0; color:var(--ink-secondary); font-size:0.88rem; word-break: break-word;">
                                                         <%- reply.body.replace(/^(@\w+)/, '<span class="mention">$1</span>') %>
                                                     </p>
 
@@ -1557,10 +839,10 @@
                                                     <div class="edit-area" id="edit-area-<%= reply._id %>">
                                                         <div class="textarea-wrap">
                                                             <textarea class="edit-textarea" id="input-<%= reply._id %>"><%= reply.body %></textarea>
-                                                            <button type="button" class="emoji-btn" onclick="togglePicker('picker-edit-<%= reply._id %>', 'input-<%= reply._id %>')"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
+                                                            <button type="button" class="emoji-btn" onclick="togglePicker('picker-edit-<%= reply._id %>', 'input-<%= reply._id %>')"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 13s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></button>
                                                             <div class="emoji-picker-popup" id="picker-edit-<%= reply._id %>"></div>
                                                         </div>
-                                                        <div class="edit-buttons">
+                                                        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px;">
                                                             <button class="btn-cancel" onclick="cancelEdit('<%= reply._id %>')">Cancel</button>
                                                             <button class="btn-save" onclick="saveEdit('<%= reply._id %>')">Save</button>
                                                         </div>
@@ -1578,7 +860,7 @@
                                                         <% if (locals.user._id.toString() === reply.createdBy._id.toString()) { %>
                                                             <button onclick="enableEdit('<%= reply._id %>')">Edit</button>
                                                             <button class="delete-btn" onclick="deleteComment('<%= reply._id %>')">Delete</button>
-                                                        <% } else if (locals.user._id.toString() === blog.createdBy._id.toString()) { %>
+                                                        <% } else if (locals.user._id.toString() === blog.createdBy?._id.toString()) { %>
                                                             <button class="delete-btn" onclick="deleteComment('<%= reply._id %>')">Delete (Author)</button>
                                                         <% } else { %>
                                                             <button class="report-btn" onclick="openReportModal('comment', '<%= reply._id %>'); toggleDropdown('dropdown-reply-<%= index %>-<%= replyIndex %>')">Report</button>
@@ -1602,7 +884,7 @@
                                     <% if (locals.user._id.toString() === comment.createdBy._id.toString()) { %>
                                         <button onclick="enableEdit('<%= comment._id %>')">Edit</button>
                                         <button class="delete-btn" onclick="deleteComment('<%= comment._id %>')">Delete</button>
-                                    <% } else if (locals.user._id.toString() === blog.createdBy._id.toString()) { %>
+                                    <% } else if (locals.user._id.toString() === blog.createdBy?._id.toString()) { %>
                                         <button class="delete-btn" onclick="deleteComment('<%= comment._id %>')">Delete (Author)</button>
                                     <% } else { %>
                                         <button class="report-btn" onclick="openReportModal('comment', '<%= comment._id %>'); toggleDropdown('dropdown-<%= index %>')">Report</button>
@@ -1645,502 +927,133 @@
                             </a>
                         <% }) %>
                     <% } else { %>
-                        <p style="color: #888; font-size: 0.88rem; text-align: center; padding: 25px 0;">No other stories available.</p>
+                        <p style="color: var(--muted); font-size: 0.88rem; text-align: center; padding: 25px 0;">No other stories available.</p>
                     <% } %>
                 </div>
             </div>
         </aside>
     </div>
 
-    <div class="report-overlay" id="report-overlay" onclick="handleOverlayClick(event)">
-        <div class="report-modal" role="dialog" aria-modal="true" aria-labelledby="report-modal-title">
+    <!-- Distraction-Free Reading Mode Modal Overlay -->
+    <div id="readerModeModal" class="reader-mode-overlay" data-reader-theme="paper" data-reader-font="serif">
+        <div class="reader-toolbar">
+            <div class="reader-controls">
+                <button class="reader-btn" onclick="setReaderTheme('paper')">📜 Paper</button>
+                <button class="reader-btn" onclick="setReaderTheme('sepia')">☕ Sepia</button>
+                <button class="reader-btn" onclick="setReaderTheme('dark')">🌙 Dark</button>
+                <span style="opacity: 0.3;">|</span>
+                <button class="reader-btn" onclick="setReaderFont('serif')">Serif</button>
+                <button class="reader-btn" onclick="setReaderFont('sans')">Sans</button>
+                <button class="reader-btn" onclick="setReaderFont('mono')">Mono</button>
+                <span style="opacity: 0.3;">|</span>
+                <button class="reader-btn" onclick="adjustFontSize(-1)">A-</button>
+                <button class="reader-btn" onclick="adjustFontSize(1)">A+</button>
+            </div>
+            <button class="reader-btn" style="background: rgba(220, 38, 38, 0.1); border-color: rgba(220, 38, 38, 0.3);" onclick="closeReaderMode()">
+                ✕ Exit Reader Mode
+            </button>
+        </div>
 
+        <main class="reader-content-wrap">
+            <h1 class="reader-title"><%= blog.title %></h1>
+            <p style="text-transform: uppercase; font-size: 0.8rem; opacity: 0.7; font-weight: 600; margin-bottom: 30px;">
+                By <%= blog.createdBy?.fullName || 'Editorial' %> &bull; <%= blog.readTimeMinutes || 3 %> min read
+            </p>
+            <div class="reader-content-body" id="reader-body-copy">
+                <%- htmlContent %>
+            </div>
+        </main>
+    </div>
+
+    <!-- Report Modal -->
+    <div class="report-overlay" id="report-overlay" onclick="handleOverlayClick(event)">
+        <div class="report-modal" role="dialog" aria-modal="true">
             <div id="report-step-1" class="report-step active">
                 <div class="report-modal-header">
-                    <div>
-                        <h2 id="report-modal-title">Report Content</h2>
-                        <p>Why are you reporting this?</p>
-                    </div>
-                    <button class="report-close-btn" onclick="closeReportModal()" aria-label="Close">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
+                    <h3 style="margin: 0; font-size: 1.25rem;">Report Content</h3>
+                    <button class="report-close-btn" onclick="closeReportModal()">✕</button>
                 </div>
                 <div class="report-modal-body">
-                    <ul class="report-reason-list" id="report-reason-list">
-                        <li>
-                            <label>
-                                <input type="radio" name="report-reason" value="sexual_content" onchange="onReasonChange()">
-                                <span class="reason-text">
-                                    <span class="reason-title">Sexual content</span>
-                                    <span class="reason-desc">Explicit or graphic sexual material</span>
-                                </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label>
-                                <input type="radio" name="report-reason" value="harassment" onchange="onReasonChange()">
-                                <span class="reason-text">
-                                    <span class="reason-title">Harassment or bullying</span>
-                                    <span class="reason-desc">Targeted abuse, threats, or intimidation</span>
-                                </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label>
-                                <input type="radio" name="report-reason" value="hate_speech" onchange="onReasonChange()">
-                                <span class="reason-text">
-                                    <span class="reason-title">Hate speech or discrimination</span>
-                                    <span class="reason-desc">Content promoting hatred based on identity</span>
-                                </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label>
-                                <input type="radio" name="report-reason" value="misinformation" onchange="onReasonChange()">
-                                <span class="reason-text">
-                                    <span class="reason-title">Misinformation</span>
-                                    <span class="reason-desc">False or misleading claims presented as fact</span>
-                                </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label>
-                                <input type="radio" name="report-reason" value="violence" onchange="onReasonChange()">
-                                <span class="reason-text">
-                                    <span class="reason-title">Violence or dangerous content</span>
-                                    <span class="reason-desc">Graphic violence or content that could cause harm</span>
-                                </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label>
-                                <input type="radio" name="report-reason" value="spam" onchange="onReasonChange()">
-                                <span class="reason-text">
-                                    <span class="reason-title">Spam or scam</span>
-                                    <span class="reason-desc">Unsolicited promotion, phishing, or deceptive links</span>
-                                </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label>
-                                <input type="radio" name="report-reason" value="copyright" onchange="onReasonChange()">
-                                <span class="reason-text">
-                                    <span class="reason-title">Copyright or plagiarism</span>
-                                    <span class="reason-desc">Content copied without permission or credit</span>
-                                </span>
-                            </label>
-                        </li>
-                        <li>
-                            <label>
-                                <input type="radio" name="report-reason" value="other" onchange="onReasonChange()">
-                                <span class="reason-text">
-                                    <span class="reason-title">Other</span>
-                                    <span class="reason-desc">Something not covered by the categories above</span>
-                                </span>
-                            </label>
-                        </li>
+                    <ul class="report-reason-list">
+                        <li><label><input type="radio" name="report-reason" value="harassment" onchange="onReasonChange()"> <span>Harassment or bullying</span></label></li>
+                        <li><label><input type="radio" name="report-reason" value="misinformation" onchange="onReasonChange()"> <span>Misinformation</span></label></li>
+                        <li><label><input type="radio" name="report-reason" value="hate_speech" onchange="onReasonChange()"> <span>Hate speech</span></label></li>
+                        <li><label><input type="radio" name="report-reason" value="spam" onchange="onReasonChange()"> <span>Spam or scam</span></label></li>
+                        <li><label><input type="radio" name="report-reason" value="other" onchange="onReasonChange()"> <span>Other</span></label></li>
                     </ul>
                 </div>
                 <div class="report-modal-footer">
                     <button class="report-btn-cancel" onclick="closeReportModal()">Cancel</button>
-                    <button class="report-btn-next" id="report-next-btn" disabled onclick="goToStep2()">Next</button>
+                    <button class="report-btn-next" id="report-next-btn" disabled onclick="submitReport()">Submit</button>
                 </div>
             </div>
-
-            <div id="report-step-2" class="report-step">
-                <div class="report-modal-header">
-                    <div>
-                        <h2>Add Details</h2>
-                        <p>Help us understand the issue better</p>
-                    </div>
-                    <button class="report-close-btn" onclick="closeReportModal()" aria-label="Close">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
-                </div>
-                <div class="report-modal-body">
-                    <div class="report-selected-reason">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span id="report-selected-label"></span>
-                        <button class="back-link" onclick="goToStep1()">Change</button>
-                    </div>
-                    <label class="report-details-label">Additional context <span style="font-weight:400; color:#888;">(optional)</span></label>
-                    <span class="report-details-sub">Provide any specific details that will help our team review this report.</span>
-                    <textarea
-                        class="report-details-textarea"
-                        id="report-details-input"
-                        rows="4"
-                        maxlength="500"
-                        placeholder="Describe what you found harmful or inappropriate..."
-                        oninput="updateCharCount()"
-                    ></textarea>
-                    <div class="report-char-count"><span id="report-char-count">0</span> / 500</div>
-                </div>
-                <div class="report-modal-footer">
-                    <button class="report-btn-cancel" onclick="goToStep1()">Back</button>
-                    <button class="report-btn-submit" id="report-submit-btn" onclick="submitReport()">Submit Report</button>
-                </div>
-            </div>
-
-            <div id="report-step-3" class="report-step">
-                <div class="report-modal-header" style="border-bottom: none; padding-bottom: 0;">
-                    <div></div>
-                    <button class="report-close-btn" onclick="closeReportModal()" aria-label="Close">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                    </button>
-                </div>
-                <div class="report-modal-body report-success-body" style="padding-top: 10px; padding-bottom: 28px;">
-                    <div class="report-success-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    </div>
-                    <h3>Report Submitted</h3>
-                    <p>Thank you for helping keep this community safe. Our team will review your report and take appropriate action.</p>
-                    <button class="report-btn-next" style="margin-top: 22px; border-radius: 30px;" onclick="closeReportModal()">Done</button>
-                </div>
-            </div>
-
         </div>
     </div>
 
+    <%- include('./partials/script')%>
+
+    <!-- Reading Progress, Reader Mode & Clap Script -->
     <script>
-        // ── Emoji data ──────────────────────────────────────────────
-        const EMOJI_CATEGORIES = [
-            {
-                label: '😊', name: 'Smileys',
-                emojis: ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','💫','🤯','🤠','🥳','🥸','😎','🤓','🧐','😕','😟','🙁','☹️','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖']
-            },
-            {
-                label: '👋', name: 'Gestures',
-                emojis: ['👋','🤚','🖐️','✋','🖖','👌','🤌','🤏','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','🖕','👇','☝️','👍','👎','✊','👊','🤛','🤜','👏','🙌','👐','🤲','🤝','🙏','✍️','💅','🤳','💪','🦾','🦵','🦶','👂','🦻','👃','🫀','🫁','🧠','🦷','🦴','👀','👁️','👅','👄','💋','🩸']
-            },
-            {
-                label: '❤️', name: 'Hearts',
-                emojis: ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕','💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉️','✡️','🔯','🛐','⛎','♈','♉','♊','♋','♌','♍','♎','♏','♐','♑','♒','♓','🆔','⚛️','🉑','☢️','☣️','📴','📳','🈶','🈚','🈸','🈺','🈷️','✴️','🆚','💮','🉐','㊙️','㊗️','🈴','🈵','🈹','🈲','🅰️','🅱️','🆎','🆑','🅾️','🆘']
-            },
-            {
-                label: '🐶', name: 'Animals',
-                emojis: ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐔','🐧','🐦','🐤','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🦍','🦧','🐘','🦛','🦏','🐪','🐫','🦒','🦘','🐃','🐂','🐄','🐎','🐖','🐏','🐑','🦙','🐐','🦌','🐕','🐩','🦮','🐕‍🦺','🐈','🐈‍⬛','🐓','🦃','🦚','🦩','🕊️','🐇','🦝','🦨','🦡','🦦','🦥','🐁','🐀','🐿️','🦔']
-            },
-            {
-                label: '🍔', name: 'Food',
-                emojis: ['🍏','🍎','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🫐','🍈','🍒','🍑','🥭','🍍','🥥','🥝','🍅','🍆','🥑','🥦','🥬','🥒','🌶️','🫑','🥑','🧄','🧅','🥔','🍠','🥐','🥯','🍞','🥖','🥨','🧀','🥚','🍳','🧈','🥞','🧇','🥓','🥩','🍗','🍖','🍔','🍟','🍕','🫓','🥪','🥙','🧆','🌮','🌯','🫔','🥗','🥘','🫕','🥫','🍝','🍜','🍲','🍛','🍣','🍱','🥟','🦪','🍤','🍙','🍘','🍥','🥮','🍢','🧁','🍰','🎂','🍮','🍭','🍬','🍫','🍿','🍩','🍪','🌰','🥜','🍯','🧃','🥤','🧋','☕','🍵','🫖','🧉','🍺','🍻','🥂','🍷','🥃','🍸','🍹','🧊']
-            },
-            {
-                label: '⚽', name: 'Activities',
-                emojis: ['⚽','🏀','🏈','⚾','🥎','🎾','🏐','🏉','🥏','🎱','🏓','🏸','🏒','🏑','🥍','🏏','🪃','🥅','⛳','🪁','🏹','🎣','🤿','🥊','🥋','🎽','🛹','🛼','🛷','⛸️','🥌','🎿','⛷️','🏂','🪂','🏋️','🤼','🤸','⛹️','','🤺','🏇','🧘','🏄','🏊','🚣','🧗','🚵','🚴','🏆','🥇','🥈','🥉','🏅','🎖️','🏵️','🎗️','🎫','🎟️','🎪','🎭','🎨','🎬','🎤','🎧','🎼','🎹','🥁','🪘','🎷','🎺','🎸','🪕','🎻','🎲','♟️','🎯','🎳','🎮','🎰','🧩']
-            },
-            {
-                label: '🚗', name: 'Travel',
-                emojis: ['🚗','🚕','🚙','🚌','🚎','🏎️','🚓','🚑','🚒','🚐','🛻','🚚','🚛','🚜','🦯','🦽','🦼','🛴','🚲','🛵','🛺','🚁','🛸','🚀','🛶','⛵','🚤','🛥️','🛳️','⛴️','🚢','✈️','🛩️','🛫','🛬','🪂','💺','🚟','🚃','🚋','🚞','🚝','🚄','🚅','🚈','🚂','🚆','🚇','🚊','🚉','🌈','🌤️','⛅','🌥️','☁️','🌦️','🌧️','⛈️','🌩️','🌨️','❄️','☃️','⛄','🌬️','💨','🌪️','🌫️','🌊','💧','💦','☔']
-            },
-            {
-                label: '💡', name: 'Objects',
-                emojis: ['⌚','📱','📲','💻','⌨️','🖥️','🖨️','🖲️','🕹️','💾','💿','📀','📷','📸','📹','🎥','📽️','🎞️','📞','☎️','📟','📠','📺','📻','🧭','⏱️','⏲️','⏰','🕰️','⌛','⏳','📡','🔋','🔌','💡','🔦','🕯️','🪔','🧯','🛢️','💰','💴','💵','💶','💷','💸','💳','🪙','💎','⚖️','🧲','🔧','🔨','⚒️','🛠️','⛏️','🪛','🔫','🧨','💣','🪓','🔪','🗡️','⚔️','🛡️','🪚','🔬','🔭','🩺','💉','🩸','💊','🩹','🩼','🩻','🪤','🧸','🪆','🖼️','🧵','🧶','🪡','🧷','🪢','👓','🕶️','🥽','🌂','☂️','🎁','🎀','🎊','🎉','🎈']
-            }
-        ];
-
-        // ── Picker state ─────────────────────────────────────────────
-        let activePicker = null;
-        let activeTextareaId = null;
-        const renderedPickers = new Set();
-
-        function buildPicker(pickerId, textareaId) {
-            if (renderedPickers.has(pickerId)) return;
-            renderedPickers.add(pickerId);
-
-            const popup = document.getElementById(pickerId);
-            let activeTab = 0;
-
-            function renderGrid(emojis) {
-                return emojis.map(e =>
-                    `<span class="emoji-cell" onclick="insertEmoji('${textareaId}','${e}')">${e}</span>`
-                ).join('');
-            }
-
-            function renderCategory(idx) {
-                popup.querySelector('.emoji-grid').innerHTML = renderGrid(EMOJI_CATEGORIES[idx].emojis);
-                popup.querySelectorAll('.emoji-tab').forEach((t, i) => t.classList.toggle('active', i === idx));
-                activeTab = idx;
-            }
-
-            const tabs = EMOJI_CATEGORIES.map((cat, i) =>
-                `<button class="emoji-tab${i === 0 ? ' active' : ''}" type="button" onclick="pickerTabClick('${pickerId}',${i})" title="${cat.name}">${cat.label}</button>`
-            ).join('');
-
-            popup.innerHTML = `
-                <div class="emoji-tabs">${tabs}</div>
-                <div class="emoji-search"><input type="text" placeholder="Search emojis…" oninput="pickerSearch('${pickerId}','${textareaId}',this.value)"></div>
-                <div class="emoji-grid">${renderGrid(EMOJI_CATEGORIES[0].emojis)}</div>
-            `;
-
-            popup._renderCategory = renderCategory;
-        }
-
-        function pickerTabClick(pickerId, idx) {
-            const popup = document.getElementById(pickerId);
-            if (popup._renderCategory) popup._renderCategory(idx);
-        }
-
-        function pickerSearch(pickerId, textareaId, query) {
-            const popup = document.getElementById(pickerId);
-            const grid = popup.querySelector('.emoji-grid');
-            if (!query.trim()) {
-                if (popup._renderCategory) popup._renderCategory(0);
-                return;
-            }
-            const all = EMOJI_CATEGORIES.flatMap(c => c.emojis);
-            const results = all.filter((e) => {
-                const catName = EMOJI_CATEGORIES.find(c => c.emojis.includes(e))?.name.toLowerCase() || '';
-                return catName.includes(query.toLowerCase());
-            });
-            grid.innerHTML = (results.length ? results : all).map(e =>
-                `<span class="emoji-cell" onclick="insertEmoji('${textareaId}','${e}')">${e}</span>`
-            ).join('');
-        }
-
-        function togglePicker(pickerId, textareaId) {
-    if (activePicker && activePicker !== pickerId) {
-        const prev = document.getElementById(activePicker);
-        if (prev) prev.classList.remove('open');
-    }
-
-    const popup = document.getElementById(pickerId);
-    const btn   = popup.previousElementSibling;
-    const isOpen = popup.classList.contains('open');
-
-    if (!isOpen) {
-        buildPicker(pickerId, textareaId);
-
-        // Make visible but off-screen first to measure real height
-        popup.style.visibility = 'hidden';
-        popup.style.display = 'block';
-        const pickerH = popup.offsetHeight || 310;
-        const pickerW = window.innerWidth <= 640 ? window.innerWidth - 16 : 300;
-        popup.style.display = '';
-        popup.style.visibility = '';
-
-        popup.classList.add('open');
-
-        const rect = btn.getBoundingClientRect();
-        const isMobile = window.innerWidth <= 640;
-
-        if (isMobile) {
-            const spaceAbove = rect.top;
-            const spaceBelow = window.innerHeight - rect.bottom;
-
-            let top;
-            if (spaceAbove >= pickerH + 8) {
-                // Enough room above — open upward
-                top = rect.top - pickerH - 8;
-            } else if (spaceBelow >= pickerH + 8) {
-                // Enough room below — open downward
-                top = rect.bottom + 8;
-            } else {
-                // Neither fits cleanly — center vertically in viewport
-                top = Math.max(8, (window.innerHeight - pickerH) / 2);
-            }
-
-            // Clamp so it never goes off top or bottom
-            top = Math.max(8, Math.min(top, window.innerHeight - pickerH - 8));
-
-            popup.style.position = 'fixed';
-            popup.style.top  = top + 'px';
-            popup.style.left = '8px';
-            popup.style.width = pickerW + 'px';
-
-        } else {
-            const spaceBelow = window.innerHeight - rect.bottom;
-            let top, left;
-
-            if (spaceBelow >= pickerH + 8) {
-                top = rect.bottom + 6;
-            } else {
-                top = rect.top - pickerH - 6;
-            }
-
-            // Clamp so it never goes off top or bottom
-            top = Math.max(8, Math.min(top, window.innerHeight - pickerH - 8));
-
-            left = Math.min(rect.right - pickerW, window.innerWidth - pickerW - 8);
-            left = Math.max(8, left);
-
-            popup.style.position = 'fixed';
-            popup.style.top  = top + 'px';
-            popup.style.left = left + 'px';
-            popup.style.width = pickerW + 'px';
-        }
-
-        activePicker = pickerId;
-        activeTextareaId = textareaId;
-    } else {
-        popup.classList.remove('open');
-        activePicker = null;
-        activeTextareaId = null;
-    }
-}
-
-        function insertEmoji(textareaId, emoji) {
-            const ta = document.getElementById(textareaId);
-            if (!ta) return;
-            const start = ta.selectionStart;
-            const end   = ta.selectionEnd;
-            ta.value = ta.value.slice(0, start) + emoji + ta.value.slice(end);
-            ta.selectionStart = ta.selectionEnd = start + emoji.length;
-            ta.focus();
-        }
-
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('.emoji-picker-popup') && !e.target.closest('.emoji-btn')) {
-                document.querySelectorAll('.emoji-picker-popup.open').forEach(p => p.classList.remove('open'));
-                activePicker = null;
-            }
+        // ── Scroll Progress Bar ──────────────────────────────────────────
+        window.addEventListener('scroll', () => {
+            const winScroll = document.documentElement.scrollTop || document.body.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            const bar = document.getElementById('reading-progress-bar');
+            if (bar) bar.style.width = scrolled + '%';
         });
 
-        // ── Report Modal ──────────────────────────────────────────────
-        let reportTarget = { type: null, id: null };
+        // ── Clap / Like Interaction ──────────────────────────────────────
+        async function clapBlog(blogId) {
+            const btn = document.getElementById('clap-btn');
+            const counter = document.getElementById('clap-counter');
+            btn.style.transform = 'scale(1.2)';
+            setTimeout(() => btn.style.transform = 'none', 150);
 
-        const REASON_LABELS = {
-            sexual_content: 'Sexual content',
-            harassment:     'Harassment or bullying',
-            hate_speech:    'Hate speech or discrimination',
-            misinformation: 'Misinformation',
-            violence:       'Violence or dangerous content',
-            spam:           'Spam or scam',
-            copyright:      'Copyright or plagiarism',
-            other:          'Other'
-        };
+            try {
+                const res = await fetch(`/blog/${blogId}/like`, { method: 'POST' });
+                const data = await res.json();
+                if (data.success) {
+                    counter.textContent = data.likes;
+                    btn.classList.add('active');
+                }
+            } catch (err) {
+                console.error('Clap error:', err);
+            }
+        }
 
-        function openReportModal(type, id) {
-            reportTarget = { type, id };
-            document.querySelectorAll('input[name="report-reason"]').forEach(r => r.checked = false);
-            document.getElementById('report-details-input').value = '';
-            document.getElementById('report-char-count').textContent = '0';
-            document.getElementById('report-next-btn').disabled = true;
-            showStep(1);
-            const submitBtn = document.getElementById('report-submit-btn');
-            submitBtn.disabled = false;
-            submitBtn.textContent = 'Submit Report';
-            document.getElementById('report-overlay').classList.add('open');
+        // ── Reader Mode Controls ────────────────────────────────────────
+        let currentReaderFontSize = 20;
+        function openReaderMode() {
+            document.getElementById('readerModeModal').classList.add('open');
             document.body.style.overflow = 'hidden';
         }
 
-        function closeReportModal() {
-            document.getElementById('report-overlay').classList.remove('open');
+        function closeReaderMode() {
+            document.getElementById('readerModeModal').classList.remove('open');
             document.body.style.overflow = '';
         }
 
-        function handleOverlayClick(e) {
-            if (e.target === document.getElementById('report-overlay')) {
-                closeReportModal();
-            }
+        function setReaderTheme(theme) {
+            document.getElementById('readerModeModal').setAttribute('data-reader-theme', theme);
         }
 
-        function showStep(n) {
-            document.querySelectorAll('.report-step').forEach(s => s.classList.remove('active'));
-            document.getElementById('report-step-' + n).classList.add('active');
+        function setReaderFont(font) {
+            document.getElementById('readerModeModal').setAttribute('data-reader-font', font);
         }
 
-        function onReasonChange() {
-            document.getElementById('report-next-btn').disabled = false;
+        function adjustFontSize(delta) {
+            currentReaderFontSize = Math.min(32, Math.max(16, currentReaderFontSize + (delta * 2)));
+            document.getElementById('reader-body-copy').style.fontSize = currentReaderFontSize + 'px';
         }
 
-        function goToStep2() {
-            const selected = document.querySelector('input[name="report-reason"]:checked');
-            if (!selected) return;
-            document.getElementById('report-selected-label').textContent = REASON_LABELS[selected.value] || selected.value;
-            showStep(2);
-        }
-
-        function goToStep1() {
-            showStep(1);
-        }
-
-        function updateCharCount() {
-            const val = document.getElementById('report-details-input').value;
-            document.getElementById('report-char-count').textContent = val.length;
-        }
-
-        async function submitReport() {
-            const reason  = document.querySelector('input[name="report-reason"]:checked')?.value;
-            const details = document.getElementById('report-details-input').value.trim();
-            const btn     = document.getElementById('report-submit-btn');
-
-            if (!reason) return;
-
-            btn.disabled = true;
-            btn.textContent = 'Submitting...';
-
-            try {
-                const res = await fetch('/blog/report', {
-                    method: 'POST',
-                    credentials: 'same-origin',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        targetType: reportTarget.type,
-                        targetId: reportTarget.id,
-                        blogId: '<%= blog._id %>',
-                        reason,
-                        details
-                    })
-                });
-                if (res.ok) {
-                    showStep(3);
-                } else {
-                    const data = await res.json().catch(() => ({}));
-                    alert(data.error || 'Something went wrong. Please try again.');
-                    btn.disabled = false;
-                    btn.textContent = 'Submit Report';
-                }
-            } catch (err) {
-                console.error('Report error:', err);
-                alert('Network error. Please check your connection and try again.');
-                btn.disabled = false;
-                btn.textContent = 'Submit Report';
-            }
-        }
-
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape' && document.getElementById('report-overlay').classList.contains('open')) {
-                closeReportModal();
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && document.getElementById('readerModeModal').classList.contains('open')) {
+                closeReaderMode();
             }
         });
 
-        // ── Layout adjustments & Existing handlers ────────────────────────────────
-        function setInitialRepliesState() {
-            document.querySelectorAll('.replies-list').forEach(el => {
-                if(!el.classList.contains('collapsed')) {
-                    el.style.maxHeight = el.scrollHeight + 'px';
-                }
-            });
-        }
-        window.addEventListener('load', setInitialRepliesState);
-        window.addEventListener('resize', () => {
-            document.querySelectorAll('.replies-list').forEach(el => {
-                if(!el.classList.contains('collapsed')) {
-                    el.style.maxHeight = 'none';
-                    el.style.maxHeight = el.scrollHeight + 'px';
-                }
-            });
-        });
-
-        function toggleReplies(commentId, count) {
-            const list = document.getElementById('replies-list-' + commentId);
-            const btn  = document.getElementById('toggle-btn-' + commentId);
-            const lbl  = document.getElementById('toggle-label-' + commentId);
-            const replyWord = count === 1 ? 'reply' : 'replies';
-
-            if (list.classList.contains('collapsed')) {
-                list.style.maxHeight = list.scrollHeight + 'px';
-                list.classList.remove('collapsed');
-                btn.classList.add('open');
-                lbl.textContent = count + ' ' + replyWord;
-            } else {
-                list.style.maxHeight = list.scrollHeight + 'px';
-                requestAnimationFrame(() => { list.classList.add('collapsed'); });
-                btn.classList.remove('open');
-                lbl.textContent = 'Show ' + count + ' ' + replyWord;
-            }
-        }
-
+        // ── Emoji Picker & Report Modal Functions ─────────────────────────
         function toggleDropdown(id) {
             document.querySelectorAll('.dropdown-content').forEach(el => {
                 if (el.id !== id) el.classList.remove('show');
@@ -2154,28 +1067,57 @@
             }
         }
 
+        let reportTarget = { type: null, id: null };
+        function openReportModal(type, id) {
+            reportTarget = { type, id };
+            document.getElementById('report-overlay').classList.add('open');
+        }
+        function closeReportModal() {
+            document.getElementById('report-overlay').classList.remove('open');
+        }
+        function onReasonChange() {
+            document.getElementById('report-next-btn').disabled = false;
+        }
+        function handleOverlayClick(e) {
+            if (e.target === document.getElementById('report-overlay')) closeReportModal();
+        }
+
+        async function submitReport() {
+            const reason = document.querySelector('input[name="report-reason"]:checked')?.value;
+            if (!reason) return;
+            try {
+                await fetch('/blog/report', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        targetType: reportTarget.type,
+                        targetId: reportTarget.id,
+                        blogId: '<%= blog._id %>',
+                        reason
+                    })
+                });
+                alert('Thank you for reporting. Our moderation team has been notified.');
+                closeReportModal();
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
         function enableReply(parentId, targetId, mention) {
-            document.querySelectorAll('.reply-area').forEach(el => {
-                if (el.id !== 'reply-area-' + parentId) el.style.display = 'none';
-            });
-            const area  = document.getElementById('reply-area-' + parentId);
+            const area = document.getElementById('reply-area-' + parentId);
             const input = document.getElementById('reply-input-' + parentId);
             area.style.display = 'block';
             if (mention) {
                 input.value = mention;
                 input.focus();
-                input.setSelectionRange(input.value.length, input.value.length);
             } else {
                 input.value = '';
                 input.focus();
             }
         }
-
         function cancelReply(parentId) {
             document.getElementById('reply-area-' + parentId).style.display = 'none';
-            document.getElementById('reply-input-' + parentId).value = '';
         }
-
         async function submitReply(parentId) {
             const replyContent = document.getElementById('reply-input-' + parentId).value;
             if (!replyContent.trim()) return alert("Reply cannot be empty");
@@ -2185,21 +1127,17 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ content: replyContent })
                 });
-                if (res.ok) { window.location.reload(); }
-                else { alert("Server error: Could not post reply"); }
-            } catch (err) { console.error("Fetch error:", err); }
+                if (res.ok) window.location.reload();
+            } catch (err) { console.error(err); }
         }
-
         function enableEdit(id) {
             document.getElementById('text-' + id).style.display = 'none';
             document.getElementById('edit-area-' + id).style.display = 'block';
         }
-
         function cancelEdit(id) {
             document.getElementById('text-' + id).style.display = 'block';
             document.getElementById('edit-area-' + id).style.display = 'none';
         }
-
         async function saveEdit(id) {
             const newContent = document.getElementById('input-' + id).value;
             if (!newContent.trim()) return alert("Comment cannot be empty");
@@ -2212,22 +1150,24 @@
                 if (res.ok) {
                     document.getElementById('text-' + id).innerText = newContent;
                     cancelEdit(id);
-                } else { alert("Server error: Could not save comment"); }
-            } catch (err) {
-                console.error("Fetch error:", err);
-                alert("Network error: Check your console");
-            }
+                }
+            } catch (err) { console.error(err); }
         }
-
         async function deleteComment(id) {
             if (confirm("Delete this comment?")) {
                 const res = await fetch(`/blog/comment/delete/${id}`, { method: 'DELETE' });
-                if (res.ok) {
-                    document.getElementById('comment-container-' + id).remove();
-                } else {
-                    const data = await res.json();
-                    alert(data.error || "Failed to delete");
-                }
+                if (res.ok) document.getElementById('comment-container-' + id).remove();
+            }
+        }
+        function toggleReplies(commentId, count) {
+            const list = document.getElementById('replies-list-' + commentId);
+            const btn = document.getElementById('toggle-btn-' + commentId);
+            if (list.style.display === 'none') {
+                list.style.display = 'block';
+                btn.textContent = count + ' replies';
+            } else {
+                list.style.display = 'none';
+                btn.textContent = 'Show ' + count + ' replies';
             }
         }
     </script>

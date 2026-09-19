@@ -63,39 +63,124 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
 app.get('/', async (req, res) => {
-    const limit = 6; 
+    const limit = 9; 
     const page = parseInt(req.query.page) || 1;
     const search = (req.query.search || '').trim();
-    const query = search ? { title: { $regex: search, $options: 'i' } } : {};
+    const category = (req.query.category || '').trim();
+    const sort = (req.query.sort || 'newest').trim().toLowerCase();
+
+    const query = {};
+    if (search) {
+        query.title = { $regex: search, $options: 'i' };
+    }
+    if (category && category.toLowerCase() !== 'all') {
+        if (category.toLowerCase() === 'trends') {
+            query.category = { $regex: /trend/i };
+        } else {
+            query.category = { $regex: new RegExp(category, 'i') };
+        }
+    }
+
+    let sortOption = { createdAt: -1 };
+    if (sort === 'trending' || sort === 'views') {
+        sortOption = { views: -1, createdAt: -1 };
+    } else if (sort === 'likes') {
+        sortOption = { likes: -1, createdAt: -1 };
+    }
 
     try {
-        const cacheKey = `home:page:${page}:search:${search.toLowerCase()}`;
+        const cacheKey = `home:page:${page}:cat:${category}:sort:${sort}:s:${search.toLowerCase()}`;
         
         const data = await cacheService.wrap(cacheKey, 60, async () => {
             const totalBlogs = await Blog.countDocuments(query);
             const totalPages = Math.ceil(totalBlogs / limit);
             
             const blogs = await Blog.find(query)
-                .select('title slug coverImageURL category readTimeMinutes createdAt')
-                .sort({ createdAt: -1 })
+                .select('title slug coverImageURL category readTimeMinutes views likes createdAt createdBy')
+                .populate('createdBy', 'fullName profileImageURL')
+                .sort(sortOption)
                 .skip((page - 1) * limit)
                 .limit(limit)
                 .lean();
 
-            return { blogs, totalPages };
+            return { blogs, totalPages, totalBlogs };
         });
 
-        res.setHeader('Cache-Control', 'public, max-age=60, s-maxage=120, stale-while-revalidate=86400');
+        res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=60, stale-while-revalidate=86400');
 
         return res.render('home', {
             blogs: data.blogs,
             search,
+            category,
+            sort,
             currentPage: page,
-            totalPages: data.totalPages
+            totalPages: data.totalPages,
+            totalBlogs: data.totalBlogs
         });
     } catch (err) {
         console.error("Home route error:", err);
         return res.status(500).send("Server Error");
+    }
+});
+
+// Infinite Scroll AJAX JSON Feed Endpoint
+app.get('/api/feed', async (req, res) => {
+    const limit = 6; 
+    const page = parseInt(req.query.page) || 1;
+    const search = (req.query.search || '').trim();
+    const category = (req.query.category || '').trim();
+    const sort = (req.query.sort || 'newest').trim().toLowerCase();
+
+    const query = {};
+    if (search) {
+        query.title = { $regex: search, $options: 'i' };
+    }
+    if (category && category.toLowerCase() !== 'all') {
+        if (category.toLowerCase() === 'trends') {
+            query.category = { $regex: /trend/i };
+        } else {
+            query.category = { $regex: new RegExp(category, 'i') };
+        }
+    }
+
+    let sortOption = { createdAt: -1 };
+    if (sort === 'trending' || sort === 'views') {
+        sortOption = { views: -1, createdAt: -1 };
+    } else if (sort === 'likes') {
+        sortOption = { likes: -1, createdAt: -1 };
+    }
+
+    try {
+        const totalBlogs = await Blog.countDocuments(query);
+        const totalPages = Math.ceil(totalBlogs / limit);
+        
+        const blogs = await Blog.find(query)
+            .select('title slug coverImageURL category readTimeMinutes views likes createdAt createdBy')
+            .populate('createdBy', 'fullName profileImageURL')
+            .sort(sortOption)
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .lean();
+
+        // Attach optimized thumbnail URLs
+        const transformedBlogs = blogs.map(b => ({
+            ...b,
+            optimizedCardImage: getOptimizedImageUrl(b.coverImageURL, 'card'),
+            formattedDate: new Date(b.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
+        }));
+
+        res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=60, stale-while-revalidate=86400');
+
+        return res.status(200).json({
+            success: true,
+            blogs: transformedBlogs,
+            currentPage: page,
+            totalPages,
+            hasMore: page < totalPages
+        });
+    } catch (err) {
+        console.error("API feed error:", err);
+        return res.status(500).json({ success: false, error: err.message });
     }
 });
 

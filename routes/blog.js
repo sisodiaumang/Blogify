@@ -86,22 +86,87 @@ router.get(["/:id", "/:id/:slug"], async (req, res) => {
     }
 });
 
-router.post("/", upload.single("coverImage"), async (req, res) => {
-    const {
-        title,
-        body,
-    } = req.body;
+// Asynchronous Image Upload Endpoint (for Rich Markdown Editor Drag & Drop)
+router.post("/upload-image", upload.single("image"), async (req, res) => {
+    try {
+        if (!req.file?.buffer) {
+            return res.status(400).json({ success: false, error: "No image file provided" });
+        }
+        const result = await uploadOnCloudinary(req.file.buffer);
+        return res.status(200).json({
+            success: true,
+            url: result.secure_url,
+            public_id: result.public_id
+        });
+    } catch (err) {
+        console.error("Upload image error:", err);
+        return res.status(500).json({ success: false, error: "Image upload failed" });
+    }
+});
+
+// Like / Clap Reaction Endpoint
+router.post("/:id/like", async (req, res) => {
+    try {
+        const blog = await Blog.findByIdAndUpdate(
+            req.params.id,
+            { $inc: { likes: 1 } },
+            { new: true }
+        ).select('likes');
+        if (!blog) {
+            return res.status(404).json({ success: false, error: "Blog not found" });
+        }
+        return res.status(200).json({ success: true, likes: blog.likes });
+    } catch (err) {
+        return res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+router.post("/", upload.fields([{ name: "coverImage", maxCount: 1 }, { name: "galleryImages", maxCount: 8 }]), async (req, res) => {
+    const { title, body, category, tags } = req.body;
     let coverImageURL;
     let coverImagePublicId;
-    if (req.file?.buffer) {
-        const result = await uploadOnCloudinary(req.file.buffer);
+    const imagesArray = [];
+
+    // Process Cover Image
+    if (req.files?.coverImage?.[0]?.buffer) {
+        const result = await uploadOnCloudinary(req.files.coverImage[0].buffer);
         coverImageURL = result.secure_url;
         coverImagePublicId = result.public_id;
+        imagesArray.push({
+            url: coverImageURL,
+            public_id: coverImagePublicId,
+            caption: title
+        });
+    }
+
+    // Process Multiple Gallery Images
+    if (req.files?.galleryImages && req.files.galleryImages.length > 0) {
+        for (const file of req.files.galleryImages) {
+            try {
+                const result = await uploadOnCloudinary(file.buffer);
+                imagesArray.push({
+                    url: result.secure_url,
+                    public_id: result.public_id,
+                    caption: file.originalname || "Article Image"
+                });
+            } catch (imgErr) {
+                console.warn("Gallery image upload failed:", imgErr.message);
+            }
+        }
+    }
+
+    // Parse tags
+    let parsedTags = [];
+    if (tags) {
+        parsedTags = tags.split(',').map(t => t.trim().toLowerCase()).filter(Boolean);
     }
 
     const blog = await Blog.create({
         title,
         body,
+        category: category || "Editorial",
+        tags: parsedTags,
+        images: imagesArray,
         createdBy: req.user._id,
         coverImageURL: coverImageURL,
         coverImagePublicId: coverImagePublicId,
@@ -110,7 +175,7 @@ router.post("/", upload.single("coverImage"), async (req, res) => {
     cacheService.invalidateBlogCaches();
 
     return res.redirect(`/blog/${blog._id}`);
-})
+});
 
 
 

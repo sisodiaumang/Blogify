@@ -124,29 +124,75 @@ async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25, mode = 'al
                     finalBody += `\n\n---\n*Original Reporting & Source: [${article.source}](${article.link})*`;
                 }
 
-                // 4. Search and Upload Non-Copyrighted Image from Web (Wikimedia / Openverse / CC), or AI Fallback
-                console.log(`[newsAutomation] Finding related non-copyrighted image...`);
+                // 4. Multi-Image Pipeline: Fetch & Upload Hero Cover + Secondary Inline Image
+                const imagesArray = [];
+
+                // 4A. Primary Hero Cover Image
+                console.log(`[newsAutomation] Finding Hero Cover non-copyrighted image...`);
                 let coverData = await fetchAndUploadNonCopyrightedImage(
                     generatedContent.searchKeywords || [article.title]
                 );
 
                 if (!coverData) {
-                    console.log(`[newsAutomation] Generating topic-specific AI image...`);
+                    console.log(`[newsAutomation] Generating topic-specific AI Hero image...`);
                     coverData = await generateAndUploadImage(generatedContent.imagePrompt || generatedContent.title);
                 }
 
-                // 5. Save the blog post in MongoDB
+                if (coverData?.coverImageURL) {
+                    imagesArray.push({
+                        url: coverData.coverImageURL,
+                        public_id: coverData.coverImagePublicId || null,
+                        caption: generatedContent.title
+                    });
+                }
+
+                // 4B. Secondary Inline Context Image
+                console.log(`[newsAutomation] Finding Secondary Inline non-copyrighted image...`);
+                let inlineData = await fetchAndUploadNonCopyrightedImage(
+                    generatedContent.inlineSearchKeywords || [article.title]
+                );
+
+                if (!inlineData && generatedContent.inlineImagePrompt) {
+                    console.log(`[newsAutomation] Generating secondary AI inline image...`);
+                    inlineData = await generateAndUploadImage(generatedContent.inlineImagePrompt);
+                }
+
+                if (inlineData?.coverImageURL) {
+                    imagesArray.push({
+                        url: inlineData.coverImageURL,
+                        public_id: inlineData.coverImagePublicId || null,
+                        caption: generatedContent.inlineSearchKeywords?.[0] || 'Editorial Context'
+                    });
+
+                    // Embed inline image into markdown content
+                    const inlineMarkdown = `\n\n![${generatedContent.inlineSearchKeywords?.[0] || 'Editorial Context'}](${inlineData.coverImageURL})\n*${generatedContent.inlineSearchKeywords?.[0] || generatedContent.title}*\n\n`;
+                    if (finalBody.includes('{{INLINE_IMAGE_1}}')) {
+                        finalBody = finalBody.replace('{{INLINE_IMAGE_1}}', inlineMarkdown);
+                    } else {
+                        // Insert in middle of body if placeholder was omitted
+                        const paragraphs = finalBody.split('\n\n');
+                        if (paragraphs.length >= 3) {
+                            paragraphs.splice(Math.floor(paragraphs.length / 2), 0, inlineMarkdown);
+                            finalBody = paragraphs.join('\n\n');
+                        }
+                    }
+                } else {
+                    finalBody = finalBody.replace(/\{\{INLINE_IMAGE_1\}\}/g, '');
+                }
+
+                // 5. Save the multi-image blog post in MongoDB
                 const newBlog = await Blog.create({
                     title: generatedContent.title,
                     body: finalBody,
                     coverImageURL: coverData?.coverImageURL || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=630&fit=crop',
                     coverImagePublicId: coverData?.coverImagePublicId || null,
+                    images: imagesArray,
                     createdBy: botUser._id,
                     sourceUrl: article.link,
                     sourceTitle: article.title
                 });
 
-                console.log(`[newsAutomation] SUCCESS! Created blog: "${newBlog.title}" (ID: ${newBlog._id})`);
+                console.log(`[newsAutomation] SUCCESS! Created multi-image blog: "${newBlog.title}" (ID: ${newBlog._id}, Images: ${imagesArray.length})`);
                 stats.successfullyCreated++;
                 createdCount++;
 
