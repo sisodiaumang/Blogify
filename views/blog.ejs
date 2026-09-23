@@ -718,12 +718,17 @@
 
             <header>
                 <div class="article-header-actions">
-                    <p style="text-transform: uppercase; font-size: 11.5px; color: var(--muted); font-weight: 600; margin: 0; display: flex; align-items: center; gap: 6px;">
+                    <p style="text-transform: uppercase; font-size: 11.5px; color: var(--muted); font-weight: 600; margin: 0; display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
                         <span><%= blog.createdBy?.fullName || 'Editorial' %></span>
                         <span>&bull;</span>
                         <time datetime="<%= new Date(blog.createdAt).toISOString() %>"><%= timeAgo(blog.createdAt) %></time>
                         <span>&bull;</span>
                         <span><%= blog.readTimeMinutes || 3 %> min read</span>
+                        <span>&bull;</span>
+                        <span style="display: inline-flex; align-items: center; gap: 4px;" title="Total Views">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -1px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                            <%= blog.views || 0 %> <%= (blog.views === 1) ? 'view' : 'views' %>
+                        </span>
                     </p>
 
                     <div class="action-pills-group">
@@ -1012,7 +1017,7 @@
         <main class="reader-content-wrap">
             <h1 class="reader-title"><%= blog.title %></h1>
             <p style="text-transform: uppercase; font-size: 0.8rem; opacity: 0.7; font-weight: 600; margin-bottom: 30px;">
-                By <%= blog.createdBy?.fullName || 'Editorial' %> &bull; <%= blog.readTimeMinutes || 3 %> min read
+                By <%= blog.createdBy?.fullName || 'Editorial' %> &bull; <%= blog.readTimeMinutes || 3 %> min read &bull; <%= blog.views || 0 %> <%= (blog.views === 1) ? 'view' : 'views' %>
             </p>
             <div class="reader-content-body" id="reader-body-copy">
                 <%- htmlContent %>

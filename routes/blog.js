@@ -49,8 +49,18 @@ router.get(["/:id", "/:id/:slug"], async (req, res) => {
             return res.redirect("/");
         }
 
-        // Increment view count asynchronously
-        Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } }).exec();
+        // View tracking with deduplication:
+        // Check cookie to prevent rapid duplicate counts by the same visitor within 30 minutes
+        const viewCookieName = `viewed_${blog._id}`;
+        if (!req.cookies || !req.cookies[viewCookieName]) {
+            Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } }).exec();
+            res.cookie(viewCookieName, '1', {
+                maxAge: 30 * 60 * 1000,
+                httpOnly: true,
+                sameSite: 'lax'
+            });
+            blog.views = (blog.views || 0) + 1;
+        }
 
         // 1. Cache rendered markdown HTML (5-min TTL)
         const htmlContent = await cacheService.wrap(`blog:html:${blog._id}`, 300, async () => {
@@ -75,7 +85,8 @@ router.get(["/:id", "/:id/:slug"], async (req, res) => {
             hasLiked = blog.likedBy.some(id => id.toString() === req.user._id.toString());
         }
 
-        res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=180, stale-while-revalidate=86400');
+        // Prevent CDN from swallowing requests so views and user-specific like/auth state stay accurate
+        res.setHeader('Cache-Control', 'private, no-cache, no-store, must-revalidate');
 
         return res.render("blog", {
             blog,
