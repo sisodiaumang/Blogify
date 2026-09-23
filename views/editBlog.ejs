@@ -299,7 +299,7 @@
                 </div>
                 <div style="display: flex; align-items: center;">
                     <a href="/blog/<%= blog._id %>" class="btn-cancel-link">Cancel</a>
-                    <button type="submit" class="btn-publish-main">💾 Save Changes</button>
+                    <button type="submit" class="btn-publish-main">Save Changes</button>
                 </div>
             </div>
 
@@ -318,12 +318,12 @@
                     <div>
                         <label class="meta-label">Category</label>
                         <select name="category" class="select-input" required>
-                            <option value="Editorial" <%= (blog.category === 'Editorial') ? 'selected' : '' %>>✍️ Editorial & Essay</option>
-                            <option value="Google Trends" <%= (blog.category === 'Google Trends') ? 'selected' : '' %>>🔥 Google Trends & Buzz</option>
-                            <option value="Technology" <%= (blog.category === 'Technology') ? 'selected' : '' %>>💻 Tech & Artificial Intelligence</option>
-                            <option value="Geopolitics" <%= (blog.category === 'Geopolitics') ? 'selected' : '' %>>🌍 World & Geopolitics</option>
-                            <option value="Economy" <%= (blog.category === 'Economy') ? 'selected' : '' %>>📊 Economy & Markets</option>
-                            <option value="Breaking News" <%= (blog.category === 'Breaking News') ? 'selected' : '' %>>⚡ Breaking News</option>
+                            <option value="Editorial" <%= (blog.category === 'Editorial') ? 'selected' : '' %>>Editorial & Essay</option>
+                            <option value="Google Trends" <%= (blog.category === 'Google Trends') ? 'selected' : '' %>>Google Trends</option>
+                            <option value="Technology" <%= (blog.category === 'Technology') ? 'selected' : '' %>>Tech & Artificial Intelligence</option>
+                            <option value="Geopolitics" <%= (blog.category === 'Geopolitics') ? 'selected' : '' %>>World & Geopolitics</option>
+                            <option value="Economy" <%= (blog.category === 'Economy') ? 'selected' : '' %>>Economy & Markets</option>
+                            <option value="Breaking News" <%= (blog.category === 'Breaking News') ? 'selected' : '' %>>Breaking News</option>
                         </select>
                     </div>
 
@@ -346,7 +346,9 @@
             <div class="meta-group">
                 <label class="meta-label">Multi-Image Gallery & Drag-and-Drop Uploader</label>
                 <div class="dropzone-box" id="dropzoneBox" onclick="document.getElementById('galleryInput').click()">
-                    <div style="font-size: 2rem; margin-bottom: 8px;">🖼️</div>
+                    <div style="margin-bottom: 8px; color: var(--accent);">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                    </div>
                     <div style="font-weight: 600; color: var(--ink); margin-bottom: 4px;">Click to select or drag & drop multiple images</div>
                     <div style="font-size: 0.82rem; color: var(--muted);">Upload multiple contextual illustrations for instant markdown embedding</div>
                     <input type="file" id="galleryInput" name="galleryImages" multiple accept="image/*" style="display: none;" onchange="handleGalleryFiles(this.files)">

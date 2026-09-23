@@ -479,13 +479,13 @@
         const currentSearch = locals.search || '';
         
         const categories = [
-            { id: '', label: '✨ All Feeds' },
-            { id: 'Google Trends', label: '🔥 Google Trends' },
-            { id: 'Technology', label: '💻 Tech & AI' },
-            { id: 'Geopolitics', label: '🌍 Geopolitics' },
-            { id: 'Economy', label: '📊 Economy' },
-            { id: 'Breaking News', label: '⚡ Breaking' },
-            { id: 'Editorial', label: '✍️ Editorial' }
+            { id: '', label: 'All Feeds' },
+            { id: 'Google Trends', label: 'Google Trends' },
+            { id: 'Technology', label: 'Tech & AI' },
+            { id: 'Geopolitics', label: 'Geopolitics' },
+            { id: 'Economy', label: 'Economy' },
+            { id: 'Breaking News', label: 'Breaking' },
+            { id: 'Editorial', label: 'Editorial' }
         ];
 
         function timeAgo(date) {
@@ -562,10 +562,10 @@
             <div class="sort-select-wrapper">
                 <label for="sortSelect">Sort by:</label>
                 <select id="sortSelect" class="sort-select" onchange="changeSort(this.value)">
-                    <option value="newest" <%= currentSort === 'newest' ? 'selected' : '' %>>⚡ Newest</option>
-                    <option value="trending" <%= currentSort === 'trending' ? 'selected' : '' %>>🔥 Trending</option>
-                    <option value="views" <%= currentSort === 'views' ? 'selected' : '' %>>👁️ Most Viewed</option>
-                    <option value="likes" <%= currentSort === 'likes' ? 'selected' : '' %>>👏 Most Liked</option>
+                    <option value="newest" <%= currentSort === 'newest' ? 'selected' : '' %>>Newest</option>
+                    <option value="trending" <%= currentSort === 'trending' ? 'selected' : '' %>>Trending</option>
+                    <option value="views" <%= currentSort === 'views' ? 'selected' : '' %>>Most Viewed</option>
+                    <option value="likes" <%= currentSort === 'likes' ? 'selected' : '' %>>Most Liked</option>
                 </select>
             </div>
         </div>
@@ -601,8 +601,14 @@
 
                                 <div class="card-footer">
                                     <div class="card-stats">
-                                        <span>👁️ <%= blog.views || 0 %></span>
-                                        <span>👏 <%= blog.likes || 0 %></span>
+                                        <span>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                            <%= blog.views || 0 %>
+                                        </span>
+                                        <span>
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                            <%= blog.likes || 0 %>
+                                        </span>
                                     </div>
                                     <span class="read-link-arrow">
                                         Read Story
@@ -624,7 +630,7 @@
         <!-- Infinite Scroll Sentinel & Loader -->
         <div id="scroll-sentinel">
             <div class="spinner-loader" id="scroll-spinner"></div>
-            <div class="feed-end-message" id="feed-end-msg">✨ You've reached the end of the feed</div>
+            <div class="feed-end-message" id="feed-end-msg">You've reached the end of the feed</div>
         </div>
 
         <!-- Classical Pagination Controls Fallback / Static SEO Navigation -->
@@ -749,8 +755,14 @@
                             <p class="card-excerpt">${cleanBody}</p>
                             <div class="card-footer">
                                 <div class="card-stats">
-                                    <span>👁️ ${views}</span>
-                                    <span>👏 ${likes}</span>
+                                    <span>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                                        ${views}
+                                    </span>
+                                    <span>
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px;"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                                        ${likes}
+                                    </span>
                                 </div>
                                 <span class="read-link-arrow">
                                     Read Story

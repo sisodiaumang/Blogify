@@ -70,6 +70,11 @@ router.get(["/:id", "/:id/:slug"], async (req, res) => {
         const seoExcerpt = generateSeoExcerpt(blog.body, 160);
         const canonicalUrl = `${SITE_URL}/blog/${blog._id}`;
 
+        let hasLiked = false;
+        if (req.user && blog.likedBy && Array.isArray(blog.likedBy)) {
+            hasLiked = blog.likedBy.some(id => id.toString() === req.user._id.toString());
+        }
+
         res.setHeader('Cache-Control', 'public, max-age=30, s-maxage=180, stale-while-revalidate=86400');
 
         return res.render("blog", {
@@ -78,7 +83,8 @@ router.get(["/:id", "/:id/:slug"], async (req, res) => {
             comments,
             relatedBlogs,
             seoExcerpt,
-            canonicalUrl
+            canonicalUrl,
+            hasLiked
         });
     } catch (err) {
         console.error("Blog route error:", err);
@@ -104,19 +110,60 @@ router.post("/upload-image", upload.single("image"), async (req, res) => {
     }
 });
 
-// Like / Clap Reaction Endpoint
+// Like / Unlike Reaction Endpoint (Auth verified & Toggleable)
 router.post("/:id/like", async (req, res) => {
     try {
-        const blog = await Blog.findByIdAndUpdate(
-            req.params.id,
-            { $inc: { likes: 1 } },
-            { new: true }
-        ).select('likes');
+        if (!req.user || !req.user._id) {
+            return res.status(401).json({
+                success: false,
+                requireAuth: true,
+                error: "Please sign in to like this story."
+            });
+        }
+
+        const blogId = req.params.id;
+        const userId = req.user._id;
+
+        const blog = await Blog.findById(blogId);
         if (!blog) {
             return res.status(404).json({ success: false, error: "Blog not found" });
         }
-        return res.status(200).json({ success: true, likes: blog.likes });
+
+        const isLiked = blog.likedBy && blog.likedBy.some(id => id.toString() === userId.toString());
+
+        let updatedBlog;
+        if (isLiked) {
+            // User already liked -> remove like (unlike)
+            updatedBlog = await Blog.findByIdAndUpdate(
+                blogId,
+                {
+                    $pull: { likedBy: userId },
+                    $inc: { likes: -1 }
+                },
+                { new: true }
+            ).select('likes likedBy');
+
+            if (updatedBlog.likes < 0) {
+                updatedBlog.likes = 0;
+                await updatedBlog.save();
+            }
+
+            return res.status(200).json({ success: true, liked: false, likes: updatedBlog.likes });
+        } else {
+            // User has not liked -> add like
+            updatedBlog = await Blog.findByIdAndUpdate(
+                blogId,
+                {
+                    $addToSet: { likedBy: userId },
+                    $inc: { likes: 1 }
+                },
+                { new: true }
+            ).select('likes likedBy');
+
+            return res.status(200).json({ success: true, liked: true, likes: updatedBlog.likes });
+        }
     } catch (err) {
+        console.error("Like toggle error:", err);
         return res.status(500).json({ success: false, error: err.message });
     }
 });

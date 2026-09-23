@@ -177,7 +177,7 @@
             gap: 8px;
         }
 
-        .reader-mode-btn, .clap-btn, .blog-report-btn {
+        .reader-mode-btn, .like-btn, .blog-report-btn {
             background: var(--surface);
             border: 1px solid var(--border);
             color: var(--ink);
@@ -193,16 +193,21 @@
             text-decoration: none;
         }
 
-        .reader-mode-btn:hover, .clap-btn:hover, .blog-report-btn:hover {
+        .reader-mode-btn:hover, .like-btn:hover, .blog-report-btn:hover {
             border-color: var(--ink);
             background: var(--surface-raised);
             transform: translateY(-1px);
         }
 
-        .clap-btn.active {
-            background: var(--accent-light);
-            border-color: var(--accent);
-            color: var(--accent);
+        .like-btn.active {
+            background: rgba(225, 29, 72, 0.08);
+            border-color: #e11d48;
+            color: #e11d48;
+        }
+
+        .like-btn.active svg {
+            fill: #e11d48;
+            stroke: #e11d48;
         }
 
         .blog-title {
@@ -675,10 +680,12 @@
 
                     <div class="action-pills-group">
                         <button class="reader-mode-btn" onclick="openReaderMode()" title="Distraction-free Reading Mode">
-                            📖 Reader Mode
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"></path><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"></path></svg>
+                            Reader Mode
                         </button>
-                        <button class="clap-btn" id="clap-btn" onclick="clapBlog('<%= blog._id %>')" title="Clap for this story">
-                            👏 <span id="clap-counter"><%= blog.likes || 0 %></span>
+                        <button class="like-btn <%= locals.hasLiked ? 'active' : '' %>" id="like-btn" onclick="toggleLike('<%= blog._id %>')" title="Like this story">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="<%= locals.hasLiked ? '#e11d48' : 'none' %>" stroke="<%= locals.hasLiked ? '#e11d48' : 'currentColor' %>" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="like-svg-icon"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                            <span id="like-counter"><%= blog.likes || 0 %></span>
                         </button>
                         <% if (locals.user) { %>
                             <button class="blog-report-btn" onclick="openReportModal('blog', '<%= blog._id %>')">
@@ -938,9 +945,9 @@
     <div id="readerModeModal" class="reader-mode-overlay" data-reader-theme="paper" data-reader-font="serif">
         <div class="reader-toolbar">
             <div class="reader-controls">
-                <button class="reader-btn" onclick="setReaderTheme('paper')">📜 Paper</button>
-                <button class="reader-btn" onclick="setReaderTheme('sepia')">☕ Sepia</button>
-                <button class="reader-btn" onclick="setReaderTheme('dark')">🌙 Dark</button>
+                <button class="reader-btn" onclick="setReaderTheme('paper')">Paper</button>
+                <button class="reader-btn" onclick="setReaderTheme('sepia')">Sepia</button>
+                <button class="reader-btn" onclick="setReaderTheme('dark')">Dark</button>
                 <span style="opacity: 0.3;">|</span>
                 <button class="reader-btn" onclick="setReaderFont('serif')">Serif</button>
                 <button class="reader-btn" onclick="setReaderFont('sans')">Sans</button>
@@ -992,7 +999,7 @@
 
     <%- include('./partials/script')%>
 
-    <!-- Reading Progress, Reader Mode & Clap Script -->
+    <!-- Reading Progress, Reader Mode & Like Script -->
     <script>
         // ── Scroll Progress Bar ──────────────────────────────────────────
         window.addEventListener('scroll', () => {
@@ -1003,22 +1010,44 @@
             if (bar) bar.style.width = scrolled + '%';
         });
 
-        // ── Clap / Like Interaction ──────────────────────────────────────
-        async function clapBlog(blogId) {
-            const btn = document.getElementById('clap-btn');
-            const counter = document.getElementById('clap-counter');
-            btn.style.transform = 'scale(1.2)';
+        // ── Like / Unlike Interaction with Auth Check ────────────────────
+        async function toggleLike(blogId) {
+            const btn = document.getElementById('like-btn');
+            const counter = document.getElementById('like-counter');
+            const icon = document.getElementById('like-svg-icon');
+            
+            btn.style.transform = 'scale(1.15)';
             setTimeout(() => btn.style.transform = 'none', 150);
 
             try {
                 const res = await fetch(`/blog/${blogId}/like`, { method: 'POST' });
                 const data = await res.json();
+
+                if (res.status === 401 || data.requireAuth) {
+                    if (confirm("Please sign in to like this story. Would you like to go to the sign-in page now?")) {
+                        window.location.href = '/user/signin';
+                    }
+                    return;
+                }
+
                 if (data.success) {
                     counter.textContent = data.likes;
-                    btn.classList.add('active');
+                    if (data.liked) {
+                        btn.classList.add('active');
+                        if (icon) {
+                            icon.setAttribute('fill', '#e11d48');
+                            icon.setAttribute('stroke', '#e11d48');
+                        }
+                    } else {
+                        btn.classList.remove('active');
+                        if (icon) {
+                            icon.setAttribute('fill', 'none');
+                            icon.setAttribute('stroke', 'currentColor');
+                        }
+                    }
                 }
             } catch (err) {
-                console.error('Clap error:', err);
+                console.error('Like toggle error:', err);
             }
         }
 
