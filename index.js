@@ -125,7 +125,7 @@ app.get('/', async (req, res) => {
 
 // Infinite Scroll AJAX JSON Feed Endpoint
 app.get('/api/feed', async (req, res) => {
-    const limit = 6; 
+    const limit = 9; 
     const page = parseInt(req.query.page) || 1;
     const search = (req.query.search || '').trim();
     const category = (req.query.category || '').trim();

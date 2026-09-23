@@ -725,9 +725,31 @@
             const endMsg = document.getElementById('feed-end-msg');
             const paginationNav = document.getElementById('pagination-nav');
 
+            // Track rendered blog IDs to prevent any duplicate card injection
+            const renderedBlogIds = new Set();
+            document.querySelectorAll('#blog-grid .blog-card').forEach(card => {
+                const href = card.getAttribute('href') || '';
+                const parts = href.split('/blog/');
+                if (parts[1]) {
+                    const id = parts[1].split('/')[0].split('?')[0];
+                    if (id) renderedBlogIds.add(id.toString());
+                }
+            });
+
             if (paginationNav) {
                 // Hide static pagination when infinite scroll is supported
                 paginationNav.style.display = 'none';
+            }
+
+            function calculateTimeAgo(dateStr) {
+                if (!dateStr) return 'Recent';
+                const diffSec = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
+                if (isNaN(diffSec) || diffSec < 0) return 'Recent';
+                if (diffSec < 60) return 'just now';
+                if (diffSec < 3600) return Math.floor(diffSec / 60) + 'm ago';
+                if (diffSec < 86400) return Math.floor(diffSec / 3600) + 'h ago';
+                if (diffSec < 604800) return Math.floor(diffSec / 86400) + 'd ago';
+                return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
             }
 
             function renderCard(blog) {
@@ -737,6 +759,7 @@
                 const readMin = blog.readTimeMinutes || 3;
                 const views = blog.views || 0;
                 const likes = blog.likes || 0;
+                const timeAgoText = calculateTimeAgo(blog.createdAt);
                 const cleanBody = (blog.body || '').replace(/[#*`_>\[\]]/g, '').slice(0, 140) + '...';
 
                 const article = document.createElement('article');
@@ -749,7 +772,7 @@
                         <div class="blog-card-body">
                             <div class="card-meta-row">
                                 <span>${author}</span>
-                                <span>just now &bull; ${readMin} min</span>
+                                <span>${timeAgoText} &bull; ${readMin} min</span>
                             </div>
                             <h2 class="blog-card-title">${blog.title}</h2>
                             <p class="card-excerpt">${cleanBody}</p>
@@ -793,12 +816,17 @@
                     const data = await res.json();
 
                     if (data.success && data.blogs && data.blogs.length > 0) {
+                        let appendedCount = 0;
                         data.blogs.forEach(blog => {
-                            grid.appendChild(renderCard(blog));
+                            if (!renderedBlogIds.has(blog._id.toString())) {
+                                renderedBlogIds.add(blog._id.toString());
+                                grid.appendChild(renderCard(blog));
+                                appendedCount++;
+                            }
                         });
 
                         currentPage = data.currentPage;
-                        hasMore = data.hasMore;
+                        hasMore = data.hasMore && (appendedCount > 0);
 
                         if (!hasMore) {
                             endMsg.style.display = 'block';
