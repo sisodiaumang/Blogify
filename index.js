@@ -25,14 +25,17 @@ const { checkForAuthenticationCookie } = require('./middleware/authentication');
 const app = express();
 const PORT = process.env.PORT || 8000;
 
+const { tagAllExistingBlogs } = require("./services/taggerService");
+
 connectToMongoDB(process.env.MONGODB_URL)
     .then(() => {
         console.log("DataBase connected Successfully");
+        // Run background keyword auto-tagging & category normalization
+        tagAllExistingBlogs().catch(err => console.error("Auto-tagging error:", err));
     })
     .catch((err) => {
         console.error("Database connection Failed\n", err);
-    })
-    ;
+    });
 
 
 
@@ -65,26 +68,69 @@ app.set("views", path.join(__dirname, "views"));
 function buildCategoryQuery(category) {
     if (!category || category.toLowerCase() === 'all') return null;
     const cat = category.toLowerCase().trim();
+
     if (cat === 'google trends' || cat === 'trends' || cat.includes('trend')) {
-        return { $regex: /trend/i };
+        return {
+            $or: [
+                { category: { $regex: /trend/i } },
+                { tags: { $regex: /trend|viral/i } },
+                { title: { $regex: /\b(trend|trending|viral|surges|buzz|fame)\b/i } }
+            ]
+        };
     }
-    if (cat === 'technology' || cat === 'tech & ai' || cat === 'tech' || cat.includes('tech')) {
-        return { $regex: /tech/i };
+    if (cat === 'technology' || cat === 'tech & ai' || cat === 'tech' || cat.includes('tech') || cat.includes('ai')) {
+        return {
+            $or: [
+                { category: { $regex: /tech|ai|artificial intelligence|software|hardware|computing/i } },
+                { tags: { $regex: /tech|technology|ai|artificial intelligence|machine learning|software|apple|google|nvidia|microsoft|meta|openai|chatgpt|robot|crypto|cyber|cloud|developer|coding|quantum|chip|semiconductor|deepseek|claude|gemini|llm/i } },
+                { title: { $regex: /\b(tech|technology|ai|artificial intelligence|robotics|robot|openai|chatgpt|nvidia|apple|google|microsoft|meta|software|hardware|algorithm|quantum|chip|chips|semiconductor|cyber|hacker|startup|android|ios|deepseek|claude|gemini|llm|coding|developer)\b/i } }
+            ]
+        };
     }
     if (cat === 'geopolitics' || cat === 'world' || cat.includes('geopolitic') || cat.includes('world')) {
-        return { $regex: /geopolitic|world/i };
+        return {
+            $or: [
+                { category: { $regex: /geopolitic|world|international|foreign|diplomacy/i } },
+                { tags: { $regex: /geopolitic|world|war|defense|diplomacy|un|nato|china|russia|ukraine|israel|iran|palestine|taiwan|putin|biden|trump|modi|military|border/i } },
+                { title: { $regex: /\b(geopolitics|world|war|defense|diplomacy|nato|un|china|russia|ukraine|israel|iran|palestine|taiwan|putin|biden|trump|modi|treaty|military|missile|conflict|border|bilateral|foreign|sanctions)\b/i } }
+            ]
+        };
     }
     if (cat === 'economy' || cat === 'markets' || cat.includes('econom') || cat.includes('market')) {
-        return { $regex: /econom|market|business/i };
+        return {
+            $or: [
+                { category: { $regex: /econom|market|business|finance/i } },
+                { tags: { $regex: /econom|market|stock|inflation|gdp|recession|fed|rbi|banking|bank|finance|trade|invest|crypto|bitcoin|revenue|tax/i } },
+                { title: { $regex: /\b(economy|economic|market|markets|stock|stocks|sensex|nifty|wall street|inflation|gdp|recession|fed|federal reserve|rbi|interest rate|banking|bank|finance|financial|trade|tariffs|invest|investors|crypto|bitcoin|revenue|debt|tax)\b/i } }
+            ]
+        };
     }
     if (cat === 'breaking news' || cat === 'breaking' || cat.includes('break') || cat.includes('top stor')) {
-        return { $regex: /break|top stor/i };
+        return {
+            $or: [
+                { category: { $regex: /break|top stor|news/i } },
+                { tags: { $regex: /break|urgent|alert|top stories|live/i } },
+                { title: { $regex: /\b(breaking|alert|live|urgent|crash|disaster|emergency|verdict|dead|killed|rescued|earthquake|storm|curfew|attack)\b/i } }
+            ]
+        };
     }
     if (cat === 'editorial' || cat === 'opinion' || cat.includes('editorial') || cat.includes('opinion')) {
-        return { $regex: /editorial|opinion|essay/i };
+        return {
+            $or: [
+                { category: { $regex: /editorial|opinion|essay|column|analysis/i } },
+                { tags: { $regex: /editorial|opinion|essay|perspective|analysis|thought/i } },
+                { title: { $regex: /\b(opinion|editorial|essay|perspective|viewpoint|column|analysis|why|how|reflections)\b/i } }
+            ]
+        };
     }
     const escaped = category.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    return { $regex: new RegExp(escaped, 'i') };
+    return {
+        $or: [
+            { category: { $regex: new RegExp(escaped, 'i') } },
+            { tags: { $regex: new RegExp(escaped, 'i') } },
+            { title: { $regex: new RegExp(escaped, 'i') } }
+        ]
+    };
 }
 
 app.get('/', async (req, res) => {
@@ -94,14 +140,16 @@ app.get('/', async (req, res) => {
     const category = (req.query.category || '').trim();
     const sort = (req.query.sort || 'newest').trim().toLowerCase();
 
-    const query = {};
+    const queryConditions = [];
     if (search) {
-        query.title = { $regex: search, $options: 'i' };
+        queryConditions.push({ title: { $regex: search, $options: 'i' } });
     }
     const catFilter = buildCategoryQuery(category);
     if (catFilter) {
-        query.category = catFilter;
+        queryConditions.push(catFilter);
     }
+
+    const query = queryConditions.length > 0 ? { $and: queryConditions } : {};
 
     let sortOption = { createdAt: -1 };
     if (sort === 'trending' || sort === 'views') {
@@ -153,14 +201,16 @@ app.get('/api/feed', async (req, res) => {
     const category = (req.query.category || '').trim();
     const sort = (req.query.sort || 'newest').trim().toLowerCase();
 
-    const query = {};
+    const queryConditions = [];
     if (search) {
-        query.title = { $regex: search, $options: 'i' };
+        queryConditions.push({ title: { $regex: search, $options: 'i' } });
     }
     const catFilter = buildCategoryQuery(category);
     if (catFilter) {
-        query.category = catFilter;
+        queryConditions.push(catFilter);
     }
+
+    const query = queryConditions.length > 0 ? { $and: queryConditions } : {};
 
     let sortOption = { createdAt: -1 };
     if (sort === 'trending' || sort === 'views') {

@@ -5,6 +5,7 @@ const { rewriteNewsToBlog } = require('./groqService');
 const { fetchAndUploadNonCopyrightedImage } = require('./imageSearchService');
 const { generateAndUploadImage } = require('./imageGenService');
 const { pingGoogleSearch } = require('./seoService');
+const { extractTagsAndCategory } = require('./taggerService');
 
 /**
  * Ensures an author user exists for automated AI news posts.
@@ -180,10 +181,19 @@ async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25, mode = 'al
                     finalBody = finalBody.replace(/\{\{INLINE_IMAGE_1\}\}/g, '');
                 }
 
+                // Extract smart category and keyword tags
+                const { category: detectedCategory, tags: detectedTags } = extractTagsAndCategory(
+                    generatedContent.title,
+                    finalBody,
+                    article.category
+                );
+
                 // 5. Save the multi-image blog post in MongoDB
                 const newBlog = await Blog.create({
                     title: generatedContent.title,
                     body: finalBody,
+                    category: detectedCategory || article.category || "Editorial",
+                    tags: detectedTags || [],
                     coverImageURL: coverData?.coverImageURL || 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=1200&h=630&fit=crop',
                     coverImagePublicId: coverData?.coverImagePublicId || null,
                     images: imagesArray,
