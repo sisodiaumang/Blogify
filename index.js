@@ -62,6 +62,31 @@ app.use((req, res, next) => {
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 
+function buildCategoryQuery(category) {
+    if (!category || category.toLowerCase() === 'all') return null;
+    const cat = category.toLowerCase().trim();
+    if (cat === 'google trends' || cat === 'trends' || cat.includes('trend')) {
+        return { $regex: /trend/i };
+    }
+    if (cat === 'technology' || cat === 'tech & ai' || cat === 'tech' || cat.includes('tech')) {
+        return { $regex: /tech/i };
+    }
+    if (cat === 'geopolitics' || cat === 'world' || cat.includes('geopolitic') || cat.includes('world')) {
+        return { $regex: /geopolitic|world/i };
+    }
+    if (cat === 'economy' || cat === 'markets' || cat.includes('econom') || cat.includes('market')) {
+        return { $regex: /econom|market|business/i };
+    }
+    if (cat === 'breaking news' || cat === 'breaking' || cat.includes('break') || cat.includes('top stor')) {
+        return { $regex: /break|top stor/i };
+    }
+    if (cat === 'editorial' || cat === 'opinion' || cat.includes('editorial') || cat.includes('opinion')) {
+        return { $regex: /editorial|opinion|essay/i };
+    }
+    const escaped = category.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return { $regex: new RegExp(escaped, 'i') };
+}
+
 app.get('/', async (req, res) => {
     const limit = 9; 
     const page = parseInt(req.query.page) || 1;
@@ -73,12 +98,9 @@ app.get('/', async (req, res) => {
     if (search) {
         query.title = { $regex: search, $options: 'i' };
     }
-    if (category && category.toLowerCase() !== 'all') {
-        if (category.toLowerCase() === 'trends') {
-            query.category = { $regex: /trend/i };
-        } else {
-            query.category = { $regex: new RegExp(category, 'i') };
-        }
+    const catFilter = buildCategoryQuery(category);
+    if (catFilter) {
+        query.category = catFilter;
     }
 
     let sortOption = { createdAt: -1 };
@@ -89,7 +111,7 @@ app.get('/', async (req, res) => {
     }
 
     try {
-        const cacheKey = `home:page:${page}:cat:${category}:sort:${sort}:s:${search.toLowerCase()}`;
+        const cacheKey = `home:page:${page}:cat:${category.toLowerCase()}:sort:${sort}:s:${search.toLowerCase()}`;
         
         const data = await cacheService.wrap(cacheKey, 60, async () => {
             const totalBlogs = await Blog.countDocuments(query);
@@ -135,12 +157,9 @@ app.get('/api/feed', async (req, res) => {
     if (search) {
         query.title = { $regex: search, $options: 'i' };
     }
-    if (category && category.toLowerCase() !== 'all') {
-        if (category.toLowerCase() === 'trends') {
-            query.category = { $regex: /trend/i };
-        } else {
-            query.category = { $regex: new RegExp(category, 'i') };
-        }
+    const catFilter = buildCategoryQuery(category);
+    if (catFilter) {
+        query.category = catFilter;
     }
 
     let sortOption = { createdAt: -1 };

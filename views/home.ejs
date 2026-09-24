@@ -474,8 +474,8 @@
     <%- include('./partials/nav')%>
 
     <% 
-        const currentCategory = locals.selectedCategory || '';
-        const currentSort = locals.selectedSort || 'newest';
+        const currentCategory = locals.category || locals.selectedCategory || '';
+        const currentSort = locals.sort || locals.selectedSort || 'newest';
         const currentSearch = locals.search || '';
         
         const categories = [
@@ -550,8 +550,9 @@
             <div class="category-pills" role="tablist">
                 <% categories.forEach(cat => { %>
                     <% 
-                        const isActive = (currentCategory === cat.id) || (!currentCategory && cat.id === '');
-                        const catUrl = `/?category=${encodeURIComponent(cat.id)}${currentSort ? '&sort=' + encodeURIComponent(currentSort) : ''}${currentSearch ? '&search=' + encodeURIComponent(currentSearch) : ''}`;
+                        const isActive = (!currentCategory && cat.id === '') || 
+                                         (currentCategory && cat.id && currentCategory.toLowerCase() === cat.id.toLowerCase());
+                        const catUrl = `/?category=${encodeURIComponent(cat.id)}${currentSort && currentSort !== 'newest' ? '&sort=' + encodeURIComponent(currentSort) : ''}${currentSearch ? '&search=' + encodeURIComponent(currentSearch) : ''}`;
                     %>
                     <a href="<%= catUrl %>" class="category-pill <%= isActive ? 'active' : '' %>" role="tab" aria-selected="<%= isActive %>">
                         <%= cat.label %>
