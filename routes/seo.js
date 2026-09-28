@@ -72,4 +72,12 @@ Sitemap: ${SITE_URL}/sitemap.xml
     return res.send(robotsTxt);
 });
 
+// 4. Google AdSense ads.txt endpoint
+router.get('/ads.txt', (req, res) => {
+    const adsTxt = `google.com, pub-6862029822893268, DIRECT, f08c47fec0942fa0\n`;
+    res.header('Content-Type', 'text/plain; charset=utf-8');
+    res.header('Cache-Control', 'public, s-maxage=86400, max-age=86400');
+    return res.send(adsTxt);
+});
+
 module.exports = router;
