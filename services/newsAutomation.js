@@ -12,7 +12,7 @@ const { extractTagsAndCategory } = require('./taggerService');
  */
 async function getOrCreateNewsBotUser() {
     // Look for existing AI bot or Admin/Owner
-    let botUser = await User.findOne({ email: 'ainews@blogify.com' });
+    let botUser = await User.findOne({ email: { $in: ['ainews@newscomplex.in', 'ainews@blogify.com'] } });
     if (botUser) return botUser;
 
     botUser = await User.findOne({ role: { $in: ['ADMIN', 'OWNER'] } });
@@ -22,11 +22,11 @@ async function getOrCreateNewsBotUser() {
     try {
         botUser = await User.create({
             fullName: 'AI News Desk',
-            email: 'ainews@blogify.com',
+            email: 'ainews@newscomplex.in',
             password: 'AutoNewsBotSecretPassword123!',
             isVerified: true,
             role: 'ADMIN',
-            bio: 'Automated global news correspondent delivering curated breaking news powered by Groq AI.',
+            bio: 'Automated global news correspondent delivering curated breaking news powered by Groq AI on NewsComplex.',
             profileImageURL: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&h=200&fit=crop&crop=faces'
         });
         console.log('[newsAutomation] Created AI News Desk author user.');

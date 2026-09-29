@@ -1,5 +1,7 @@
 const nodemailer = require("nodemailer");
 
+const SITE_URL = process.env.SITE_URL || 'https://newscomplex.in';
+
 const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -10,9 +12,9 @@ const transporter = nodemailer.createTransport({
 
 async function sendOTP(email, otp) {
     await transporter.sendMail({
-        from: `"Blogify Support" <${process.env.EMAIL}>`,
+        from: `"NewsComplex Support" <${process.env.EMAIL}>`,
         to: email,
-        subject: "Verify your identity - Blogify",
+        subject: "Verify your identity - NewsComplex",
         html: `
         <!DOCTYPE html>
         <html>
@@ -54,8 +56,8 @@ async function sendOTP(email, otp) {
                                     <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
 
                                     <div style="text-align: center; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: #aaa;">
-                                        <strong>Blogify</strong><br>
-                                        Stories & Ideas
+                                        <strong>NewsComplex</strong><br>
+                                        Stories, Trends & Insights
                                     </div>
                                 </td>
                             </tr>
@@ -71,9 +73,9 @@ async function sendOTP(email, otp) {
 
 async function sendWelcomeEmail(email, fullName) {
     await transporter.sendMail({
-        from: `"Blogify" <${process.env.EMAIL}>`,
+        from: `"NewsComplex" <${process.env.EMAIL}>`,
         to: email,
-        subject: "Welcome to Blogify — Let's start writing!",
+        subject: "Welcome to NewsComplex — Let's start writing!",
         html: `
         <!DOCTYPE html>
         <html>
@@ -97,11 +99,11 @@ async function sendWelcomeEmail(email, fullName) {
                                     <h1 class="header-text" style="font-family: 'Georgia', serif; color: #2d3e50; font-size: 32px; margin: 0 0 20px 0; text-align: center;">Welcome, ${fullName}.</h1>
                                     
                                     <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.8; color: #444; text-align: center; margin: 0 0 30px 0;">
-                                        Thank you for joining <strong>Blogify</strong>. We built this space for thinkers, storytellers, and creators like you to share ideas with the world.
+                                        Thank you for joining <strong>NewsComplex</strong>. We built this space for thinkers, storytellers, and creators like you to share ideas with the world.
                                     </p>
 
                                     <div style="text-align: center; margin: 40px 0;">
-                                        <a href="https://blogify-for-stories.vercel.app/blog/add-new" style="background-color: #2d3e50; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 50px; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 15px rgba(45, 62, 80, 0.2);">
+                                        <a href="${SITE_URL}/blog/add-new" style="background-color: #2d3e50; color: #ffffff; padding: 16px 32px; text-decoration: none; border-radius: 50px; font-family: 'Helvetica Neue', Arial, sans-serif; font-weight: 700; font-size: 14px; display: inline-block; box-shadow: 0 4px 15px rgba(45, 62, 80, 0.2);">
                                             Write Your First Story
                                         </a>
                                     </div>
@@ -113,7 +115,7 @@ async function sendWelcomeEmail(email, fullName) {
                                     <hr style="border: none; border-top: 1px solid #eee; margin: 40px 0;">
 
                                     <div style="text-align: center; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: #aaa;">
-                                        <strong>Blogify</strong><br>
+                                        <strong>NewsComplex</strong><br>
                                         Stories & Ideas • Delhi, India
                                     </div>
                                 </td>
@@ -162,11 +164,11 @@ async function reportToAdmin(adminEmail, targetType, targetId, blogId, reason, d
     htmlContent += '</table>';
     
     // Call to Action Button (Pill shaped styled like your original button)
-    htmlContent += '<div style="text-align:center;margin:30px 0 10px 0;"><a href="https://blogify-for-stories.vercel.app/admin/dashboard" style="background-color:#2d3e50;color:#ffffff;padding:14px 28px;text-decoration:none;border-radius:50px;font-weight:700;font-size:14px;display:inline-block;box-shadow:0 4px 15px rgba(45,62,80,0.2);">Review on Dashboard</a></div>';
+    htmlContent += `<div style="text-align:center;margin:30px 0 10px 0;"><a href="${SITE_URL}/admin/dashboard" style="background-color:#2d3e50;color:#ffffff;padding:14px 28px;text-decoration:none;border-radius:50px;font-weight:700;font-size:14px;display:inline-block;box-shadow:0 4px 15px rgba(45,62,80,0.2);">Review on Dashboard</a></div>`;
     htmlContent += '</div>';
     
     // Footer
-    htmlContent += '<div style="background-color:#fcfaf7;border-top:1px solid #e5e0d8;padding:20px;text-align:center;font-size:12px;color:#aaa;"><strong>Blogify System</strong><br>Stories and Ideas &bull; Delhi, India</div>';
+    htmlContent += '<div style="background-color:#fcfaf7;border-top:1px solid #e5e0d8;padding:20px;text-align:center;font-size:12px;color:#aaa;"><strong>NewsComplex System</strong><br>Stories and Ideas &bull; Delhi, India</div>';
     htmlContent += '</div></body></html>';
 
     // 3. Construct Subject Line without emojis
@@ -176,7 +178,7 @@ async function reportToAdmin(adminEmail, targetType, targetId, blogId, reason, d
 
     try {
         const info = await transporter.sendMail({
-            from: `"Blogify" <${process.env.EMAIL}>`,
+            from: `"NewsComplex" <${process.env.EMAIL}>`,
             to: adminEmail,
             subject: subjectLine,
             html: htmlContent,
@@ -190,12 +192,12 @@ async function reportToAdmin(adminEmail, targetType, targetId, blogId, reason, d
 
 async function sendConfirmation(email, token) {
     // Construct the verification URL using the provided token
-    const verificationUrl = `https://blogify-for-stories.vercel.app/verify-email/${token}`;
+    const verificationUrl = `${SITE_URL}/verify-email/${token}`;
 
     await transporter.sendMail({
-        from: `"Blogify Support" <${process.env.EMAIL}>`,
+        from: `"NewsComplex Support" <${process.env.EMAIL}>`,
         to: email,
-        subject: "Activate your Blogify account",
+        subject: "Activate your NewsComplex account",
         html: `
         <!DOCTYPE html>
         <html>
@@ -217,7 +219,7 @@ async function sendConfirmation(email, token) {
                             <tr>
                                 <td style="padding: 40px;">
                                     
-                                    <h2 class="header-text" style="font-family: 'Georgia', serif; color: #2d3e50; font-size: 24px; margin: 0 0 20px 0; text-align: center;">Welcome to Blogify!</h2>
+                                    <h2 class="header-text" style="font-family: 'Georgia', serif; color: #2d3e50; font-size: 24px; margin: 0 0 20px 0; text-align: center;">Welcome to NewsComplex!</h2>
                                     
                                     <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #666; text-align: center; margin: 0 0 30px 0;">
                                         Thank you for signing up. Please click the button below to verify your email address and activate your account.
@@ -236,14 +238,14 @@ async function sendConfirmation(email, token) {
                                     </p>
 
                                     <p style="font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 14px; color: #999; text-align: center; margin: 20px 0 0 0;">
-                                        If you did not create a Blogify account, you can safely ignore this email.
+                                        If you did not create a NewsComplex account, you can safely ignore this email.
                                     </p>
 
                                     <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
 
                                     <div style="text-align: center; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: #aaa;">
-                                        <strong>Blogify</strong><br>
-                                        Stories & Ideas
+                                        <strong>NewsComplex</strong><br>
+                                        Stories, Trends & Insights
                                     </div>
                                 </td>
                             </tr>
@@ -257,4 +259,4 @@ async function sendConfirmation(email, token) {
     });
 }
 
-    module.exports = { sendOTP, sendWelcomeEmail, reportToAdmin ,sendConfirmation };
+module.exports = { sendOTP, sendWelcomeEmail, reportToAdmin, sendConfirmation };

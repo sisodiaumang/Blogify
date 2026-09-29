@@ -12,13 +12,13 @@
 <meta name="google-site-verification" content="<%= process.env.GOOGLE_SITE_VERIFICATION %>">
 <% } %>
 
-<meta name="application-name" content="Blogify">
-<meta name="apple-mobile-web-app-title" content="Blogify">
+<meta name="application-name" content="NewsComplex">
+<meta name="apple-mobile-web-app-title" content="NewsComplex">
 
 <!-- Instant Dark Mode Initializer (Zero Flicker) -->
 <script>
   (function() {
-    const savedTheme = localStorage.getItem('blogify-theme');
+    const savedTheme = localStorage.getItem('newscomplex-theme') || localStorage.getItem('blogify-theme');
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const theme = savedTheme || (systemDark ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', theme);
@@ -43,7 +43,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
-<link rel="alternate" type="application/rss+xml" title="Blogify RSS Feed" href="/rss.xml">
+<link rel="alternate" type="application/rss+xml" title="NewsComplex RSS Feed" href="/rss.xml">
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">

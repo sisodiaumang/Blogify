@@ -3,20 +3,20 @@
 
 <head>
     <%- include('./partials/head')%>
-    <title><%= blog.title %> | Blogify</title>
+    <title><%= blog.title %> | NewsComplex</title>
     
     <!-- Primary SEO Metadata -->
-    <meta name="description" content="<%= locals.seoExcerpt || 'Read the full article and discussion on Blogify.' %>">
+    <meta name="description" content="<%= locals.seoExcerpt || 'Read the full article and discussion on NewsComplex.' %>">
     <meta name="keywords" content="<%= (blog.tags && blog.tags.length > 0) ? blog.tags.join(', ') : (blog.category || 'News, Analysis, Opinion, Editorial') %>">
-    <meta name="author" content="<%= blog.createdBy?.fullName || 'Blogify Editorial' %>">
-    <link rel="canonical" href="<%= locals.canonicalUrl || ('https://blogify-for-stories.vercel.app/blog/' + blog._id) %>">
+    <meta name="author" content="<%= blog.createdBy?.fullName || 'NewsComplex Editorial' %>">
+    <link rel="canonical" href="<%= locals.canonicalUrl || ('https://newscomplex.in/blog/' + blog._id) %>">
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="article">
-    <meta property="og:site_name" content="Blogify">
+    <meta property="og:site_name" content="NewsComplex">
     <meta property="og:title" content="<%= blog.title %>">
-    <meta property="og:description" content="<%= locals.seoExcerpt || 'Read the full article and discussion on Blogify.' %>">
-    <meta property="og:url" content="<%= locals.canonicalUrl || ('https://blogify-for-stories.vercel.app/blog/' + blog._id) %>">
+    <meta property="og:description" content="<%= locals.seoExcerpt || 'Read the full article and discussion on NewsComplex.' %>">
+    <meta property="og:url" content="<%= locals.canonicalUrl || ('https://newscomplex.in/blog/' + blog._id) %>">
     <% if (blog.coverImageURL) { %>
     <meta property="og:image" content="<%= blog.coverImageURL %>">
     <meta property="og:image:secure_url" content="<%= blog.coverImageURL %>">
@@ -37,7 +37,7 @@
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="<%= blog.title %>">
-    <meta name="twitter:description" content="<%= locals.seoExcerpt || 'Read the full article and discussion on Blogify.' %>">
+    <meta name="twitter:description" content="<%= locals.seoExcerpt || 'Read the full article and discussion on NewsComplex.' %>">
     <% if (blog.coverImageURL) { %>
     <meta name="twitter:image" content="<%= blog.coverImageURL %>">
     <% } %>
@@ -49,18 +49,18 @@
       "@type": "NewsArticle",
       "mainEntityOfPage": {
         "@type": "WebPage",
-        "@id": "<%= locals.canonicalUrl || ('https://blogify-for-stories.vercel.app/blog/' + blog._id) %>"
+        "@id": "<%= locals.canonicalUrl || ('https://newscomplex.in/blog/' + blog._id) %>"
       },
       "isPartOf": {
         "@type": "WebSite",
-        "name": "Blogify",
-        "alternateName": ["Blogify Stories", "Blogify Platform"],
-        "url": "https://blogify-for-stories.vercel.app/"
+        "name": "NewsComplex",
+        "alternateName": ["NewsComplex Stories", "NewsComplex Platform"],
+        "url": "https://newscomplex.in/"
       },
       "headline": <%- JSON.stringify(blog.title) %>,
-      "description": <%- JSON.stringify(locals.seoExcerpt || 'Read the full article and discussion on Blogify.') %>,
+      "description": <%- JSON.stringify(locals.seoExcerpt || 'Read the full article and discussion on NewsComplex.') %>,
       "image": [
-        "<%= blog.coverImageURL || 'https://blogify-for-stories.vercel.app/apple-touch-icon.png' %>"
+        "<%= blog.coverImageURL || 'https://newscomplex.in/apple-touch-icon.png' %>"
       ],
       "datePublished": "<%= new Date(blog.createdAt).toISOString() %>",
       "dateModified": "<%= new Date(blog.updatedAt || blog.createdAt).toISOString() %>",
@@ -70,16 +70,16 @@
       "isAccessibleForFree": "True",
       "author": {
         "@type": "Person",
-        "name": "<%= blog.createdBy?.fullName || 'Blogify Editorial Desk' %>",
-        "url": "https://blogify-for-stories.vercel.app/user/<%= blog.createdBy?._id %>"
+        "name": "<%= blog.createdBy?.fullName || 'NewsComplex Editorial Desk' %>",
+        "url": "https://newscomplex.in/user/<%= blog.createdBy?._id %>"
       },
       "publisher": {
         "@type": "Organization",
-        "name": "Blogify",
-        "url": "https://blogify-for-stories.vercel.app",
+        "name": "NewsComplex",
+        "url": "https://newscomplex.in",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://blogify-for-stories.vercel.app/favicon-32x32.png",
+          "url": "https://newscomplex.in/favicon-32x32.png",
           "width": 32,
           "height": 32
         }
@@ -98,19 +98,19 @@
           "@type": "ListItem",
           "position": 1,
           "name": "Home",
-          "item": "https://blogify-for-stories.vercel.app/"
+          "item": "https://newscomplex.in/"
         },
         {
           "@type": "ListItem",
           "position": 2,
           "name": "<%= blog.category || 'Editorial' %>",
-          "item": "https://blogify-for-stories.vercel.app/?category=<%= encodeURIComponent(blog.category || 'Editorial') %>"
+          "item": "https://newscomplex.in/?category=<%= encodeURIComponent(blog.category || 'Editorial') %>"
         },
         {
           "@type": "ListItem",
           "position": 3,
           "name": <%- JSON.stringify(blog.title) %>,
-          "item": "<%= locals.canonicalUrl || ('https://blogify-for-stories.vercel.app/blog/' + blog._id) %>"
+          "item": "<%= locals.canonicalUrl || ('https://newscomplex.in/blog/' + blog._id) %>"
         }
       ]
     }
@@ -783,7 +783,7 @@
                     <div style="flex: 1; min-width: 250px;">
                         <p style="margin: 0 0 4px 0; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); font-weight: 700;">Written by</p>
                         <h3 style="margin: 0 0 8px 0; font-family: 'DM Serif Display', serif; font-size: 1.5rem;">
-                            <a href="/user/<%= blog.createdBy?._id %>" style="text-decoration: none; color: var(--ink);"><%= blog.createdBy?.fullName || 'Blogify Editorial' %></a>
+                            <a href="/user/<%= blog.createdBy?._id %>" style="text-decoration: none; color: var(--ink);"><%= blog.createdBy?.fullName || 'NewsComplex Editorial' %></a>
                         </h3>
                         <p style="margin: 0; font-size: 0.95rem; color: var(--ink-secondary); max-width: 500px; line-height: 1.5;"><%= blog.createdBy?.bio || 'Curating stories on trends, technology, culture, and perspectives.' %></p>
                     </div>

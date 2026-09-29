@@ -2,7 +2,7 @@ const Blog = require('../models/blog');
 const User = require('../models/user');
 const axios = require('axios');
 
-const SITE_URL = (process.env.SITE_URL || 'https://blogify-for-stories.vercel.app').replace(/\/+$/, '');
+const SITE_URL = (process.env.SITE_URL || 'https://newscomplex.in').replace(/\/+$/, '');
 
 /**
  * Strips markdown and HTML formatting to generate a clean, click-worthy SEO meta description.
@@ -11,7 +11,7 @@ const SITE_URL = (process.env.SITE_URL || 'https://blogify-for-stories.vercel.ap
  * @returns {string} Clean plain-text description
  */
 function generateSeoExcerpt(text, maxLength = 160) {
-    if (!text) return 'Explore insightful articles, editorial stories, and breaking analysis on Blogify.';
+    if (!text) return 'Explore insightful articles, editorial stories, and breaking analysis on NewsComplex.';
     const clean = text
         .replace(/!\[.*?\]\(.*?\)/g, '') // remove images
         .replace(/\[.*?\]\(.*?\)/g, '$1') // replace links with link text
@@ -94,7 +94,7 @@ async function generateSitemapXml() {
 
                 xml += `    <news:news>
       <news:publication>
-        <news:name>Blogify</news:name>
+        <news:name>NewsComplex</news:name>
         <news:language>en</news:language>
       </news:publication>
       <news:publication_date>${lastMod}</news:publication_date>
@@ -150,15 +150,15 @@ async function generateRssFeedXml() {
      xmlns:dc="http://purl.org/dc/elements/1.1/"
      xmlns:atom="http://www.w3.org/2005/Atom">
 <channel>
-  <title>Blogify - Breaking Stories, Tech, Economy &amp; Thoughtful Ideas</title>
+  <title>NewsComplex - Breaking Stories, Tech, Economy &amp; Thoughtful Ideas</title>
   <link>${SITE_URL}</link>
-  <description>Fresh breaking stories, technology analysis, geopolitical perspectives, and in-depth essays on Blogify.</description>
+  <description>Fresh breaking stories, technology analysis, geopolitical perspectives, and in-depth essays on NewsComplex.</description>
   <language>en-us</language>
   <lastBuildDate>${buildDate}</lastBuildDate>
   <atom:link href="${SITE_URL}/rss.xml" rel="self" type="application/rss+xml" />
   <image>
     <url>${SITE_URL}/favicon-32x32.png</url>
-    <title>Blogify</title>
+    <title>NewsComplex</title>
     <link>${SITE_URL}</link>
   </image>
 `;
@@ -174,7 +174,7 @@ async function generateRssFeedXml() {
                 .replace(/&/g, '&amp;')
                 .replace(/</g, '&lt;')
                 .replace(/>/g, '&gt;');
-            const author = blog.createdBy?.fullName || 'Blogify Editorial';
+            const author = blog.createdBy?.fullName || 'NewsComplex Editorial';
 
             rss += `  <item>
     <title>${cleanTitle}</title>

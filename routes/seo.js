@@ -54,7 +54,7 @@ router.get(['/rss.xml', '/feed.xml', '/feed', '/rss'], async (req, res) => {
 
 // 3. Dynamic robots.txt endpoint
 router.get('/robots.txt', (req, res) => {
-    const robotsTxt = `# Enterprise robots.txt for Blogify
+    const robotsTxt = `# Enterprise robots.txt for NewsComplex
 User-agent: *
 Allow: /
 Disallow: /admin
@@ -87,7 +87,7 @@ router.get(['/privacy-policy', '/privacy'], (req, res) => {
         pageTitle: 'Privacy Policy',
         activeTab: 'privacy',
         canonicalUrl: `${SITE_URL}/privacy-policy`,
-        metaDescription: 'Read the official Privacy Policy of Blogify, including our Google AdSense, DoubleClick DART cookies, GDPR, and CCPA data disclosures.'
+        metaDescription: 'Read the official Privacy Policy of NewsComplex, including our Google AdSense, DoubleClick DART cookies, GDPR, and CCPA data disclosures.'
     });
 });
 
@@ -97,7 +97,7 @@ router.get(['/terms', '/terms-of-service'], (req, res) => {
         pageTitle: 'Terms of Service',
         activeTab: 'terms',
         canonicalUrl: `${SITE_URL}/terms`,
-        metaDescription: 'Terms of Service and user agreement governing your use of the Blogify publication network.'
+        metaDescription: 'Terms of Service and user agreement governing your use of the NewsComplex publication network.'
     });
 });
 
@@ -107,7 +107,7 @@ router.get(['/about', '/about-us'], (req, res) => {
         pageTitle: 'About Us',
         activeTab: 'about',
         canonicalUrl: `${SITE_URL}/about`,
-        metaDescription: 'Learn about Blogify, our editorial mission, fact-checking principles, research methodology, and AI synthesis standards.'
+        metaDescription: 'Learn about NewsComplex, our editorial mission, fact-checking principles, research methodology, and AI synthesis standards.'
     });
 });
 
@@ -117,7 +117,7 @@ router.get(['/contact', '/contact-us'], (req, res) => {
         pageTitle: 'Contact Us',
         activeTab: 'contact',
         canonicalUrl: `${SITE_URL}/contact`,
-        metaDescription: 'Contact the Blogify editorial desk, send inquiries, report corrections, or file DMCA copyright notices.'
+        metaDescription: 'Contact the NewsComplex editorial desk, send inquiries, report corrections, or file DMCA copyright notices.'
     });
 });
 
@@ -127,7 +127,7 @@ router.get(['/disclaimer', '/dmca'], (req, res) => {
         pageTitle: 'DMCA & Content Disclaimer',
         activeTab: 'disclaimer',
         canonicalUrl: `${SITE_URL}/disclaimer`,
-        metaDescription: 'Digital Millennium Copyright Act (DMCA) notice, transformative fair use declaration, and general content disclaimer for Blogify.'
+        metaDescription: 'Digital Millennium Copyright Act (DMCA) notice, transformative fair use declaration, and general content disclaimer for NewsComplex.'
     });
 });
 

@@ -3,38 +3,38 @@
 
 <head>
     <%- include('./partials/head')%>
-    <title>Blogify | Breaking Stories, Tech, Economy & Thoughtful Ideas</title>
-    <meta name="description" content="Discover fresh breaking news, thoughtful essays, technology updates, geopolitical analysis, and editorial stories on Blogify.">
-    <meta name="keywords" content="blog, news, technology, opinion, editorial, analysis, geopolitics, google trends, world news">
-    <link rel="canonical" href="https://blogify-for-stories.vercel.app/">
+    <title>NewsComplex | Breaking Stories, Tech, Economy & Thoughtful Ideas</title>
+    <meta name="description" content="Discover fresh breaking news, thoughtful essays, technology updates, geopolitical analysis, and editorial stories on NewsComplex.">
+    <meta name="keywords" content="news, tech, ai, economy, geopolitics, google trends, editorial, analysis, breaking news, newscomplex">
+    <link rel="canonical" href="https://newscomplex.in/">
 
     <!-- Open Graph -->
     <meta property="og:type" content="website">
-    <meta property="og:site_name" content="Blogify">
-    <meta property="og:title" content="Blogify | Breaking Stories, Tech, Economy & Thoughtful Ideas">
-    <meta property="og:description" content="Discover fresh breaking news, thoughtful essays, technology updates, geopolitical analysis, and editorial stories on Blogify.">
-    <meta property="og:url" content="https://blogify-for-stories.vercel.app/">
-    <meta property="og:image" content="https://blogify-for-stories.vercel.app/apple-touch-icon.png">
+    <meta property="og:site_name" content="NewsComplex">
+    <meta property="og:title" content="NewsComplex | Breaking Stories, Tech, Economy & Thoughtful Ideas">
+    <meta property="og:description" content="Discover fresh breaking news, thoughtful essays, technology updates, geopolitical analysis, and editorial stories on NewsComplex.">
+    <meta property="og:url" content="https://newscomplex.in/">
+    <meta property="og:image" content="https://newscomplex.in/apple-touch-icon.png">
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Blogify | Breaking Stories, Tech, Economy & Thoughtful Ideas">
-    <meta name="twitter:description" content="Discover fresh breaking news, thoughtful essays, technology updates, geopolitical analysis, and editorial stories on Blogify.">
-    <meta name="twitter:image" content="https://blogify-for-stories.vercel.app/apple-touch-icon.png">
+    <meta name="twitter:title" content="NewsComplex | Breaking Stories, Tech, Economy & Thoughtful Ideas">
+    <meta name="twitter:description" content="Discover fresh breaking news, thoughtful essays, technology updates, geopolitical analysis, and editorial stories on NewsComplex.">
+    <meta name="twitter:image" content="https://newscomplex.in/apple-touch-icon.png">
 
     <!-- Schema.org WebSite & Sitelinks SearchBox -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "name": "Blogify",
-      "alternateName": ["Blogify Stories", "Blogify Platform", "Blogify - Stories & Ideas"],
-      "url": "https://blogify-for-stories.vercel.app/",
+      "name": "NewsComplex",
+      "alternateName": ["NewsComplex Stories", "NewsComplex Platform", "NewsComplex - Stories & Ideas"],
+      "url": "https://newscomplex.in/",
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": "https://blogify-for-stories.vercel.app/?search={search_term_string}"
+          "urlTemplate": "https://newscomplex.in/?search={search_term_string}"
         },
         "query-input": "required name=search_term_string"
       }
@@ -590,7 +590,7 @@
                             
                             <div class="blog-card-body">
                                 <div class="card-meta-row">
-                                    <span><%= blog.createdBy?.fullName || 'Blogify Editorial' %></span>
+                                    <span><%= blog.createdBy?.fullName || 'NewsComplex Editorial' %></span>
                                     <span><%= timeAgo(blog.createdAt) %> &bull; <%= blog.readTimeMinutes || 3 %> min</span>
                                 </div>
 
@@ -757,7 +757,7 @@
             function renderCard(blog) {
                 const cover = blog.coverImageURL || 'https://images.unsplash.com/photo-1499750310107-5fef28a66643?auto=format&fit=crop&w=480&h=270&q=70';
                 const cat = blog.category || 'Editorial';
-                const author = (blog.createdBy && blog.createdBy.fullName) ? blog.createdBy.fullName : 'Blogify Editorial';
+                const author = (blog.createdBy && blog.createdBy.fullName) ? blog.createdBy.fullName : 'NewsComplex Editorial';
                 const readMin = blog.readTimeMinutes || 3;
                 const views = blog.views || 0;
                 const likes = blog.likes || 0;

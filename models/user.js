@@ -58,7 +58,7 @@ const userSchema = new Schema({
     },
     bio: {
         type: String,
-        default: "Sharing stories and ideas on Blogify.",
+        default: "Sharing stories and ideas on NewsComplex.",
         maxlength: 160,
     }
 }, {

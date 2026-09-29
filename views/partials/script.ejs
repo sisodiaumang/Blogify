@@ -18,6 +18,7 @@
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
     const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', nextTheme);
+    localStorage.setItem('newscomplex-theme', nextTheme);
     localStorage.setItem('blogify-theme', nextTheme);
     updateThemeUI(nextTheme);
   }

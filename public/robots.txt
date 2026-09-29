@@ -5,4 +5,4 @@ Disallow: /user/settings
 Disallow: /api/
 
 # Sitemaps
-Sitemap: https://blogify-for-stories.vercel.app/sitemap.xml
+Sitemap: https://newscomplex.in/sitemap.xml
