@@ -80,4 +80,55 @@ router.get('/ads.txt', (req, res) => {
     return res.send(adsTxt);
 });
 
+// 5. AdSense E-E-A-T Policy & Trust Pages
+router.get(['/privacy-policy', '/privacy'], (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+    return res.render('policy', {
+        pageTitle: 'Privacy Policy',
+        activeTab: 'privacy',
+        canonicalUrl: `${SITE_URL}/privacy-policy`,
+        metaDescription: 'Read the official Privacy Policy of Blogify, including our Google AdSense, DoubleClick DART cookies, GDPR, and CCPA data disclosures.'
+    });
+});
+
+router.get(['/terms', '/terms-of-service'], (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+    return res.render('policy', {
+        pageTitle: 'Terms of Service',
+        activeTab: 'terms',
+        canonicalUrl: `${SITE_URL}/terms`,
+        metaDescription: 'Terms of Service and user agreement governing your use of the Blogify publication network.'
+    });
+});
+
+router.get(['/about', '/about-us'], (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+    return res.render('policy', {
+        pageTitle: 'About Us',
+        activeTab: 'about',
+        canonicalUrl: `${SITE_URL}/about`,
+        metaDescription: 'Learn about Blogify, our editorial mission, fact-checking principles, research methodology, and AI synthesis standards.'
+    });
+});
+
+router.get(['/contact', '/contact-us'], (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+    return res.render('policy', {
+        pageTitle: 'Contact Us',
+        activeTab: 'contact',
+        canonicalUrl: `${SITE_URL}/contact`,
+        metaDescription: 'Contact the Blogify editorial desk, send inquiries, report corrections, or file DMCA copyright notices.'
+    });
+});
+
+router.get(['/disclaimer', '/dmca'], (req, res) => {
+    res.setHeader('Cache-Control', 'public, max-age=3600, s-maxage=86400');
+    return res.render('policy', {
+        pageTitle: 'DMCA & Content Disclaimer',
+        activeTab: 'disclaimer',
+        canonicalUrl: `${SITE_URL}/disclaimer`,
+        metaDescription: 'Digital Millennium Copyright Act (DMCA) notice, transformative fair use declaration, and general content disclaimer for Blogify.'
+    });
+});
+
 module.exports = router;

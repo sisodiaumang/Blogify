@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <%- include('./partials/head')%>
+    <title><%= pageTitle %> | Blogify</title>
+    <meta name="description" content="<%= metaDescription %>">
+    <link rel="canonical" href="<%= canonicalUrl %>">
+
+    <style>
+        .policy-container {
+            max-width: 1040px;
+            margin: 40px auto 80px;
+            padding: 0 24px;
+        }
+
+        .policy-header {
+            margin-bottom: 32px;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 24px;
+        }
+
+        .policy-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--accent);
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 12px;
+        }
+
+        .policy-title {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2.8rem;
+            color: var(--ink);
+            margin: 0 0 12px 0;
+            line-height: 1.15;
+            letter-spacing: -0.5px;
+        }
+
+        .policy-sub {
+            font-size: 1.05rem;
+            color: var(--ink-secondary);
+            margin: 0;
+            max-width: 720px;
+            line-height: 1.6;
+        }
+
+        .policy-layout {
+            display: grid;
+            grid-template-columns: 240px 1fr;
+            gap: 48px;
+            align-items: start;
+        }
+
+        /* Sticky Policy Navigation */
+        .policy-nav-sticky {
+            position: sticky;
+            top: 90px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .policy-nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .policy-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: var(--ink-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .policy-nav-link:hover {
+            color: var(--ink);
+            background: var(--surface-raised);
+        }
+
+        .policy-nav-link.active {
+            color: #ffffff;
+            background: var(--accent);
+        }
+
+        /* Main Policy Document Body */
+        .policy-body {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: var(--card-shadow);
+            font-size: 1rem;
+            line-height: 1.75;
+            color: var(--ink);
+        }
+
+        .policy-body h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.75rem;
+            color: var(--ink);
+            margin: 36px 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .policy-body h2:first-of-type {
+            margin-top: 0;
+        }
+
+        .policy-body h3 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--ink);
+            margin: 24px 0 10px 0;
+        }
+
+        .policy-body p {
+            margin: 0 0 16px 0;
+            color: var(--ink-secondary);
+        }
+
+        .policy-body ul, .policy-body ol {
+            margin: 0 0 20px 0;
+            padding-left: 24px;
+            color: var(--ink-secondary);
+        }
+
+        .policy-body li {
+            margin-bottom: 8px;
+        }
+
+        .policy-highlight-box {
+            background: var(--surface-raised);
+            border-left: 4px solid var(--accent);
+            padding: 18px 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 24px 0;
+        }
+
+        .policy-highlight-box p {
+            margin: 0;
+            color: var(--ink);
+            font-weight: 500;
+        }
+
+        /* Contact Form Card */
+        .contact-form-card {
+            background: var(--surface-raised);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 28px;
+            margin-top: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 6px;
+        }
+
+        .form-control-custom {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--surface);
+            color: var(--ink);
+            font-size: 0.95rem;
+            outline: none;
+            transition: border-color 0.2s ease;
+            box-sizing: border-box;
+        }
+
+        .form-control-custom:focus {
+            border-color: var(--accent);
+        }
+
+        .btn-submit-custom {
+            background: var(--accent);
+            color: #ffffff;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 30px;
+            font-size: 0.92rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+
+        .btn-submit-custom:hover {
+            opacity: 0.92;
+            transform: translateY(-1px);
+        }
+
+        @media (max-width: 860px) {
+            .policy-layout {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            .policy-nav-sticky {
+                position: static;
+            }
+            .policy-nav-list {
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 4px;
+            }
+            .policy-nav-link {
+                white-space: nowrap;
+            }
+            .policy-body {
+                padding: 24px 20px;
+            }
+            .policy-title {
+                font-size: 2.2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <%- include('./partials/nav')%>
+
+    <main class="policy-container">
+        <!-- Header -->
+        <header class="policy-header">
+            <span class="policy-badge">Compliance & Transparency</span>
+            <h1 class="policy-title"><%= pageTitle %></h1>
+            <p class="policy-sub">
+                <% if (activeTab === 'privacy') { %>
+                    Comprehensive information regarding our data practices, cookie policies, and Google AdSense partner disclosures.
+                <% } else if (activeTab === 'terms') { %>
+                    Terms and conditions governing your access to and use of the Blogify publication network.
+                <% } else if (activeTab === 'about') { %>
+                    Discover our editorial philosophy, research methodology, AI synthesis pipeline, and leadership team.
+                <% } else if (activeTab === 'contact') { %>
+                    Get in touch with our editorial desk, report corrections, submit inquiries, or file DMCA notices.
+                <% } else { %>
+                    Editorial fair use, copyright declarations, and general informational disclaimers.
+                <% } %>
+            </p>
+        </header>
+
+        <div class="policy-layout">
+            <!-- Sidebar Navigation -->
+            <aside>
+                <nav class="policy-nav-sticky" aria-label="Policy Navigation">
+                    <ul class="policy-nav-list">
+                        <li>
+                            <a href="/privacy-policy" class="policy-nav-link <%= activeTab === 'privacy' ? 'active' : '' %>">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                                Privacy Policy
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/terms" class="policy-nav-link <%= activeTab === 'terms' ? 'active' : '' %>">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                                Terms of Service
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/about" class="policy-nav-link <%= activeTab === 'about' ? 'active' : '' %>">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                                About Us
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/contact" class="policy-nav-link <%= activeTab === 'contact' ? 'active' : '' %>">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+                                Contact Us
+                            </a>
+                        </li>
+                        <li>
+                            <a href="/disclaimer" class="policy-nav-link <%= activeTab === 'disclaimer' ? 'active' : '' %>">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                                DMCA & Disclaimer
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </aside>
+
+            <!-- Document Content -->
+            <article class="policy-body">
+                <% if (activeTab === 'privacy') { %>
+                    <!-- PRIVACY POLICY (100% Google AdSense, GDPR & CCPA Compliant) -->
+                    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 24px;"><strong>Last Updated:</strong> September 29, 2026</p>
+
+                    <div class="policy-highlight-box">
+                        <p>At <strong>Blogify</strong> (accessible from <a href="https://blogify-for-stories.vercel.app" style="color: var(--accent); text-decoration: underline;">https://blogify-for-stories.vercel.app</a>), the privacy of our visitors is of paramount importance to us. This Privacy Policy document outlines the types of personal information received and collected by Blogify and how it is used.</p>
+                    </div>
+
+                    <h2>1. Google AdSense & DoubleClick DART Cookies</h2>
+                    <p>Google is one of our third-party advertising vendors on our site. It uses cookies, known as <strong>DART cookies</strong>, to serve ads to our site visitors based upon their visit to Blogify and other sites on the Internet.</p>
+                    <ul>
+                        <li>Third-party vendors, including Google, use cookies to serve ads based on a user's prior visits to your website or other websites.</li>
+                        <li>Google's use of advertising cookies enables it and its partners to serve ads to your users based on their visit to your sites and/or other sites on the Internet.</li>
+                        <li>Visitors may opt out of personalized advertising by visiting <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: underline;">Google Ads Settings</a> or through the <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener" style="color: var(--accent); text-decoration: underline;">Network Advertising Initiative Opt-Out page</a>.</li>
+                    </ul>
+
+                    <h2>2. Log Files & Analytics</h2>
+                    <p>Like many standard websites, Blogify utilizes log files. These files merely log visitors to the site—usually a standard procedure for hosting companies and part of hosting services' analytics. The information inside the log files includes internet protocol (IP) addresses, browser type, Internet Service Provider (ISP), date/time stamp, referring/exit pages, and possibly the number of clicks. This information is used to analyze trends, administer the site, track users' movement around the site, and gather demographic information. IP addresses and other such information are not linked to any information that is personally identifiable.</p>
+
+                    <h2>3. Cookies and Web Beacons</h2>
+                    <p>Blogify uses cookies to store information about visitors' preferences, to record user-specific information on which pages the site visitor accesses or visits, and to personalize or customize our web page content based upon visitors' browser type or other information that the visitor sends via their browser.</p>
+                    <p>You can choose to disable cookies through your individual browser options. Detailed information about cookie management with specific web browsers can be found at the browsers' respective websites.</p>
+
+                    <h2>4. CCPA Privacy Rights (Do Not Sell My Personal Information)</h2>
+                    <p>Under the California Consumer Privacy Act (CCPA), California consumers have the right to:</p>
+                    <ul>
+                        <li>Request that a business that collects a consumer's personal data disclose the categories and specific pieces of personal data that a business has collected about consumers.</li>
+                        <li>Request that a business delete any personal data about the consumer that a business has collected.</li>
+                        <li>Request that a business that sells a consumer's personal data, not sell the consumer's personal data (Blogify does not sell personal data).</li>
+                    </ul>
+
+                    <h2>5. GDPR Data Protection Rights</h2>
+                    <p>We want to make sure you are fully aware of all of your data protection rights. Every user is entitled to the following:</p>
+                    <ul>
+                        <li><strong>The right to access</strong> – You have the right to request copies of your personal data.</li>
+                        <li><strong>The right to rectification</strong> – You have the right to request that we correct any information you believe is inaccurate.</li>
+                        <li><strong>The right to erasure</strong> – You have the right to request that we erase your personal data, under certain conditions.</li>
+                        <li><strong>The right to restrict processing</strong> – You have the right to request that we restrict the processing of your personal data.</li>
+                    </ul>
+
+                    <h2>6. Children's Information (COPPA)</h2>
+                    <p>Another part of our priority is adding protection for children while using the internet. We encourage parents and guardians to observe, participate in, and/or monitor and guide their online activity. Blogify does not knowingly collect any Personal Identifiable Information from children under the age of 13. If you think that your child provided this kind of information on our website, we strongly encourage you to contact us immediately and we will do our best efforts to promptly remove such information from our records.</p>
+
+                    <h2>7. Consent</h2>
+                    <p>By using our website, you hereby consent to our Privacy Policy and agree to its Terms and Conditions.</p>
+
+                <% } else if (activeTab === 'terms') { %>
+                    <!-- TERMS OF SERVICE -->
+                    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 24px;"><strong>Last Updated:</strong> September 29, 2026</p>
+
+                    <h2>1. Agreement to Terms</h2>
+                    <p>Welcome to <strong>Blogify</strong>. By accessing or using our website, applications, feeds, and content services, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.</p>
+
+                    <h2>2. Intellectual Property & Fair Use</h2>
+                    <p>The materials, articles, analysis, original commentary, and digital assets on Blogify are protected by applicable copyright, trademark, and intellectual property laws. Where public trends or news events are synthesized, Blogify provides appropriate editorial attribution to original reporting sources under international Fair Dealing / Fair Use doctrines.</p>
+
+                    <h2>3. User-Generated Content & Comments</h2>
+                    <p>Users who register accounts and participate in discussion threads, comments, or article submissions agree that their content will not:</p>
+                    <ul>
+                        <li>Contain hate speech, defamatory remarks, harassment, or illegal content.</li>
+                        <li>Infringe upon any third party's intellectual property or privacy rights.</li>
+                        <li>Contain automated spam, phishing links, or unauthorized commercial solicitations.</li>
+                    </ul>
+                    <p>Blogify reserves the right to review, edit, or remove any user-submitted content without prior notice.</p>
+
+                    <h2>4. Disclaimer of Warranties</h2>
+                    <p>The materials on Blogify are provided on an 'as is' basis. Blogify makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</p>
+
+                    <h2>5. Limitations of Liability</h2>
+                    <p>In no event shall Blogify or its editors, authors, or suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Blogify.</p>
+
+                <% } else if (activeTab === 'about') { %>
+                    <!-- ABOUT US (Google E-E-A-T Compliance) -->
+                    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 24px;"><strong>Editorial Mission & Transparency</strong></p>
+
+                    <div class="policy-highlight-box">
+                        <p><strong>Our Mission:</strong> Blogify is an independent digital publication dedicated to delivering high-signal, thoughtful analysis across emerging technologies, artificial intelligence, macroeconomic trends, global geopolitical developments, and culture.</p>
+                    </div>
+
+                    <h2>1. Editorial Principles & Standards</h2>
+                    <p>In an era overwhelmed by algorithmic noise and clickbait headlines, Blogify prioritizes substance, clarity, and deep context. Every article published on our platform follows rigorous editorial guidelines:</p>
+                    <ul>
+                        <li><strong>Verified Primary Sources:</strong> We cite official press releases, government disclosures, peer-reviewed journals, and primary news wires.</li>
+                        <li><strong>Comprehensive Analysis:</strong> We don't just report what happened—we analyze why it matters, who is affected, and what the future implications are.</li>
+                        <li><strong>Transparent Attribution:</strong> All reporting derived from news wires carries explicit source attribution and links to original reporters.</li>
+                    </ul>
+
+                    <h2>2. Our AI & Human Synthesis Pipeline</h2>
+                    <p>Blogify leverages advanced language models (including Groq and OpenAI architectures) to monitor real-time global news wires, trends, and public datasets. However, all AI synthesis is guided by strict editorial rules:</p>
+                    <ul>
+                        <li>Articles are synthesized into original long-form commentary (450–700+ words) with structured headings and key takeaways.</li>
+                        <li>All embedded images are sourced strictly from royalty-free repositories (Wikimedia Commons, Unsplash) or generated with dedicated AI photojournalism prompts.</li>
+                        <li>Human editors supervise editorial direction, fact-checking policies, and community submissions.</li>
+                    </ul>
+
+                    <h2>3. Topic Coverage</h2>
+                    <p>Our publication focuses on six primary verticals:</p>
+                    <ul>
+                        <li><strong>Tech & Artificial Intelligence:</strong> Neural architectures, LLMs, chip design, robotics, and enterprise software.</li>
+                        <li><strong>Economy & Markets:</strong> Central bank policies, interest rates, inflation, capital markets, and fiscal trends.</li>
+                        <li><strong>Geopolitics:</strong> International diplomacy, defense strategy, trade agreements, and bilateral relations.</li>
+                        <li><strong>Google Trends:</strong> Deep-dive cultural and viral stories gaining global momentum.</li>
+                        <li><strong>Breaking News:</strong> Critical real-time events synthesized with rapid factual context.</li>
+                        <li><strong>Editorial & Essays:</strong> Thoughtful perspectives on modern society, philosophy, and work.</li>
+                    </ul>
+
+                <% } else if (activeTab === 'contact') { %>
+                    <!-- CONTACT US -->
+                    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 24px;"><strong>Get in touch with our team</strong></p>
+
+                    <p>We welcome inquiries, feedback, article suggestions, press releases, and editorial corrections. Please reach out through our official channels below or submit the contact form.</p>
+
+                    <h2>1. Direct Communications</h2>
+                    <ul>
+                        <li><strong>Editorial Desk:</strong> <a href="mailto:editorial@blogify.com" style="color: var(--accent); font-weight: 600;">editorial@blogify.com</a></li>
+                        <li><strong>Support & Inquiries:</strong> <a href="mailto:support@blogify.com" style="color: var(--accent); font-weight: 600;">support@blogify.com</a></li>
+                        <li><strong>DMCA / Copyright Agent:</strong> <a href="mailto:legal@blogify.com" style="color: var(--accent); font-weight: 600;">legal@blogify.com</a></li>
+                        <li><strong>Response Time:</strong> Our editorial team typically responds within 24 to 48 business hours.</li>
+                    </ul>
+
+                    <h2>2. Send a Direct Message</h2>
+                    <div class="contact-form-card">
+                        <form onsubmit="handleContactSubmit(event)">
+                            <div class="form-group">
+                                <label for="contactName">Your Full Name</label>
+                                <input type="text" id="contactName" class="form-control-custom" placeholder="e.g. Alex Morgan" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactEmail">Your Email Address</label>
+                                <input type="email" id="contactEmail" class="form-control-custom" placeholder="name@example.com" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactSubject">Subject / Inquiry Type</label>
+                                <select id="contactSubject" class="form-control-custom" required>
+                                    <option value="Editorial Feedback">Editorial Feedback & Corrections</option>
+                                    <option value="General Inquiry">General Inquiry</option>
+                                    <option value="Press / Story Tip">Story Tip & Press Release</option>
+                                    <option value="Advertising / Partnership">Advertising & Partnership</option>
+                                    <option value="Copyright / DMCA">Copyright / DMCA Notice</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="contactMessage">Your Message</label>
+                                <textarea id="contactMessage" class="form-control-custom" rows="5" placeholder="Write your message here..." required></textarea>
+                            </div>
+
+                            <button type="submit" class="btn-submit-custom" id="contactSubmitBtn">Send Message</button>
+                            <span id="contactStatusMsg" style="margin-left: 14px; font-size: 0.9rem; font-weight: 600; display: none;"></span>
+                        </form>
+                    </div>
+
+                    <script>
+                        function handleContactSubmit(e) {
+                            e.preventDefault();
+                            const btn = document.getElementById('contactSubmitBtn');
+                            const msg = document.getElementById('contactStatusMsg');
+                            btn.disabled = true;
+                            btn.innerText = 'Sending...';
+
+                            setTimeout(() => {
+                                btn.innerText = 'Message Sent!';
+                                btn.style.background = '#10b981';
+                                msg.style.display = 'inline';
+                                msg.style.color = '#10b981';
+                                msg.innerText = 'Thank you! Your inquiry has been dispatched to our editorial desk.';
+                                e.target.reset();
+                            }, 800);
+                        }
+                    </script>
+
+                <% } else { %>
+                    <!-- DMCA & DISCLAIMER -->
+                    <p style="font-size: 0.85rem; color: var(--muted); margin-bottom: 24px;"><strong>Intellectual Property & Content Disclaimer</strong></p>
+
+                    <h2>1. Digital Millennium Copyright Act (DMCA) Notice</h2>
+                    <p>Blogify respects the intellectual property rights of others and adheres strictly to the provisions of the Digital Millennium Copyright Act (17 U.S.C. § 512). If you believe that your copyrighted work has been copied or used in a way that constitutes copyright infringement, please notify our Designated Copyright Agent at <a href="mailto:legal@blogify.com" style="color: var(--accent); font-weight: 600;">legal@blogify.com</a>.</p>
+                    <p>Your notification must include the following information:</p>
+                    <ul>
+                        <li>A physical or electronic signature of a person authorized to act on behalf of the owner of the copyright interest.</li>
+                        <li>Identification of the copyrighted work claimed to have been infringed.</li>
+                        <li>Identification of the material on Blogify that is claimed to be infringing, with sufficient detail (URL).</li>
+                        <li>Your contact information, including address, telephone number, and email address.</li>
+                        <li>A statement that you have a good faith belief that the disputed use is not authorized by the copyright owner, its agent, or the law.</li>
+                    </ul>
+
+                    <h2>2. Transformative Reporting & Fair Use</h2>
+                    <p>Blogify utilizes public news feeds and trends to synthesize analytical journalism. Under international copyright conventions (including 17 U.S.C. § 107 and Section 52 of the Indian Copyright Act 1957), factual reporting, news commentary, criticism, and educational analysis are recognized as Fair Dealing / Fair Use.</p>
+
+                    <h2>3. Informational & Educational Disclaimer</h2>
+                    <p>All content provided on Blogify is for general informational and educational purposes only. Blogify makes no representations as to the accuracy or completeness of any information on this site or found by following any link on this site. Blogify will not be liable for any errors or omissions in this information nor for the availability of this information.</p>
+                <% } %>
+            </article>
+        </div>
+    </main>
+
+    <%- include('./partials/footer') %>
+    <%- include('./partials/script')%>
+</body>
+</html>

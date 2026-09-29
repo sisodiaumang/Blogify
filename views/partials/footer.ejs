@@ -1,0 +1,223 @@
+<footer class="site-footer">
+    <div class="footer-container">
+        <div class="footer-grid">
+            <!-- Brand & Mission Column -->
+            <div class="footer-col footer-col-brand">
+                <a href="/" class="footer-logo">
+                    Blogify<span>.</span>
+                </a>
+                <p class="footer-tagline">
+                    An independent digital publication exploring emerging technologies, AI developments, economic perspectives, geopolitical analysis, global trend wires, and thoughtful essays.
+                </p>
+                <div class="footer-badges">
+                    <span class="footer-badge">Google AdSense Partner</span>
+                    <span class="footer-badge">Fast & Privacy First</span>
+                </div>
+            </div>
+
+            <!-- Categories Column -->
+            <div class="footer-col">
+                <h4 class="footer-heading">Categories</h4>
+                <ul class="footer-links">
+                    <li><a href="/?category=Technology">Tech & AI</a></li>
+                    <li><a href="/?category=Google%20Trends">Google Trends</a></li>
+                    <li><a href="/?category=Geopolitics">Geopolitics</a></li>
+                    <li><a href="/?category=Economy">Economy & Markets</a></li>
+                    <li><a href="/?category=Breaking%20News">Breaking News</a></li>
+                    <li><a href="/?category=Editorial">Editorial & Essays</a></li>
+                </ul>
+            </div>
+
+            <!-- Discovery Column -->
+            <div class="footer-col">
+                <h4 class="footer-heading">Discovery</h4>
+                <ul class="footer-links">
+                    <li><a href="/">Latest Stories</a></li>
+                    <li><a href="/archive">Story Archive & Index</a></li>
+                    <li><a href="/sitemap.xml" target="_blank" rel="noopener">XML Sitemap</a></li>
+                    <li><a href="/rss.xml" target="_blank" rel="noopener">RSS Feed</a></li>
+                    <li><a href="/blog/add-new">Write a Story</a></li>
+                </ul>
+            </div>
+
+            <!-- Trust & Legal (AdSense E-E-A-T) Column -->
+            <div class="footer-col">
+                <h4 class="footer-heading">Trust & Legal</h4>
+                <ul class="footer-links">
+                    <li><a href="/privacy-policy">Privacy Policy</a></li>
+                    <li><a href="/terms">Terms of Service</a></li>
+                    <li><a href="/about">About Us</a></li>
+                    <li><a href="/contact">Contact Us</a></li>
+                    <li><a href="/disclaimer">DMCA & Disclaimer</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; <%= new Date().getFullYear() %> Blogify. All rights reserved. Independently published.</p>
+            <div class="footer-bottom-links">
+                <a href="/privacy-policy">Privacy Policy</a>
+                <span>&bull;</span>
+                <a href="/terms">Terms of Service</a>
+                <span>&bull;</span>
+                <a href="/about">About Us</a>
+                <span>&bull;</span>
+                <a href="/contact">Contact</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<style>
+    .site-footer {
+        background-color: var(--surface, #ffffff);
+        border-top: 1px solid var(--border, #eceae5);
+        padding: 56px 0 32px 0;
+        margin-top: 80px;
+        color: var(--ink, #1a1a1a);
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    .footer-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 24px;
+    }
+
+    .footer-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr 1fr 1.2fr;
+        gap: 40px;
+        margin-bottom: 48px;
+    }
+
+    .footer-col-brand {
+        padding-right: 20px;
+    }
+
+    .footer-logo {
+        font-family: 'DM Serif Display', serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: var(--ink, #1a1a1a);
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 12px;
+        letter-spacing: -0.5px;
+    }
+
+    .footer-logo span {
+        color: var(--accent, #2d3e50);
+    }
+
+    .footer-tagline {
+        font-size: 0.9rem;
+        line-height: 1.6;
+        color: var(--ink-secondary, #555555);
+        margin: 0 0 16px 0;
+        max-width: 380px;
+    }
+
+    .footer-badges {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .footer-badge {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        padding: 4px 10px;
+        border-radius: 20px;
+        background: var(--surface-raised, #f7f5f0);
+        color: var(--ink-secondary, #555555);
+        border: 1px solid var(--border, #eceae5);
+    }
+
+    .footer-heading {
+        font-size: 0.82rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: var(--muted, #888888);
+        margin: 0 0 18px 0;
+    }
+
+    .footer-links {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .footer-links li {
+        margin-bottom: 10px;
+    }
+
+    .footer-links a {
+        color: var(--ink-secondary, #555555);
+        text-decoration: none;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: color 0.2s ease, transform 0.2s ease;
+        display: inline-block;
+    }
+
+    .footer-links a:hover {
+        color: var(--ink, #1a1a1a);
+        transform: translateX(2px);
+    }
+
+    .footer-bottom {
+        border-top: 1px solid var(--border, #eceae5);
+        padding-top: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 16px;
+        font-size: 0.85rem;
+        color: var(--muted, #888888);
+    }
+
+    .footer-bottom p {
+        margin: 0;
+    }
+
+    .footer-bottom-links {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .footer-bottom-links a {
+        color: var(--muted, #888888);
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .footer-bottom-links a:hover {
+        color: var(--ink, #1a1a1a);
+    }
+
+    @media (max-width: 992px) {
+        .footer-grid {
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+        .footer-col-brand {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .footer-grid {
+            grid-template-columns: 1fr;
+            gap: 28px;
+        }
+        .footer-bottom {
+            flex-direction: column;
+            text-align: center;
+        }
+    }
+</style>

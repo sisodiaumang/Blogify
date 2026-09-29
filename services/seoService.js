@@ -41,6 +41,12 @@ async function generateSitemapXml() {
 
         const staticRoutes = [
             { loc: `${SITE_URL}/`, changefreq: 'hourly', priority: '1.0', lastmod: new Date().toISOString() },
+            { loc: `${SITE_URL}/archive`, changefreq: 'daily', priority: '0.8', lastmod: new Date().toISOString() },
+            { loc: `${SITE_URL}/about`, changefreq: 'monthly', priority: '0.7', lastmod: new Date().toISOString() },
+            { loc: `${SITE_URL}/contact`, changefreq: 'monthly', priority: '0.7', lastmod: new Date().toISOString() },
+            { loc: `${SITE_URL}/privacy-policy`, changefreq: 'monthly', priority: '0.6', lastmod: new Date().toISOString() },
+            { loc: `${SITE_URL}/terms`, changefreq: 'monthly', priority: '0.6', lastmod: new Date().toISOString() },
+            { loc: `${SITE_URL}/disclaimer`, changefreq: 'monthly', priority: '0.5', lastmod: new Date().toISOString() },
             { loc: `${SITE_URL}/user/signin`, changefreq: 'monthly', priority: '0.3', lastmod: new Date().toISOString() },
             { loc: `${SITE_URL}/user/signup`, changefreq: 'monthly', priority: '0.3', lastmod: new Date().toISOString() }
         ];
