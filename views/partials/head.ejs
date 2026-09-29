@@ -18,7 +18,7 @@
 <!-- Instant Dark Mode Initializer (Zero Flicker) -->
 <script>
   (function() {
-    const savedTheme = localStorage.getItem('newscomplex-theme') || localStorage.getItem('blogify-theme');
+    const savedTheme = localStorage.getItem('newscomplex-theme') ;
     const systemDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     const theme = savedTheme || (systemDark ? 'dark' : 'light');
     document.documentElement.setAttribute('data-theme', theme);

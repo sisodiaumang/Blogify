@@ -1,6 +1,6 @@
-# Blogify 
+# NewsComplex 
 
-A full-stack blogging platform built with Node.js and MongoDB that empowers users to create, share, and discuss content in a collaborative community. Blogify combines powerful content management with modern authentication, real-time interactions, and administrative tools.
+A full-stack blogging platform built with Node.js and MongoDB that empowers users to create, share, and discuss content in a collaborative community. NewsComplex combines powerful content management with modern authentication, real-time interactions, and administrative tools.
 
 [![Node.js](https://img.shields.io/badge/Node.js-18%2B-green?style=flat-square&logo=node.js)](https://nodejs.org/)
 [![Express.js](https://img.shields.io/badge/Express-5.x-black?style=flat-square&logo=express)](https://expressjs.com/)
@@ -10,14 +10,14 @@ A full-stack blogging platform built with Node.js and MongoDB that empowers user
 
 ## 🌐 Live Demo
 
-**[Visit Blogify Live](https://blogify-for-stories.vercel.app/)**
+**[Visit NewsComplex Live](https://NewsComplex-for-stories.vercel.app/)**
 
 
 
 ### Quick Links
-- 🏠 [Home Page](https://blogify-for-stories.vercel.app/)
-- 👤 [Sample User Profile](https://blogify-for-stories.vercel.app/user/69dbde2c8d47ffe7e0e90b6c)
-- 📱 [Admin Dashboard](https://blogify-for-stories.vercel.app/admin/dashboard) (Admin access required)
+- 🏠 [Home Page](https://NewsComplex-for-stories.vercel.app/)
+- 👤 [Sample User Profile](https://NewsComplex-for-stories.vercel.app/user/69dbde2c8d47ffe7e0e90b6c)
+- 📱 [Admin Dashboard](https://NewsComplex-for-stories.vercel.app/admin/dashboard) (Admin access required)
 
 ---
 
@@ -169,8 +169,8 @@ graph TB
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/yourusername/blogify.git
-cd blogify
+git clone https://github.com/yourusername/NewsComplex.git
+cd NewsComplex
 ```
 
 ### Step 2: Install Dependencies
@@ -210,7 +210,7 @@ Create a `.env` file in the root directory with the following variables:
 
 | Variable | Type | Description | Example |
 |----------|------|-------------|---------|
-| `MONGODB_URL` | string | MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/blogify` |
+| `MONGODB_URL` | string | MongoDB connection string | `mongodb+srv://user:pass@cluster.mongodb.net/NewsComplex` |
 | `PORT` | number | Server port | `8000` |
 | `NODE_ENV` | string | Environment mode | `development` or `production` |
 | `JWT_SECRET` | string | JWT signing secret | `your-secret-key-here` |
@@ -237,7 +237,7 @@ npm run dev    # Development with nodemon
 npm start      # Production mode
 ```
 
-Visit `http://localhost:8000` in your browser to access Blogify.
+Visit `http://localhost:8000` in your browser to access NewsComplex.
 
 ### User Workflows
 
@@ -274,7 +274,7 @@ Visit `http://localhost:8000` in your browser to access Blogify.
 ##  Project Structure
 
 ```
-blogify/
+NewsComplex/
 ├── index.js                    # Express app entry point & route setup
 ├── connect.js                  # MongoDB connection configuration
 ├── package.json                # Project dependencies
@@ -424,7 +424,7 @@ Contributions are welcome! Please follow these steps:
 
 1. **Fork the repository**
    ```bash
-   git clone https://github.com/yourusername/blogify.git
+   git clone https://github.com/yourusername/NewsComplex.git
    ```
 
 2. **Create a feature branch**
@@ -458,7 +458,7 @@ Contributions are welcome! Please follow these steps:
 
 ##  Author
 
-**Blogify Creator**
+**NewsComplex Creator**
 
 Connect with me on:
 
@@ -484,8 +484,8 @@ Connect with me on:
 
 If you encounter any issues or have questions:
 
-1. Check the [existing issues](https://github.com/sisodiaumang/blogify/issues)
-2. Create a [new issue](https://github.com/sisodiaumang/blogify/issues/new) with detailed description
+1. Check the [existing issues](https://github.com/sisodiaumang/NewsComplex/issues)
+2. Create a [new issue](https://github.com/sisodiaumang/NewsComplex/issues/new) with detailed description
 3. Contact via email or social media
 
 ---

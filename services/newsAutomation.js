@@ -12,7 +12,7 @@ const { extractTagsAndCategory } = require('./taggerService');
  */
 async function getOrCreateNewsBotUser() {
     // Look for existing AI bot or Admin/Owner
-    let botUser = await User.findOne({ email: { $in: ['ainews@newscomplex.in', 'ainews@blogify.com'] } });
+    let botUser = await User.findOne({ email: { $in: ['ainews@newscomplex.in'] } });
     if (botUser) return botUser;
 
     botUser = await User.findOne({ role: { $in: ['ADMIN', 'OWNER'] } });
