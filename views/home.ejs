@@ -628,10 +628,11 @@
             <% } %>
         </div>
 
-        <!-- Infinite Scroll Sentinel & Loader -->
-        <div id="scroll-sentinel">
-            <div class="spinner-loader" id="scroll-spinner"></div>
-            <div class="feed-end-message" id="feed-end-msg">You've reached the end of the feed</div>
+        <!-- Load More Button & Loader -->
+        <div id="scroll-sentinel" style="text-align: center; margin: 40px 0;">
+            <button id="load-more-btn" style="background-color: var(--accent); color: white; border: none; padding: 12px 30px; border-radius: 30px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">Load More Stories</button>
+            <div class="spinner-loader" id="scroll-spinner" style="display: none; margin: 20px auto;"></div>
+            <div class="feed-end-message" id="feed-end-msg" style="display: none;">You've reached the end of the feed</div>
         </div>
 
         <!-- Classical Pagination Controls Fallback / Static SEO Navigation -->
@@ -803,6 +804,9 @@
             async function loadMoreFeed() {
                 if (isLoading || !hasMore) return;
                 isLoading = true;
+                
+                const loadMoreBtn = document.getElementById('load-more-btn');
+                if (loadMoreBtn) loadMoreBtn.style.display = 'none';
                 spinner.style.display = 'block';
 
                 try {
@@ -832,31 +836,38 @@
 
                         if (!hasMore) {
                             endMsg.style.display = 'block';
-                            if (observer) observer.disconnect();
+                            if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+                        } else {
+                            if (loadMoreBtn) loadMoreBtn.style.display = 'inline-block';
                         }
                     } else {
                         hasMore = false;
                         endMsg.style.display = 'block';
-                        if (observer) observer.disconnect();
+                        if (loadMoreBtn) loadMoreBtn.style.display = 'none';
                     }
                 } catch (err) {
-                    console.error('Infinite scroll error:', err);
+                    console.error('Load more error:', err);
+                    if (loadMoreBtn && hasMore) loadMoreBtn.style.display = 'inline-block';
                 } finally {
                     isLoading = false;
                     spinner.style.display = 'none';
                 }
             }
 
-            let observer;
-            if ('IntersectionObserver' in window && sentinel && hasMore) {
-                observer = new IntersectionObserver((entries) => {
-                    if (entries[0].isIntersecting) {
-                        loadMoreFeed();
-                    }
-                }, { rootMargin: '250px' });
-                observer.observe(sentinel);
-            } else if (!hasMore && totalPages > 0) {
-                endMsg.style.display = 'block';
+            const loadMoreBtn = document.getElementById('load-more-btn');
+            
+            if (loadMoreBtn) {
+                if (!hasMore) {
+                    loadMoreBtn.style.display = 'none';
+                    if (totalPages > 0) endMsg.style.display = 'block';
+                } else {
+                    loadMoreBtn.addEventListener('click', loadMoreFeed);
+                }
+            }
+            
+            // Hide classical pagination if JS is active, so we don't have conflicting UX
+            if (paginationNav) {
+                paginationNav.style.display = 'none';
             }
         })();
     </script>
