@@ -153,7 +153,8 @@
             scrollbar-width: none;
             padding: 4px 0;
             flex: 1;
-            min-width: 280px;
+            min-width: 0;
+            max-width: 100%;
         }
 
         .category-pills::-webkit-scrollbar {
@@ -163,6 +164,7 @@
         .category-pill {
             display: inline-flex;
             align-items: center;
+            flex-shrink: 0;
             gap: 6px;
             padding: 8px 16px;
             border-radius: 30px;
