@@ -49,11 +49,16 @@ router.get(["/:id", "/:id/:slug"], async (req, res) => {
             return res.redirect("/");
         }
 
-        // View tracking with deduplication:
-        // Check cookie to prevent rapid duplicate counts by the same visitor within 30 minutes
+        // View tracking with deduplication (Cookie + IP tracking):
         const viewCookieName = `viewed_${blog._id}`;
-        if (!req.cookies || !req.cookies[viewCookieName]) {
+        const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress || 'unknown';
+        const viewCacheKey = `view:${blog._id}:${ip}`;
+
+        if ((!req.cookies || !req.cookies[viewCookieName]) && !cacheService.get(viewCacheKey)) {
             Blog.findByIdAndUpdate(blog._id, { $inc: { views: 1 } }).exec();
+            
+            cacheService.set(viewCacheKey, true, 1800); // 30 minutes in memory
+            
             res.cookie(viewCookieName, '1', {
                 maxAge: 30 * 60 * 1000,
                 httpOnly: true,
