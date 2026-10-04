@@ -268,6 +268,12 @@ app.listen(PORT, () => {
         }
     });
     console.log("[Cron] Automated 4-hour news publishing job registered.");
+    // Schedule AI image fixer to run every 30 minutes
+    cron.schedule('*/30 * * * *', async () => {
+        const { fixOldAiImage } = require('./services/newsAutomation');
+        await fixOldAiImage();
+    });
+    console.log("[Cron] AI Image Fixer job registered (every 30 mins).");
 });
 
 module.exports = app;

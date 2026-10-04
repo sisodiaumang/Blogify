@@ -87,7 +87,11 @@ const blogSchema = new Schema({
     },
     sourceTitle: {
         type: String,
-        required: false,
+        required: false
+    },
+    aiImageFixed: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 

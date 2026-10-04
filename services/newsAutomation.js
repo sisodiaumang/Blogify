@@ -233,4 +233,40 @@ async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25, mode = 'al
     }
 }
 
-module.exports = { runNewsAutomation };
+module.exports = { runNewsAutomation, fixOldAiImage };
+
+const { deleteCloudinary } = require('./cloudinary');
+
+async function fixOldAiImage() {
+    console.log('[aiImageFixer] Running background job to fix old AI slop images...');
+    try {
+        const botUser = await User.findOne({ email: { $in: ['ainews@newscomplex.in', 'ainews@blogify.com'] } });
+        if (!botUser) return;
+        
+        // Find one blog by the bot that hasn't been fixed yet
+        const blogToFix = await Blog.findOne({ 
+            createdBy: botUser._id, 
+            aiImageFixed: { $ne: true } 
+        }).sort({ createdAt: -1 });
+
+        if (blogToFix) {
+            console.log(`[aiImageFixer] Found blog to fix: "${blogToFix.title}"`);
+            const coverData = await generateAndUploadImage(blogToFix.title);
+            if (coverData && coverData.coverImageURL) {
+                if (blogToFix.coverImagePublicId) {
+                    await deleteCloudinary(blogToFix.coverImagePublicId).catch(() => {});
+                }
+                
+                blogToFix.coverImageURL = coverData.coverImageURL;
+                blogToFix.coverImagePublicId = coverData.coverImagePublicId;
+                blogToFix.aiImageFixed = true;
+                await blogToFix.save();
+                console.log(`[aiImageFixer] Successfully replaced image for: "${blogToFix.title}"`);
+            }
+        } else {
+            console.log('[aiImageFixer] No more AI slop images to fix!');
+        }
+    } catch (err) {
+        console.error('[aiImageFixer] Error:', err);
+    }
+}
