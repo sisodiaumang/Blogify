@@ -236,6 +236,7 @@ async function runNewsAutomation({ hoursWindow = 4, maxArticles = 25, mode = 'al
 module.exports = { runNewsAutomation, fixOldAiImage };
 
 const { deleteCloudinary } = require('./cloudinary');
+const cloudinary = require("cloudinary").v2;
 
 async function fixOldAiImage() {
     console.log('[aiImageFixer] Running background job to fix old AI slop images...');
@@ -243,26 +244,41 @@ async function fixOldAiImage() {
         const botUser = await User.findOne({ email: { $in: ['ainews@newscomplex.in', 'ainews@blogify.com'] } });
         if (!botUser) return;
         
-        // Find one blog by the bot that hasn't been fixed yet
         const blogToFix = await Blog.findOne({ 
             createdBy: botUser._id, 
             aiImageFixed: { $ne: true } 
         }).sort({ createdAt: -1 });
 
         if (blogToFix) {
-            console.log(`[aiImageFixer] Found blog to fix: "${blogToFix.title}"`);
-            const coverData = await generateAndUploadImage(blogToFix.title);
-            if (coverData && coverData.coverImageURL) {
-                if (blogToFix.coverImagePublicId) {
-                    await deleteCloudinary(blogToFix.coverImagePublicId).catch(() => {});
+            console.log(`[aiImageFixer] Inspecting blog: "${blogToFix.title}"`);
+            
+            let isAiSlop = false;
+            if (blogToFix.coverImagePublicId) {
+                const resource = await cloudinary.api.resource(blogToFix.coverImagePublicId).catch(() => null);
+                if (resource && resource.width === 1200 && resource.height === 630) {
+                    isAiSlop = true;
                 }
-                
-                blogToFix.coverImageURL = coverData.coverImageURL;
-                blogToFix.coverImagePublicId = coverData.coverImagePublicId;
-                blogToFix.aiImageFixed = true;
-                await blogToFix.save();
-                console.log(`[aiImageFixer] Successfully replaced image for: "${blogToFix.title}"`);
             }
+
+            if (isAiSlop) {
+                console.log(`[aiImageFixer] Identified 1200x630 AI slop. Regenerating...`);
+                const coverData = await generateAndUploadImage(blogToFix.title);
+                if (coverData && coverData.coverImageURL) {
+                    if (blogToFix.coverImagePublicId) {
+                        await deleteCloudinary(blogToFix.coverImagePublicId).catch(() => {});
+                    }
+                    blogToFix.coverImageURL = coverData.coverImageURL;
+                    blogToFix.coverImagePublicId = coverData.coverImagePublicId;
+                }
+            } else {
+                console.log(`[aiImageFixer] Image is likely a stock photo (not 1200x630). Keeping original.`);
+            }
+
+            // Mark as processed whether it was replaced or kept
+            blogToFix.aiImageFixed = true;
+            await blogToFix.save();
+            console.log(`[aiImageFixer] Successfully processed: "${blogToFix.title}"`);
+            
         } else {
             console.log('[aiImageFixer] No more AI slop images to fix!');
         }
