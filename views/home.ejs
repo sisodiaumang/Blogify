@@ -477,7 +477,7 @@
 
     <% 
         const currentCategory = locals.category || locals.selectedCategory || '';
-        const currentSort = locals.sort || locals.selectedSort || 'newest';
+        const currentSort = locals.sort || locals.selectedSort || 'trending';
         const currentSearch = locals.search || '';
         
         const categories = [
@@ -524,7 +524,7 @@
                     <% if (currentCategory) { %>
                         <input type="hidden" name="category" value="<%= currentCategory %>">
                     <% } %>
-                    <% if (currentSort && currentSort !== 'newest') { %>
+                    <% if (currentSort && currentSort !== 'trending') { %>
                         <input type="hidden" name="sort" value="<%= currentSort %>">
                     <% } %>
                     <input 
@@ -554,7 +554,7 @@
                     <% 
                         const isActive = (!currentCategory && cat.id === '') || 
                                          (currentCategory && cat.id && currentCategory.toLowerCase() === cat.id.toLowerCase());
-                        const catUrl = `/?category=${encodeURIComponent(cat.id)}${currentSort && currentSort !== 'newest' ? '&sort=' + encodeURIComponent(currentSort) : ''}${currentSearch ? '&search=' + encodeURIComponent(currentSearch) : ''}`;
+                        const catUrl = `/?category=${encodeURIComponent(cat.id)}${currentSort && currentSort !== 'trending' ? '&sort=' + encodeURIComponent(currentSort) : ''}${currentSearch ? '&search=' + encodeURIComponent(currentSearch) : ''}`;
                     %>
                     <a href="<%= catUrl %>" class="category-pill <%= isActive ? 'active' : '' %>" role="tab" aria-selected="<%= isActive %>">
                         <%= cat.label %>
@@ -565,8 +565,8 @@
             <div class="sort-select-wrapper">
                 <label for="sortSelect">Sort by:</label>
                 <select id="sortSelect" class="sort-select" onchange="changeSort(this.value)">
+                    <option value="trending" <%= currentSort === 'trending' ? 'selected' : '' %>>Trending / For You</option>
                     <option value="newest" <%= currentSort === 'newest' ? 'selected' : '' %>>Newest</option>
-                    <option value="trending" <%= currentSort === 'trending' ? 'selected' : '' %>>Trending</option>
                     <option value="views" <%= currentSort === 'views' ? 'selected' : '' %>>Most Viewed</option>
                     <option value="likes" <%= currentSort === 'likes' ? 'selected' : '' %>>Most Liked</option>
                 </select>

@@ -44,6 +44,7 @@ const compression = require("compression");
 const { globalLimiter } = require("./middleware/rateLimiter");
 const { getOptimizedImageUrl } = require("./services/imageOptimizer");
 const cacheService = require("./services/cacheService");
+const { fetchFeedBlogs } = require("./services/feedAlgo");
 
 app.use(compression());
 app.use(globalLimiter);
@@ -138,7 +139,7 @@ app.get('/', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const search = (req.query.search || '').trim();
     const category = (req.query.category || '').trim();
-    const sort = (req.query.sort || 'newest').trim().toLowerCase();
+    const sort = (req.query.sort || 'trending').trim().toLowerCase();
 
     const queryConditions = [];
     if (search) {
@@ -151,13 +152,6 @@ app.get('/', async (req, res) => {
 
     const query = queryConditions.length > 0 ? { $and: queryConditions } : {};
 
-    let sortOption = { createdAt: -1 };
-    if (sort === 'trending' || sort === 'views') {
-        sortOption = { views: -1, createdAt: -1 };
-    } else if (sort === 'likes') {
-        sortOption = { likes: -1, createdAt: -1 };
-    }
-
     try {
         const cacheKey = `home:page:${page}:cat:${category.toLowerCase()}:sort:${sort}:s:${search.toLowerCase()}`;
         
@@ -165,13 +159,7 @@ app.get('/', async (req, res) => {
             const totalBlogs = await Blog.countDocuments(query);
             const totalPages = Math.ceil(totalBlogs / limit);
             
-            const blogs = await Blog.find(query)
-                .select('title slug coverImageURL category readTimeMinutes views likes createdAt createdBy')
-                .populate('createdBy', 'fullName profileImageURL')
-                .sort(sortOption)
-                .skip((page - 1) * limit)
-                .limit(limit)
-                .lean();
+            const blogs = await fetchFeedBlogs(query, sort, page, limit);
 
             return { blogs, totalPages, totalBlogs };
         });
@@ -199,7 +187,7 @@ app.get('/api/feed', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const search = (req.query.search || '').trim();
     const category = (req.query.category || '').trim();
-    const sort = (req.query.sort || 'newest').trim().toLowerCase();
+    const sort = (req.query.sort || 'trending').trim().toLowerCase();
 
     const queryConditions = [];
     if (search) {
@@ -212,24 +200,11 @@ app.get('/api/feed', async (req, res) => {
 
     const query = queryConditions.length > 0 ? { $and: queryConditions } : {};
 
-    let sortOption = { createdAt: -1 };
-    if (sort === 'trending' || sort === 'views') {
-        sortOption = { views: -1, createdAt: -1 };
-    } else if (sort === 'likes') {
-        sortOption = { likes: -1, createdAt: -1 };
-    }
-
     try {
         const totalBlogs = await Blog.countDocuments(query);
         const totalPages = Math.ceil(totalBlogs / limit);
         
-        const blogs = await Blog.find(query)
-            .select('title slug coverImageURL category readTimeMinutes views likes createdAt createdBy')
-            .populate('createdBy', 'fullName profileImageURL')
-            .sort(sortOption)
-            .skip((page - 1) * limit)
-            .limit(limit)
-            .lean();
+        const blogs = await fetchFeedBlogs(query, sort, page, limit);
 
         // Attach optimized thumbnail URLs
         const transformedBlogs = blogs.map(b => ({
