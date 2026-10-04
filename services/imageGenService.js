@@ -13,11 +13,15 @@ async function generateAndUploadImage(prompt) {
         
         let cleanPrompt = prompt.replace(/[^\w\s,.-]/gi, ' ').trim();
         
-        // Append clean photojournalistic/editorial quality modifiers
-        const fullPrompt = `${cleanPrompt}, high quality editorial photojournalism, vivid lighting, sharp focus, clean composition, 8k, photorealistic, no text, no watermark`;
+        // AI Verification Step 1: Pre-generation Prompt Enhancement for perfect anatomy
+        const fullPrompt = `${cleanPrompt}, award-winning photojournalism, ultra-realistic, perfect human anatomy, exactly 5 fingers per hand, normal proportions, 8k resolution, no text`;
+
+        // AI Verification Step 2: Strict Negative Constraints
+        const negativePrompt = "mutated, deformed, three arms, extra limbs, bad anatomy, missing fingers, floating limbs, watermark, text, signature, logo, ugly, poorly drawn";
 
         const seed = Math.floor(Math.random() * 1000000);
-        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt.slice(0, 380))}?width=1200&height=630&model=flux&nologo=true&seed=${seed}`;
+        // Using 'realism' model for better humans, and adding negative_prompt
+        const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(fullPrompt.slice(0, 380))}?width=1200&height=630&model=realism&nologo=true&negative_prompt=${encodeURIComponent(negativePrompt)}&seed=${seed}`;
 
         const response = await axios.get(imageUrl, {
             responseType: 'arraybuffer',
