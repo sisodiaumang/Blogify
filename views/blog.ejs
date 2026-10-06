@@ -3,10 +3,10 @@
 
 <head>
     <%- include('./partials/head')%>
-    <title><%= blog.title %> | NewsComplex</title>
+    <title><%= blog.title.length > 55 ? blog.title : blog.title + ' | NewsComplex' %></title>
     
-    <!-- Primary SEO Metadata -->
-    <meta name="description" content="<%= locals.seoExcerpt || 'Read the full article and discussion on NewsComplex.' %>">
+    <!-- Primary SEO Metadata for CTR Optimization -->
+    <meta name="description" content="[<%= blog.readTimeMinutes || 3 %> Min Read] <%= locals.seoExcerpt || 'Read the full article and discussion on NewsComplex.' %>">
     <meta name="keywords" content="<%= (blog.tags && blog.tags.length > 0) ? blog.tags.join(', ') : (blog.category || 'News, Analysis, Opinion, Editorial') %>">
     <meta name="author" content="<%= blog.createdBy?.fullName || 'NewsComplex Editorial' %>">
     <link rel="canonical" href="<%= locals.canonicalUrl || ('https://newscomplex.in/blog/' + blog._id) %>">
@@ -79,9 +79,9 @@
         "url": "https://newscomplex.in",
         "logo": {
           "@type": "ImageObject",
-          "url": "https://newscomplex.in/favicon-32x32.png",
-          "width": 32,
-          "height": 32
+          "url": "https://newscomplex.in/android-chrome-512x512.png",
+          "width": 512,
+          "height": 512
         }
       },
       "articleSection": "<%= blog.category || 'Editorial' %>"
