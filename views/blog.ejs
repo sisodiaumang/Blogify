@@ -1159,8 +1159,6 @@
 
         // Premium Text to Speech Functionality
         let speechUtterance = null;
-        let isPlayingAudio = false;
-        let isPaused = false;
         let availableVoices = [];
 
         function populateVoiceList() {
@@ -1168,7 +1166,6 @@
             const voiceSelect = document.getElementById('voice-select');
             if (!voiceSelect || availableVoices.length === 0) return;
             
-            // Filter to english only voices to keep it clean
             const engVoices = availableVoices.filter(v => v.lang.startsWith('en'));
             const voicesToUse = engVoices.length > 0 ? engVoices : availableVoices;
             
@@ -1177,29 +1174,22 @@
                 const option = document.createElement('option');
                 option.textContent = voice.name.replace(/Google |Microsoft |Apple /g, '') + (voice.lang.includes('GB') ? ' (UK)' : '');
                 option.value = voice.name;
-                
-                // Select a premium or high quality voice by default
                 if (voice.name.includes('Premium') || voice.name.includes('Natural')) {
                     option.selected = true;
                 }
-                
                 voiceSelect.appendChild(option);
             });
         }
 
         function changeVoice() {
-            if (isPlayingAudio) {
+            if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
-                isPlayingAudio = false;
-                isPaused = false;
                 toggleAudio();
             }
         }
         function changeSpeed() {
-            if (isPlayingAudio) {
+            if (window.speechSynthesis.speaking) {
                 window.speechSynthesis.cancel();
-                isPlayingAudio = false;
-                isPaused = false;
                 toggleAudio();
             }
         }
@@ -1213,17 +1203,16 @@
             const icon = document.getElementById('tts-icon');
             const statusText = document.getElementById('tts-status');
             
-            if (isPlayingAudio) {
-                if (!isPaused) {
-                    window.speechSynthesis.pause();
-                    isPaused = true;
-                    icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
-                    statusText.textContent = 'Paused';
-                } else {
+            // Native state checking is much more reliable than custom booleans
+            if (window.speechSynthesis.speaking) {
+                if (window.speechSynthesis.paused) {
                     window.speechSynthesis.resume();
-                    isPaused = false;
                     icon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
                     statusText.textContent = 'Playing...';
+                } else {
+                    window.speechSynthesis.pause();
+                    icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+                    statusText.textContent = 'Paused';
                 }
                 return;
             }
@@ -1248,22 +1237,18 @@
             }
             
             speechUtterance.onend = function() {
-                isPlayingAudio = false;
-                isPaused = false;
                 icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
                 statusText.textContent = 'Finished reading';
             };
             
-            speechUtterance.onerror = function() {
-                isPlayingAudio = false;
-                isPaused = false;
+            speechUtterance.onerror = function(e) {
+                // Ignore interruption errors when canceling
+                if (e.error === 'interrupted') return;
                 icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
                 statusText.textContent = 'Playback error';
             };
             
             window.speechSynthesis.speak(speechUtterance);
-            isPlayingAudio = true;
-            isPaused = false;
             
             icon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
             statusText.textContent = 'Playing...';
