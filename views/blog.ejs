@@ -755,12 +755,29 @@
 
                 <h1 class="blog-title"><%= blog.title %></h1>
 
-                <!-- Text-to-Speech Audio Player -->
-                <div class="audio-player-container" style="margin-bottom: 25px;">
-                    <button id="tts-btn" onclick="toggleAudio()" style="display: inline-flex; align-items: center; gap: 8px; background: var(--surface-raised); color: var(--ink); border: 1px solid var(--border); border-radius: 30px; padding: 10px 20px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s ease;">
-                        <svg id="tts-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-                        <span id="tts-text">Listen to Article</span>
-                    </button>
+                <!-- Premium Text-to-Speech Audio Player -->
+                <div class="audio-player-container" style="margin-bottom: 30px; padding: 18px 20px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 16px; box-shadow: 0 6px 16px rgba(0,0,0,0.04);">
+                    <div style="display: flex; align-items: center; gap: 14px;">
+                        <button id="tts-btn" onclick="toggleAudio()" style="display: flex; justify-content: center; align-items: center; width: 48px; height: 48px; border-radius: 50%; background: var(--ink); color: var(--bg); border: none; cursor: pointer; transition: transform 0.2s; flex-shrink: 0;" title="Play / Pause">
+                            <svg id="tts-icon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                        </button>
+                        <div>
+                            <div style="font-weight: 700; font-size: 1.05rem; color: var(--ink); line-height: 1.2;">Listen to Article</div>
+                            <div id="tts-status" style="font-size: 0.85rem; color: var(--muted); margin-top: 4px;">Select a voice and press play</div>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <select id="voice-select" onchange="changeVoice()" style="padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface-raised); color: var(--ink); font-size: 0.85rem; font-family: inherit; font-weight: 500; outline: none; cursor: pointer; max-width: 170px; text-overflow: ellipsis; white-space: nowrap;">
+                            <option value="">Loading voices...</option>
+                        </select>
+                        <select id="speed-select" onchange="changeSpeed()" style="padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--surface-raised); color: var(--ink); font-size: 0.85rem; font-family: inherit; font-weight: 500; outline: none; cursor: pointer;">
+                            <option value="0.85">0.85x</option>
+                            <option value="0.95" selected>1x</option>
+                            <option value="1.2">1.2x</option>
+                            <option value="1.5">1.5x</option>
+                        </select>
+                    </div>
                 </div>
             </header>
 
@@ -1140,9 +1157,52 @@
             }
         }
 
-        // Text to Speech Functionality
+        // Premium Text to Speech Functionality
         let speechUtterance = null;
         let isPlayingAudio = false;
+        let isPaused = false;
+        let availableVoices = [];
+
+        function populateVoiceList() {
+            availableVoices = window.speechSynthesis.getVoices();
+            const voiceSelect = document.getElementById('voice-select');
+            if (!voiceSelect || availableVoices.length === 0) return;
+            
+            // Filter to english only voices to keep it clean
+            const engVoices = availableVoices.filter(v => v.lang.startsWith('en'));
+            const voicesToUse = engVoices.length > 0 ? engVoices : availableVoices;
+            
+            voiceSelect.innerHTML = '';
+            voicesToUse.forEach((voice) => {
+                const option = document.createElement('option');
+                option.textContent = voice.name.replace(/Google |Microsoft |Apple /g, '') + (voice.lang.includes('GB') ? ' (UK)' : '');
+                option.value = voice.name;
+                
+                // Select a premium or high quality voice by default
+                if (voice.name.includes('Premium') || voice.name.includes('Natural')) {
+                    option.selected = true;
+                }
+                
+                voiceSelect.appendChild(option);
+            });
+        }
+
+        function changeVoice() {
+            if (isPlayingAudio) {
+                window.speechSynthesis.cancel();
+                isPlayingAudio = false;
+                isPaused = false;
+                toggleAudio();
+            }
+        }
+        function changeSpeed() {
+            if (isPlayingAudio) {
+                window.speechSynthesis.cancel();
+                isPlayingAudio = false;
+                isPaused = false;
+                toggleAudio();
+            }
+        }
 
         function toggleAudio() {
             if (!window.speechSynthesis) {
@@ -1150,14 +1210,24 @@
                 return;
             }
             
+            const icon = document.getElementById('tts-icon');
+            const statusText = document.getElementById('tts-status');
+            
             if (isPlayingAudio) {
-                window.speechSynthesis.cancel();
-                isPlayingAudio = false;
-                document.getElementById('tts-text').textContent = 'Listen to Article';
+                if (!isPaused) {
+                    window.speechSynthesis.pause();
+                    isPaused = true;
+                    icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+                    statusText.textContent = 'Paused';
+                } else {
+                    window.speechSynthesis.resume();
+                    isPaused = false;
+                    icon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+                    statusText.textContent = 'Playing...';
+                }
                 return;
             }
             
-            // Cancel any previous hanging speech
             window.speechSynthesis.cancel();
             
             const articleTitle = "<%= blog.title.replace(/"/g, '\\"') %>";
@@ -1167,33 +1237,43 @@
             const fullText = articleTitle + "... \n\n" + articleBody;
             
             speechUtterance = new SpeechSynthesisUtterance(fullText);
-            speechUtterance.rate = 0.95; // Slightly slower for better news pacing
             
-            // Try to find a premium English voice
-            const voices = window.speechSynthesis.getVoices();
-            const engVoice = voices.find(v => v.lang.startsWith('en-') && (v.name.includes('Google') || v.name.includes('Premium'))) || voices.find(v => v.lang.startsWith('en-'));
-            if(engVoice) speechUtterance.voice = engVoice;
+            const speedSelect = document.getElementById('speed-select');
+            speechUtterance.rate = speedSelect ? parseFloat(speedSelect.value) : 0.95; 
+            
+            const voiceSelect = document.getElementById('voice-select');
+            if (voiceSelect && voiceSelect.value) {
+                const selectedVoice = availableVoices.find(v => v.name === voiceSelect.value);
+                if (selectedVoice) speechUtterance.voice = selectedVoice;
+            }
             
             speechUtterance.onend = function() {
                 isPlayingAudio = false;
-                document.getElementById('tts-text').textContent = 'Listen to Article';
+                isPaused = false;
+                icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+                statusText.textContent = 'Finished reading';
             };
             
             speechUtterance.onerror = function() {
                 isPlayingAudio = false;
-                document.getElementById('tts-text').textContent = 'Listen to Article';
+                isPaused = false;
+                icon.innerHTML = '<polygon points="5 3 19 12 5 21 5 3"></polygon>';
+                statusText.textContent = 'Playback error';
             };
             
             window.speechSynthesis.speak(speechUtterance);
             isPlayingAudio = true;
-            document.getElementById('tts-text').textContent = 'Stop Listening';
+            isPaused = false;
+            
+            icon.innerHTML = '<rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect>';
+            statusText.textContent = 'Playing...';
         }
 
-        // Preload voices to fix Chrome caching bug
-        if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
-            window.speechSynthesis.onvoiceschanged = function() {
-                window.speechSynthesis.getVoices();
-            };
+        if (window.speechSynthesis) {
+            if (window.speechSynthesis.onvoiceschanged !== undefined) {
+                window.speechSynthesis.onvoiceschanged = populateVoiceList;
+            }
+            setTimeout(populateVoiceList, 200);
         }
 
         let currentReaderFontSize = 20;
