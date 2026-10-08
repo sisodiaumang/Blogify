@@ -754,6 +754,14 @@
                 </div>
 
                 <h1 class="blog-title"><%= blog.title %></h1>
+
+                <!-- Text-to-Speech Audio Player -->
+                <div class="audio-player-container" style="margin-bottom: 25px;">
+                    <button id="tts-btn" onclick="toggleAudio()" style="display: inline-flex; align-items: center; gap: 8px; background: var(--surface-raised); color: var(--ink); border: 1px solid var(--border); border-radius: 30px; padding: 10px 20px; font-weight: 600; font-size: 0.95rem; cursor: pointer; transition: all 0.2s ease;">
+                        <svg id="tts-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                        <span id="tts-text">Listen to Article</span>
+                    </button>
+                </div>
             </header>
 
             <% if (blog.coverImageURL) { %>
@@ -1130,6 +1138,62 @@
                 btn.innerHTML = 'Copied!';
                 setTimeout(() => btn.innerHTML = orig, 2000);
             }
+        }
+
+        // Text to Speech Functionality
+        let speechUtterance = null;
+        let isPlayingAudio = false;
+
+        function toggleAudio() {
+            if (!window.speechSynthesis) {
+                alert("Your browser does not support text-to-speech features.");
+                return;
+            }
+            
+            if (isPlayingAudio) {
+                window.speechSynthesis.cancel();
+                isPlayingAudio = false;
+                document.getElementById('tts-text').textContent = 'Listen to Article';
+                return;
+            }
+            
+            // Cancel any previous hanging speech
+            window.speechSynthesis.cancel();
+            
+            const articleTitle = "<%= blog.title.replace(/"/g, '\\"') %>";
+            const articleBodyElem = document.getElementById('blog-body-content');
+            const articleBody = articleBodyElem ? (articleBodyElem.innerText || articleBodyElem.textContent) : "";
+            
+            const fullText = articleTitle + "... \n\n" + articleBody;
+            
+            speechUtterance = new SpeechSynthesisUtterance(fullText);
+            speechUtterance.rate = 0.95; // Slightly slower for better news pacing
+            
+            // Try to find a premium English voice
+            const voices = window.speechSynthesis.getVoices();
+            const engVoice = voices.find(v => v.lang.startsWith('en-') && (v.name.includes('Google') || v.name.includes('Premium'))) || voices.find(v => v.lang.startsWith('en-'));
+            if(engVoice) speechUtterance.voice = engVoice;
+            
+            speechUtterance.onend = function() {
+                isPlayingAudio = false;
+                document.getElementById('tts-text').textContent = 'Listen to Article';
+            };
+            
+            speechUtterance.onerror = function() {
+                isPlayingAudio = false;
+                document.getElementById('tts-text').textContent = 'Listen to Article';
+            };
+            
+            window.speechSynthesis.speak(speechUtterance);
+            isPlayingAudio = true;
+            document.getElementById('tts-text').textContent = 'Stop Listening';
+        }
+
+        // Preload voices to fix Chrome caching bug
+        if (window.speechSynthesis && window.speechSynthesis.onvoiceschanged !== undefined) {
+            window.speechSynthesis.onvoiceschanged = function() {
+                window.speechSynthesis.getVoices();
+            };
         }
 
         let currentReaderFontSize = 20;
