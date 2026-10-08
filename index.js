@@ -73,63 +73,63 @@ function buildCategoryQuery(category) {
     if (cat === 'google trends' || cat === 'trends' || cat.includes('trend')) {
         return {
             $or: [
-                { category: { $regex: /trend/i } },
-                { tags: { $regex: /trend|viral/i } },
-                { title: { $regex: /\b(trend|trending|viral|surges|buzz|fame)\b/i } }
+                { category: { $regex: 'trend', $options: 'i' } },
+                { tags: { $regex: 'trend|viral', $options: 'i' } },
+                { title: { $regex: '\\b(trend|trending|viral|surges|buzz|fame)\\b', $options: 'i' } }
             ]
         };
     }
     if (cat === 'technology' || cat === 'tech & ai' || cat === 'tech' || cat.includes('tech') || cat.includes('ai')) {
         return {
             $or: [
-                { category: { $regex: /tech|ai|artificial intelligence|software|hardware|computing/i } },
-                { tags: { $regex: /tech|technology|ai|artificial intelligence|machine learning|software|apple|google|nvidia|microsoft|meta|openai|chatgpt|robot|crypto|cyber|cloud|developer|coding|quantum|chip|semiconductor|deepseek|claude|gemini|llm/i } },
-                { title: { $regex: /\b(tech|technology|ai|artificial intelligence|robotics|robot|openai|chatgpt|nvidia|apple|google|microsoft|meta|software|hardware|algorithm|quantum|chip|chips|semiconductor|cyber|hacker|startup|android|ios|deepseek|claude|gemini|llm|coding|developer)\b/i } }
+                { category: { $regex: 'tech|ai|artificial intelligence|software|hardware|computing', $options: 'i' } },
+                { tags: { $regex: 'tech|technology|ai|artificial intelligence|machine learning|software|apple|google|nvidia|microsoft|meta|openai|chatgpt|robot|crypto|cyber|cloud|developer|coding|quantum|chip|semiconductor|deepseek|claude|gemini|llm', $options: 'i' } },
+                { title: { $regex: '\\b(tech|technology|ai|artificial intelligence|robotics|robot|openai|chatgpt|nvidia|apple|google|microsoft|meta|software|hardware|algorithm|quantum|chip|chips|semiconductor|cyber|hacker|startup|android|ios|deepseek|claude|gemini|llm|coding|developer)\\b', $options: 'i' } }
             ]
         };
     }
     if (cat === 'geopolitics' || cat === 'world' || cat.includes('geopolitic') || cat.includes('world')) {
         return {
             $or: [
-                { category: { $regex: /geopolitic|world|international|foreign|diplomacy/i } },
-                { tags: { $regex: /geopolitic|world|war|defense|diplomacy|un|nato|china|russia|ukraine|israel|iran|palestine|taiwan|putin|biden|trump|modi|military|border/i } },
-                { title: { $regex: /\b(geopolitics|world|war|defense|diplomacy|nato|un|china|russia|ukraine|israel|iran|palestine|taiwan|putin|biden|trump|modi|treaty|military|missile|conflict|border|bilateral|foreign|sanctions)\b/i } }
+                { category: { $regex: 'geopolitic|world|international|foreign|diplomacy', $options: 'i' } },
+                { tags: { $regex: 'geopolitic|world|war|defense|diplomacy|un|nato|china|russia|ukraine|israel|iran|palestine|taiwan|putin|biden|trump|modi|military|border', $options: 'i' } },
+                { title: { $regex: '\\b(geopolitics|world|war|defense|diplomacy|nato|un|china|russia|ukraine|israel|iran|palestine|taiwan|putin|biden|trump|modi|treaty|military|missile|conflict|border|bilateral|foreign|sanctions)\\b', $options: 'i' } }
             ]
         };
     }
     if (cat === 'economy' || cat === 'markets' || cat.includes('econom') || cat.includes('market')) {
         return {
             $or: [
-                { category: { $regex: /econom|market|business|finance/i } },
-                { tags: { $regex: /econom|market|stock|inflation|gdp|recession|fed|rbi|banking|bank|finance|trade|invest|crypto|bitcoin|revenue|tax/i } },
-                { title: { $regex: /\b(economy|economic|market|markets|stock|stocks|sensex|nifty|wall street|inflation|gdp|recession|fed|federal reserve|rbi|interest rate|banking|bank|finance|financial|trade|tariffs|invest|investors|crypto|bitcoin|revenue|debt|tax)\b/i } }
+                { category: { $regex: 'econom|market|business|finance', $options: 'i' } },
+                { tags: { $regex: 'econom|market|stock|inflation|gdp|recession|fed|rbi|banking|bank|finance|trade|invest|crypto|bitcoin|revenue|tax', $options: 'i' } },
+                { title: { $regex: '\\b(economy|economic|market|markets|stock|stocks|sensex|nifty|wall street|inflation|gdp|recession|fed|federal reserve|rbi|interest rate|banking|bank|finance|financial|trade|tariffs|invest|investors|crypto|bitcoin|revenue|debt|tax)\\b', $options: 'i' } }
             ]
         };
     }
     if (cat === 'breaking news' || cat === 'breaking' || cat.includes('break') || cat.includes('top stor')) {
         return {
             $or: [
-                { category: { $regex: /break|top stor|news/i } },
-                { tags: { $regex: /break|urgent|alert|top stories|live/i } },
-                { title: { $regex: /\b(breaking|alert|live|urgent|crash|disaster|emergency|verdict|dead|killed|rescued|earthquake|storm|curfew|attack)\b/i } }
+                { category: { $regex: 'break|top stor|news', $options: 'i' } },
+                { tags: { $regex: 'break|urgent|alert|top stories|live', $options: 'i' } },
+                { title: { $regex: '\\b(breaking|alert|live|urgent|crash|disaster|emergency|verdict|dead|killed|rescued|earthquake|storm|curfew|attack)\\b', $options: 'i' } }
             ]
         };
     }
     if (cat === 'editorial' || cat === 'opinion' || cat.includes('editorial') || cat.includes('opinion')) {
         return {
             $or: [
-                { category: { $regex: /editorial|opinion|essay|column|analysis/i } },
-                { tags: { $regex: /editorial|opinion|essay|perspective|analysis|thought/i } },
-                { title: { $regex: /\b(opinion|editorial|essay|perspective|viewpoint|column|analysis|why|how|reflections)\b/i } }
+                { category: { $regex: 'editorial|opinion|essay|column|analysis', $options: 'i' } },
+                { tags: { $regex: 'editorial|opinion|essay|perspective|analysis|thought', $options: 'i' } },
+                { title: { $regex: '\\b(opinion|editorial|essay|perspective|viewpoint|column|analysis|why|how|reflections)\\b', $options: 'i' } }
             ]
         };
     }
     const escaped = category.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     return {
         $or: [
-            { category: { $regex: new RegExp(escaped, 'i') } },
-            { tags: { $regex: new RegExp(escaped, 'i') } },
-            { title: { $regex: new RegExp(escaped, 'i') } }
+            { category: { $regex: escaped, $options: 'i' } },
+            { tags: { $regex: escaped, $options: 'i' } },
+            { title: { $regex: escaped, $options: 'i' } }
         ]
     };
 }
