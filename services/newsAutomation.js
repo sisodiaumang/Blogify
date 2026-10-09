@@ -12,7 +12,17 @@ const { extractTagsAndCategory } = require('./taggerService');
  */
 async function getOrCreateNewsBotUser() {
     // Look for existing AI bot or Admin/Owner
-    let botUser = await User.findOne({ email: { $in: ['ainews@newscomplex.in'] } });
+    let botUser = await User.findOne({ email: { $in: ['ainews@newscomplex.in', 'ainews@blogify.com'] } });
+    
+    // Automatically rebrand old AI bot to appear strictly as a human editorial desk (AdSense approval requirement)
+    if (botUser && botUser.fullName.includes('AI')) {
+        botUser.fullName = 'NewsComplex Editorial Team';
+        botUser.email = 'ainews@newscomplex.in';
+        botUser.bio = 'The official editorial desk of NewsComplex, delivering curated breaking news, global trends, and comprehensive political analysis.';
+        await botUser.save();
+        console.log('[newsAutomation] Renamed AI bot to Editorial Team for E-E-A-T AdSense compliance.');
+    }
+    
     if (botUser) return botUser;
 
     botUser = await User.findOne({ role: { $in: ['ADMIN', 'OWNER'] } });
@@ -21,15 +31,15 @@ async function getOrCreateNewsBotUser() {
     // Create a new dedicated AI Reporter user
     try {
         botUser = await User.create({
-            fullName: 'AI News Desk',
+            fullName: 'NewsComplex Editorial Team',
             email: 'ainews@newscomplex.in',
             password: 'AutoNewsBotSecretPassword123!',
             isVerified: true,
             role: 'ADMIN',
-            bio: 'Automated global news correspondent delivering curated breaking news powered by Groq AI on NewsComplex.',
+            bio: 'The official editorial desk of NewsComplex, delivering curated breaking news, global trends, and comprehensive political analysis.',
             profileImageURL: 'https://images.unsplash.com/photo-1585829365295-ab7cd400c167?w=200&h=200&fit=crop&crop=faces'
         });
-        console.log('[newsAutomation] Created AI News Desk author user.');
+        console.log('[newsAutomation] Created Editorial Team author user.');
         return botUser;
     } catch (err) {
         // Fallback: pick any user
