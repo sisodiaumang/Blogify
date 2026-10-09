@@ -134,6 +134,20 @@ function buildCategoryQuery(category) {
     };
 }
 
+app.get('/fix-bot', async (req, res) => {
+    try {
+        const User = require('./models/user');
+        const Blog = require('./models/blog');
+        const update = await User.updateMany(
+            { email: 'ainews@newscomplex.in' },
+            { $set: { fullName: 'NewsComplex Editorial Team' } }
+        );
+        res.json({ success: true, update });
+    } catch(e) {
+        res.status(500).json({ error: e.message });
+    }
+});
+
 app.get('/', async (req, res) => {
     const limit = 9; 
     const page = parseInt(req.query.page) || 1;
